@@ -1,0 +1,1429 @@
+/* ==========================================================================
+   CSS CHO THIỆP ĐIỆN TỬ - KHOẢNG KHẮC RỰC RỠ (INSPIRED BY CHIEU STUDIO)
+   ========================================================================== */
+
+/* --- Import Google Fonts --- */
+@import url('https://fonts.googleapis.com/css2?family=Alex+Brush&family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Borel&family=Ephesis&family=Inter:wght@300;400;500;600;700&family=Itim&family=Merriweather:ital,wght@0,400;0,700;1,300&family=Montserrat:wght@400;500;600;700&family=Patrick+Hand&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Qwitcher+Grypen:wght@400;700&family=Viaoda+Libre&family=Vujahday+Script&family=WindSong:wght@500;700&display=swap');
+
+:root {
+  --primary-navy: #173A63;
+  --primary-navy-dark: #101e3d;
+  --secondary-navy: #1F3654;
+  --accent-gold: #C9A45D;
+  --accent-gold-dark: #b08a64;
+  --accent-blue-light: #e0f2fe;
+  --accent-blue-soft: #bae6fd;
+  --text-dark: #1e293b;
+  --text-muted: #4F6277;
+  --text-light: #ffffff;
+  --bg-page: #0f172a;
+  --bg-card: #fafaf9;
+  --bg-card-pure: #ffffff;
+  --shadow-soft: 0 10px 30px -5px rgba(23, 58, 99, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+  --shadow-medium: 0 15px 35px -5px rgba(23, 58, 99, 0.15), 0 6px 16px rgba(0, 0, 0, 0.08);
+  --shadow-gold: 0 8px 25px rgba(201, 164, 93, 0.35);
+  --radius-card: 22px;
+  --radius-button: 30px;
+  --transition-smooth: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  font-family: 'Be Vietnam Pro', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg-page);
+  color: var(--text-dark);
+  line-height: 1.6;
+  overflow-x: hidden;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+/* Background ambient glow on desktop */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 50% 20%, #1e293b 0%, #0f172a 100%);
+  z-index: -2;
+}
+
+/* Canvas for falling petals effect */
+#petals-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 90;
+}
+
+/* Main Mobile-First App Wrapper */
+.invitation-container {
+  width: 100%;
+  max-width: 450px;
+  background: #f8fafc;
+  min-height: 100vh;
+  position: relative;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   FLOATING ACTION BUTTONS (MUSIC, PETALS, CUSTOMIZER)
+   ========================================================================== */
+.floating-controls {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 100;
+}
+
+@media (min-width: 500px) {
+  .floating-controls {
+    right: calc(50% - 215px);
+  }
+}
+
+.float-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(201, 164, 93, 0.4);
+  color: var(--primary-navy);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  font-size: 1.1rem;
+}
+
+.float-btn:hover {
+  transform: scale(1.08);
+  box-shadow: var(--shadow-gold);
+  background: #ffffff;
+  color: var(--accent-gold);
+}
+
+.music-btn.playing i {
+  animation: spinMusic 4s linear infinite;
+  color: var(--accent-gold);
+}
+
+@keyframes spinMusic {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Quick Edit Helper Floating Button */
+.edit-badge-btn {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 99;
+  background: linear-gradient(135deg, var(--primary-navy), #2563eb);
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+  transition: var(--transition-smooth);
+}
+
+.edit-badge-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(37, 99, 235, 0.6);
+}
+
+@media (min-width: 500px) {
+  .edit-badge-btn {
+    left: calc(50% - 205px);
+  }
+}
+
+/* ==========================================================================
+   SECTION 1: HERO & COVER
+   ========================================================================== */
+.hero-section {
+  position: relative;
+  width: 100%;
+  min-height: 750px;
+  padding: 30px 20px 40px;
+  background: url('images/bg-pattern-top.png') no-repeat top center / cover;
+  background-color: #f8fafc;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Corner decorative flourishes */
+.leaf-decor {
+  position: absolute;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.9;
+}
+
+.leaf-top-left {
+  top: 15px;
+  left: -20px;
+  width: 150px;
+  transform: scaleX(-1);
+}
+
+.leaf-top-right {
+  top: 40px;
+  right: -25px;
+  width: 160px;
+}
+
+.hero-cap-icon {
+  width: 70px;
+  height: auto;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.1));
+  animation: fadeInDown 1.2s ease;
+}
+
+.hero-titles {
+  position: relative;
+  z-index: 3;
+  margin-bottom: 25px;
+}
+
+.hero-badge-title {
+  font-family: 'Merriweather', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--primary-navy);
+  margin-bottom: -10px;
+  text-transform: uppercase;
+  animation: fadeInLeft 1.2s ease;
+}
+
+.hero-script-subtitle {
+  font-family: 'WindSong', cursive;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+  transform: rotate(-3deg);
+  display: inline-block;
+  margin-left: 70px;
+  animation: fadeInRight 1.2s ease;
+}
+
+/* Hero Portrait Frame */
+.hero-portrait-wrapper {
+  position: relative;
+  width: 290px;
+  height: 440px;
+  margin: 10px auto 20px;
+  z-index: 3;
+}
+
+.hero-portrait-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 20px;
+  box-shadow: var(--shadow-medium);
+  border: 4px solid #ffffff;
+  transition: transform 0.5s ease;
+}
+
+.hero-portrait-wrapper:hover .hero-portrait-img {
+  transform: scale(1.02);
+}
+
+.hero-flower-decor {
+  position: absolute;
+  bottom: -35px;
+  right: -30px;
+  width: 180px;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.hero-spin-badge {
+  position: absolute;
+  bottom: 30px;
+  right: -15px;
+  width: 80px;
+  height: 80px;
+  pointer-events: none;
+  z-index: 5;
+  animation: spinBadge 12s linear infinite;
+}
+
+@keyframes spinBadge {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.hero-sparkle {
+  position: absolute;
+  top: -15px;
+  right: 15px;
+  width: 85px;
+  pointer-events: none;
+  z-index: 4;
+  animation: floatSparkle 3s ease-in-out infinite;
+}
+
+@keyframes floatSparkle {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.8; }
+  50% { transform: translateY(-8px) scale(1.1); opacity: 1; }
+}
+
+.hero-owner-name {
+  font-family: 'Qwitcher Grypen', cursive;
+  font-size: 4.2rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 4px 15px rgba(16, 30, 61, 0.7);
+  position: absolute;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  z-index: 6;
+  letter-spacing: 1px;
+}
+
+/* ==========================================================================
+   SECTION 2: INVITATION CARD & CALENDAR
+   ========================================================================== */
+.invitation-section {
+  position: relative;
+  padding: 40px 20px 30px;
+  background: url('images/bg-wave-blue.png') no-repeat top center / cover;
+  margin-top: -30px;
+  z-index: 10;
+}
+
+.glass-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  padding: 32px 22px;
+  box-shadow: var(--shadow-medium);
+  border: 1px solid rgba(229, 231, 235, 0.8);
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+.invitation-greeting {
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-navy);
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.guest-name-box {
+  background: rgba(224, 242, 254, 0.6);
+  border: 1.5px dashed var(--accent-blue-soft);
+  border-radius: 14px;
+  padding: 10px 18px;
+  margin: 12px auto 20px;
+  display: inline-block;
+  max-width: 90%;
+}
+
+.guest-name {
+  font-family: 'Ephesis', cursive;
+  font-size: 2.2rem;
+  color: var(--secondary-navy);
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.event-datetime-header {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary-navy);
+  margin-bottom: 8px;
+}
+
+.date-large-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 12px 0 20px;
+}
+
+.date-side-text {
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--secondary-navy);
+  position: relative;
+  padding-bottom: 4px;
+}
+
+.date-side-text::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #7C8FA3;
+  border-radius: 2px;
+}
+
+.date-big-number {
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: var(--primary-navy);
+  line-height: 1;
+}
+
+/* Interactive Calendar Grid */
+.calendar-widget {
+  margin: 20px auto 10px;
+  max-width: 320px;
+}
+
+.calendar-header {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--primary-navy);
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+
+.calendar-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.calendar-table th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 6px 2px;
+}
+
+.calendar-table td {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #334155;
+  padding: 6px 2px;
+  text-align: center;
+  position: relative;
+}
+
+.calendar-table td.highlight-day {
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+.calendar-table td.highlight-day::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(135deg, var(--primary-navy), #2563eb);
+  border-radius: 50%;
+  z-index: -1;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.4);
+  animation: pulseGlow 2s infinite ease-in-out;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.12); }
+}
+
+/* Countdown Timer */
+.countdown-container {
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px dashed rgba(23, 58, 99, 0.15);
+}
+
+.countdown-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 12px;
+}
+
+.countdown-boxes {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.countdown-item {
+  background: #ffffff;
+  border: 1px solid var(--accent-blue-soft);
+  border-radius: 12px;
+  padding: 8px 6px;
+  min-width: 60px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
+}
+
+.countdown-number {
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--primary-navy);
+  line-height: 1.1;
+}
+
+.countdown-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+/* Add to Calendar Button */
+.add-calendar-btn {
+  margin-top: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1.5px solid var(--primary-navy);
+  color: var(--primary-navy);
+  padding: 7px 18px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.add-calendar-btn:hover {
+  background: var(--primary-navy);
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   SECTION 3: INFINITE FILMSTRIP MARQUEE
+   ========================================================================== */
+.marquee-section {
+  padding: 30px 0;
+  background: var(--primary-navy-dark);
+  position: relative;
+  overflow: hidden;
+}
+
+.marquee-badge {
+  text-align: center;
+  color: var(--accent-gold);
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+.marquee-container {
+  display: flex;
+  width: 100%;
+  overflow: hidden;
+  user-select: none;
+  gap: 16px;
+  padding: 5px 0;
+}
+
+.marquee-content {
+  display: flex;
+  gap: 16px;
+  animation: marqueeScroll 22s linear infinite;
+  flex-shrink: 0;
+}
+
+.marquee-card {
+  width: 160px;
+  height: 220px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+}
+
+.marquee-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.marquee-card:hover img {
+  transform: scale(1.08);
+}
+
+@keyframes marqueeScroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* ==========================================================================
+   SECTION 4: VENUE & GOOGLE MAPS
+   ========================================================================== */
+.venue-section {
+  position: relative;
+  padding: 40px 20px;
+  background: url('images/bg-wave-blue.png') no-repeat top center / cover;
+}
+
+.venue-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  padding: 30px 20px;
+  box-shadow: var(--shadow-medium);
+  border: 1px solid rgba(229, 231, 235, 0.8);
+  text-align: center;
+}
+
+.venue-title {
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--secondary-navy);
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.venue-name {
+  font-family: 'Itim', cursive, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--primary-navy);
+  margin-bottom: 4px;
+}
+
+.venue-sub {
+  font-size: 0.95rem;
+  color: var(--accent-gold-dark);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.venue-address {
+  font-family: 'Itim', cursive, sans-serif;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+.btn-directions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--secondary-navy);
+  color: #ffffff;
+  text-decoration: none;
+  padding: 10px 26px;
+  border-radius: var(--radius-button);
+  font-weight: 700;
+  font-size: 0.95rem;
+  box-shadow: 0 6px 18px rgba(31, 54, 84, 0.3);
+  transition: var(--transition-smooth);
+  animation: breathe 3s ease-in-out infinite;
+  margin-bottom: 22px;
+}
+
+.btn-directions:hover {
+  background: var(--primary-navy);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(23, 58, 99, 0.4);
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+.map-wrapper {
+  width: 100%;
+  height: 220px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  border: 2px solid #ffffff;
+}
+
+.map-wrapper iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* ==========================================================================
+   SECTION 5: STORY & LETTER
+   ========================================================================== */
+.story-section {
+  position: relative;
+  padding: 40px 20px;
+  background: url('images/bg-wave-cream.png') no-repeat top center / cover;
+}
+
+.story-card {
+  background: #ffffff;
+  border-radius: var(--radius-card);
+  padding: 35px 24px;
+  box-shadow: var(--shadow-soft);
+  position: relative;
+}
+
+.story-portrait-box {
+  width: 100%;
+  height: 280px;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-soft);
+}
+
+.story-portrait-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.story-heading {
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--secondary-navy);
+  text-align: center;
+  margin-bottom: 18px;
+  letter-spacing: 0.5px;
+}
+
+.story-body {
+  font-family: 'Borel', cursive, serif;
+  font-size: 0.95rem;
+  color: #3f3f46;
+  line-height: 1.7;
+  text-align: justify;
+}
+
+.story-body p {
+  margin-bottom: 14px;
+}
+
+.story-signature {
+  font-family: 'Vujahday Script', cursive;
+  font-size: 2.4rem;
+  color: #27272a;
+  text-align: right;
+  margin-top: 15px;
+}
+
+/* ==========================================================================
+   SECTION 6: PHOTO GALLERY & MEMORIES
+   ========================================================================== */
+.gallery-section {
+  position: relative;
+  padding: 40px 20px;
+  background: url('images/bg-wave-dark.png') no-repeat top center / cover;
+  background-color: var(--primary-navy-dark);
+}
+
+.gallery-title {
+  font-family: 'Qwitcher Grypen', cursive;
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 24px;
+  text-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.gallery-item {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #ffffff;
+  padding: 6px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.gallery-item:nth-child(3n + 1) {
+  grid-column: span 2;
+  height: 220px;
+}
+
+.gallery-item:not(:nth-child(3n + 1)) {
+  height: 170px;
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  transition: transform 0.4s ease;
+}
+
+.gallery-item:hover {
+  transform: translateY(-4px);
+}
+
+.gallery-item:hover img {
+  transform: scale(1.05);
+}
+
+.gallery-overlay {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  right: 6px;
+  bottom: 6px;
+  background: rgba(16, 30, 61, 0.4);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  color: #ffffff;
+  font-size: 1.4rem;
+}
+
+.gallery-item:hover .gallery-overlay {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   SECTION 7: RSVP & WISHES (GUESTBOOK)
+   ========================================================================== */
+.rsvp-section {
+  position: relative;
+  padding: 40px 20px;
+  background: url('images/bg-wave-cream.png') no-repeat top center / cover;
+}
+
+.rsvp-card {
+  background: #ffffff;
+  border-radius: var(--radius-card);
+  padding: 32px 22px;
+  box-shadow: var(--shadow-medium);
+  border: 1px solid rgba(229, 231, 235, 0.8);
+}
+
+.rsvp-title {
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--secondary-navy);
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.rsvp-subtitle {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 6px;
+}
+
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  transition: var(--transition-smooth);
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  outline: none;
+  border-color: var(--primary-navy);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(23, 58, 99, 0.12);
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.radio-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.radio-card:hover {
+  background: #ffffff;
+  border-color: var(--accent-blue-soft);
+}
+
+.radio-card input[type="radio"] {
+  accent-color: var(--primary-navy);
+  width: 18px;
+  height: 18px;
+}
+
+.btn-rsvp-submit {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--secondary-navy), var(--primary-navy));
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-button);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(23, 58, 99, 0.3);
+  transition: var(--transition-smooth);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.btn-rsvp-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(23, 58, 99, 0.45);
+}
+
+/* Wishes List (Guestbook) */
+.wishes-container {
+  margin-top: 30px;
+  padding-top: 24px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.wishes-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--primary-navy);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wishes-list {
+  max-height: 250px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 4px;
+}
+
+.wish-item {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 12px 14px;
+  border-left: 3px solid var(--accent-gold);
+}
+
+.wish-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.wish-author {
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--primary-navy);
+}
+
+.wish-time {
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.wish-text {
+  font-size: 0.85rem;
+  color: #475569;
+}
+
+/* ==========================================================================
+   SECTION 8: GIFT BOX / QUÀ MỪNG
+   ========================================================================== */
+.gift-section {
+  padding: 35px 20px;
+  background: var(--bg-card);
+}
+
+.gift-card {
+  background: #ffffff;
+  border-radius: var(--radius-card);
+  padding: 28px 20px;
+  box-shadow: var(--shadow-soft);
+  text-align: center;
+}
+
+.gift-title {
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--secondary-navy);
+  margin-bottom: 6px;
+}
+
+.gift-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.qr-box {
+  max-width: 200px;
+  margin: 0 auto 16px;
+  padding: 10px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+}
+
+.qr-box img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 10px;
+}
+
+.bank-info-item {
+  font-size: 0.9rem;
+  color: var(--text-dark);
+  margin-bottom: 4px;
+}
+
+.btn-copy-account {
+  margin-top: 10px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: var(--secondary-navy);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition-smooth);
+}
+
+.btn-copy-account:hover {
+  background: var(--secondary-navy);
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   SECTION 9: THANK YOU & FOOTER
+   ========================================================================== */
+.thank-you-section {
+  position: relative;
+  width: 100%;
+  min-height: 380px;
+  overflow: hidden;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 40px 24px 30px;
+}
+
+.thank-you-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.thank-you-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(16, 30, 61, 0.2) 0%, rgba(16, 30, 61, 0.85) 75%);
+  z-index: 2;
+}
+
+.thank-you-content {
+  position: relative;
+  z-index: 3;
+}
+
+.thank-you-title {
+  font-family: 'Ephesis', cursive;
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+  margin-bottom: 12px;
+  text-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.thank-you-message {
+  font-family: 'Viaoda Libre', serif;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  opacity: 0.95;
+  white-space: pre-line;
+}
+
+.footer-credits {
+  text-align: center;
+  padding: 20px;
+  background: #0b1324;
+  color: #94a3b8;
+  font-size: 0.78rem;
+}
+
+.footer-credits a {
+  color: var(--accent-gold);
+  text-decoration: none;
+}
+
+/* ==========================================================================
+   LIGHTBOX / FULLSCREEN IMAGE VIEWER
+   ========================================================================== */
+.lightbox-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.92);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.lightbox-modal.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lightbox-img-wrapper {
+  max-width: 90vw;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.lightbox-img {
+  max-width: 100%;
+  max-height: 75vh;
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+
+.lightbox-caption {
+  color: #ffffff;
+  font-size: 0.95rem;
+  margin-top: 14px;
+  text-align: center;
+  font-family: 'Be Vietnam Pro', sans-serif;
+}
+
+.lightbox-close-btn, .lightbox-nav-btn {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: #ffffff;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-size: 1.3rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.lightbox-close-btn:hover, .lightbox-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.lightbox-close-btn {
+  top: 20px;
+  right: 20px;
+}
+
+.lightbox-prev-btn {
+  left: 20px;
+}
+
+.lightbox-next-btn {
+  right: 20px;
+}
+
+/* ==========================================================================
+   LIVE CUSTOMIZER MODAL (TRÌNH THAY ẢNH & CHỈNH SỬA TRỰC QUAN)
+   ========================================================================== */
+.customizer-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.customizer-modal.active {
+  display: flex;
+}
+
+.customizer-box {
+  background: #ffffff;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
+.customizer-header {
+  padding: 16px 20px;
+  background: var(--primary-navy);
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.customizer-header h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.customizer-close {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.customizer-body {
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.customizer-tip {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+}
+
+.customizer-section-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--primary-navy);
+  margin-top: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1.5px solid #e2e8f0;
+}
+
+.image-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.image-picker-thumb {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid #cbd5e1;
+}
+
+.image-picker-info {
+  flex: 1;
+}
+
+.image-picker-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 4px;
+}
+
+.customizer-footer {
+  padding: 16px 20px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  gap: 10px;
+}
+
+.btn-customizer-save {
+  flex: 1;
+  background: var(--primary-navy);
+  color: #ffffff;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-customizer-export {
+  flex: 1;
+  background: var(--accent-gold);
+  color: #ffffff;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Toast Notifications */
+.toast-msg {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: rgba(16, 30, 61, 0.95);
+  color: #ffffff;
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  z-index: 2000;
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.toast-msg.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* Animations */
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-25px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(25px); }
+  to { opacity: 1; transform: translateX(0); }
+}

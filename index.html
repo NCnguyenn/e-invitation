@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Thiệp Mời - Khoảnh Khắc Rực Rỡ</title>
+  
+  <!-- OpenGraph / Social Sharing -->
+  <meta property="og:title" content="Thiệp Mời - Khoảnh Khắc Rực Rỡ" />
+  <meta property="og:description" content="Những khoảnh khắc đặc biệt được kể lại theo dấu ấn riêng của bạn." />
+  <meta property="og:image" content="images/hero-portrait.webp" />
+  <meta property="og:type" content="website" />
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Hiệu ứng cánh hoa / trái tim rơi -->
+  <canvas id="petals-canvas"></canvas>
+
+  <!-- Audio Nhạc Nền -->
+  <audio id="bg-audio" loop preload="auto" src="music.mp3"></audio>
+
+  <!-- Nút điều khiển nổi (Nhạc, Cánh hoa) -->
+  <div class="floating-controls">
+    <button class="float-btn music-btn" id="music-toggle-btn" title="Bật/Tắt nhạc nền" aria-label="Bật/Tắt nhạc nền">
+      <i class="fa-solid fa-compact-disc"></i>
+    </button>
+    <button class="float-btn" id="petals-toggle-btn" title="Bật/Tắt hoa rơi" aria-label="Bật/Tắt hoa rơi">
+      <i class="fa-solid fa-wand-magic-sparkles"></i>
+    </button>
+  </div>
+
+  <!-- Nút Thay Ảnh & Chỉnh Sửa Nhanh -->
+  <button class="edit-badge-btn" id="btn-open-customizer" title="Thay ảnh và chỉnh sửa trực tiếp">
+    <i class="fa-solid fa-camera-retro"></i>
+    <span>Thay ảnh & Sửa nhanh</span>
+  </button>
+
+  <!-- Khung hiển thị Thiệp Mobile-First -->
+  <main class="invitation-container">
+
+    <!-- ====================================================================
+         PHẦN 1: BÌA THIỆP & CHÂN DUNG (HERO SECTION)
+         ==================================================================== -->
+    <section class="hero-section">
+      <!-- Hoa văn lá góc trang trí -->
+      <img src="images/corner-leaf.png" alt="Decor Leaf" class="leaf-decor leaf-top-left" />
+      <img src="images/corner-leaf.png" alt="Decor Leaf" class="leaf-decor leaf-top-right" />
+
+      <!-- Biểu tượng mũ tốt nghiệp / họa tiết trên cùng -->
+      <img src="images/cap-icon.png" alt="Cap Icon" class="hero-cap-icon" />
+
+      <!-- Tiêu đề lớn -->
+      <div class="hero-titles">
+        <h1 class="hero-badge-title" id="hero-badge-title">GRADUATION</h1>
+        <div class="hero-script-subtitle" id="hero-script-subtitle">Ceremony</div>
+      </div>
+
+      <!-- Khung ảnh chân dung chính -->
+      <div class="hero-portrait-wrapper">
+        <img src="images/hero-portrait.webp" alt="Chân dung" id="hero-portrait-img" class="hero-portrait-img" />
+        
+        <!-- Họa tiết hoa trang trí & huy hiệu xoay -->
+        <img src="images/flower-decor.png" alt="Flower Decor" class="hero-flower-decor" />
+        <img src="images/spin-badge.png" alt="Spin Badge" class="hero-spin-badge" />
+        <img src="images/sparkle.png" alt="Sparkle" class="hero-sparkle" />
+
+        <!-- Chữ ký / Tên nghệ thuật uốn lượn -->
+        <div class="hero-owner-name" id="hero-owner-name">Mai Hoa</div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         PHẦN 2: LỜI MỜI, NGÀY GIỜ, LỊCH & ĐỒNG HỒ ĐẾM NGƯỢC
+         ==================================================================== -->
+    <section class="invitation-section">
+      <div class="glass-card">
+        <div class="invitation-greeting" id="invitation-greeting">TRÂN TRỌNG KÍNH MỜI</div>
+
+        <!-- Tên khách mời (tự động nhận qua link ?guest=...) -->
+        <div class="guest-name-box">
+          <div class="guest-name" id="guest-name">Bạn Quyên</div>
+        </div>
+
+        <div class="event-datetime-header" id="event-datetime-header">10:45, Thứ Hai,</div>
+
+        <!-- Hiển thị ngày tháng to nổi bật -->
+        <div class="date-large-display">
+          <div class="date-side-text" id="date-month">THÁNG 09</div>
+          <div class="date-big-number" id="date-day">28</div>
+          <div class="date-side-text" id="date-year">NĂM 2026</div>
+        </div>
+
+        <!-- Lịch tháng tương tác -->
+        <div class="calendar-widget">
+          <div class="calendar-header" id="calendar-header-title">THÁNG 9 - 2026</div>
+          <table class="calendar-table">
+            <thead>
+              <tr>
+                <th>T2</th>
+                <th>T3</th>
+                <th>T4</th>
+                <th>T5</th>
+                <th>T6</th>
+                <th>T7</th>
+                <th>CN</th>
+              </tr>
+            </thead>
+            <tbody id="calendar-days">
+              <!-- Sẽ được tạo tự động bởi JavaScript -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Đồng hồ đếm ngược -->
+        <div class="countdown-container">
+          <div class="countdown-title">CÙNG ĐẾM NGƯỢC THỜI GIAN</div>
+          <div class="countdown-boxes">
+            <div class="countdown-item">
+              <div class="countdown-number" id="cd-days">00</div>
+              <div class="countdown-label">Ngày</div>
+            </div>
+            <div class="countdown-item">
+              <div class="countdown-number" id="cd-hours">00</div>
+              <div class="countdown-label">Giờ</div>
+            </div>
+            <div class="countdown-item">
+              <div class="countdown-number" id="cd-minutes">00</div>
+              <div class="countdown-label">Phút</div>
+            </div>
+            <div class="countdown-item">
+              <div class="countdown-number" id="cd-seconds">00</div>
+              <div class="countdown-label">Giây</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Nút Thêm vào Google Calendar -->
+        <button class="add-calendar-btn" id="btn-add-calendar">
+          <i class="fa-regular fa-calendar-plus"></i>
+          <span>Thêm vào Lịch nhắc nhở</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         PHẦN 3: CUỘN ẢNH VÔ TẬN (FILMSTRIP MARQUEE)
+         ==================================================================== -->
+    <section class="marquee-section">
+      <div class="marquee-badge">✨ OUR SWEET MOMENTS ✨</div>
+      <div class="marquee-container">
+        <div class="marquee-content" id="marquee-content">
+          <!-- Ảnh chạy tự động cuộn vô tận -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         PHẦN 4: ĐỊA ĐIỂM TỔ CHỨC & BẢN ĐỒ GOOGLE MAPS
+         ==================================================================== -->
+    <section class="venue-section">
+      <div class="venue-card">
+        <div class="venue-title">ĐỊA ĐIỂM TỔ CHỨC</div>
+        <div class="venue-name" id="venue-name">Trường Đại Học Kinh Tế Quốc Dân</div>
+        <div class="venue-sub" id="venue-sub">Hội trường A2 - Tòa nhà Thế Kỷ</div>
+        <div class="venue-address" id="venue-address">207 Giải Phóng, Phường Bạch Mai, TP. Hà Nội</div>
+
+        <!-- Nút mở Google Maps chỉ đường -->
+        <a href="https://maps.app.goo.gl/h1GSFr1NGz6rCiQS6" target="_blank" rel="noopener noreferrer" class="btn-directions" id="btn-directions">
+          <i class="fa-solid fa-location-dot"></i>
+          <span>Xem chỉ đường Google Maps</span>
+        </a>
+
+        <!-- Khung nhúng Bản đồ vệ tinh -->
+        <div class="map-wrapper">
+          <iframe
+            id="map-iframe"
+            src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d14200.854671837249!2d105.8376696!3d21.0000781!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135ac71752d8f79%3A0xd2ec575c01017afa!2zVHLGsOG7nW5nIMSQ4bqhaSBI4buNYyBLaW5oIFThur8gUXXhu5FjIETDom4gKE5FVSk!5e1!3m2!1svi!2s!4v1788418146019!5m2!1svi!2s"
+            allowfullscreen=""
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            title="Google Maps Location"
+          ></iframe>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         PHẦN 5: LỜI NGỎ & CÂU CHUYỆN (STORY)
+         ==================================================================== -->
+    <section class="story-section">
+      <div class="story-card">
+        <div class="story-portrait-box">
+          <img src="images/story-portrait.webp" alt="Story Portrait" id="story-portrait-img" loading="lazy" />
+        </div>
+        <h2 class="story-heading" id="story-heading">GIỮ LẠI THANH XUÂN ĐẸP NHẤT</h2>
+        <div class="story-body" id="story-body">
+          <!-- Nội dung lời ngỏ -->
+        </div>
+        <div class="story-signature" id="story-signature">Mai Hoa</div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         PHẦN 6: ALBUM ẢNH KỶ NIỆM (GALLERY LIGHTBOX)
+         ==================================================================== -->
+    <section class="gallery-section">
+      <h2 class="gallery-title">Lưu Giữ Kỉ Niệm</h2>
+      <div class="gallery-grid" id="gallery-grid">
+        <!-- Ảnh gallery được nạp từ config.js -->
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         PHẦN 7: XÁC NHẬN THAM DỰ (RSVP) & SỔ LƯU BÚT
+         ==================================================================== -->
+    <section class="rsvp-section">
+      <div class="rsvp-card">
+        <h2 class="rsvp-title">Xác Nhận Tham Dự</h2>
+        <p class="rsvp-subtitle">Vui lòng cho mình biết bạn có thể tham dự hay không nhé!</p>
+
+        <form id="rsvp-form">
+          <div class="form-group">
+            <label class="form-label" for="rsvp-name">Họ và tên của bạn</label>
+            <input type="text" id="rsvp-name" class="form-input" placeholder="Ví dụ: Nguyễn Văn A" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="rsvp-guests">Số lượng người tham dự</label>
+            <select id="rsvp-guests" class="form-select">
+              <option value="1">Đi 1 mình</option>
+              <option value="2">Đi 2 người (Đi cùng người thương/bạn)</option>
+              <option value="3">Đi 3 người trở lên (Đi theo nhóm/gia đình)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Khả năng tham dự</label>
+            <div class="radio-group">
+              <label class="radio-card">
+                <input type="radio" name="attendance" value="yes" checked />
+                <span>Có, mình chắc chắn sẽ tham dự ✨</span>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="attendance" value="no" />
+                <span>Rất tiếc, mình bận không thể đến được 💌</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="rsvp-message">Gửi lời chúc mừng / Nhắn nhủ</label>
+            <textarea id="rsvp-message" rows="3" class="form-textarea" placeholder="Viết lời chúc ngọt ngào tại đây..."></textarea>
+          </div>
+
+          <button type="submit" class="btn-rsvp-submit">
+            <i class="fa-solid fa-paper-plane"></i>
+            <span>GỬI XÁC NHẬN & LỜI CHÚC</span>
+          </button>
+        </form>
+
+        <!-- Danh sách lời chúc đã gửi (Sổ Lưu Bút) -->
+        <div class="wishes-container">
+          <div class="wishes-title">
+            <span><i class="fa-solid fa-comments"></i> Sổ Lưu Bút & Lời Chúc</span>
+          </div>
+          <div class="wishes-list" id="wishes-list">
+            <!-- Render danh sách lời chúc -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         PHẦN 8: HỘP QUÀ CHÚC MỪNG (GIFT BOX / MỪNG CƯỚI - TÙY CHỌN)
+         ==================================================================== -->
+    <section class="gift-section" id="gift-section">
+      <div class="gift-card">
+        <h3 class="gift-title" id="gift-title">Gửi Quà Chúc Mừng</h3>
+        <p class="gift-desc" id="gift-desc">Nếu bạn ở xa hoặc muốn gửi lời chúc mừng cùng món quà yêu thương:</p>
+        
+        <div class="qr-box">
+          <img src="" alt="QR Code VietQR" id="bank-qr-img" />
+        </div>
+        <div class="bank-info-item"><strong>Ngân hàng:</strong> <span id="bank-name">MB Bank</span></div>
+        <div class="bank-info-item"><strong>Số tài khoản:</strong> <span id="bank-number">999988886666</span></div>
+        <div class="bank-info-item"><strong>Chủ tài khoản:</strong> <span id="bank-holder">NGUYEN MAI HOA</span></div>
+        
+        <button class="btn-copy-account" id="btn-copy-account">
+          <i class="fa-regular fa-copy"></i>
+          <span>Sao chép số tài khoản</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         PHẦN 9: LỜI CẢM ƠN (THANK YOU) & CHÂN TRANG
+         ==================================================================== -->
+    <section class="thank-you-section">
+      <img src="images/thank-you-banner.webp" alt="Thank You" id="thank-you-bg" class="thank-you-bg" />
+      <div class="thank-you-overlay"></div>
+      <div class="thank-you-content">
+        <h2 class="thank-you-title" id="thank-you-title">Thank You!</h2>
+        <div class="thank-you-message" id="thank-you-message">
+Cảm ơn vì đã cùng mình đi qua một chặng đường đáng nhớ.
+Sự hiện diện của bạn sẽ khiến ngày đặc biệt này trở nên ý nghĩa hơn rất nhiều.
+Hẹn gặp bạn trong ngày vui nhé!
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer-credits">
+      <p>Made with ❤️ | Mẫu thiệp trực tuyến tương tác cao cấp</p>
+    </footer>
+
+  </main>
+
+  <!-- ====================================================================
+       MODAL XEM ẢNH TOÀN MÀN HÌNH (LIGHTBOX)
+       ==================================================================== -->
+  <div class="lightbox-modal" id="lightbox-modal" role="dialog" aria-label="Xem ảnh phóng to">
+    <button class="lightbox-close-btn" id="lightbox-close" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
+    <button class="lightbox-nav-btn lightbox-prev-btn" id="lightbox-prev" aria-label="Ảnh trước"><i class="fa-solid fa-chevron-left"></i></button>
+    <button class="lightbox-nav-btn lightbox-next-btn" id="lightbox-next" aria-label="Ảnh sau"><i class="fa-solid fa-chevron-right"></i></button>
+    
+    <div class="lightbox-img-wrapper">
+      <img src="" alt="Phóng to" id="lightbox-img" class="lightbox-img" />
+      <div class="lightbox-caption" id="lightbox-caption"></div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL THAY ẢNH VÀ CHỈNH SỬA TRỰC QUAN (LIVE CUSTOMIZER)
+       ==================================================================== -->
+  <div class="customizer-modal" id="customizer-modal" role="dialog" aria-label="Bảng chỉnh sửa nhanh">
+    <div class="customizer-box">
+      <div class="customizer-header">
+        <h3><i class="fa-solid fa-wand-magic-sparkles"></i> Thay Ảnh & Chỉnh Sửa Nhanh</h3>
+        <button class="customizer-close" id="customizer-close">&times;</button>
+      </div>
+      
+      <div class="customizer-body">
+        <div class="customizer-tip">
+          💡 <strong>Mẹo:</strong> Bạn có thể bấm chọn ảnh từ điện thoại/máy tính để xem ngay trên thiệp, hoặc sửa văn bản rồi bấm "Xem thử ngay"!
+        </div>
+
+        <div class="customizer-section-title">📸 Thay đổi hình ảnh chính</div>
+
+        <!-- Thay ảnh bìa Hero -->
+        <div class="image-picker-row">
+          <div class="image-picker-info">
+            <div class="image-picker-label">1. Ảnh chân dung đầu trang:</div>
+            <input type="file" id="picker-hero" accept="image/*" class="form-input" />
+          </div>
+        </div>
+
+        <!-- Thay ảnh phần Lời ngỏ Story -->
+        <div class="image-picker-row">
+          <div class="image-picker-info">
+            <div class="image-picker-label">2. Ảnh phần Lời ngỏ / Tâm sự:</div>
+            <input type="file" id="picker-story" accept="image/*" class="form-input" />
+          </div>
+        </div>
+
+        <!-- Thay ảnh bìa Thank You -->
+        <div class="image-picker-row">
+          <div class="image-picker-info">
+            <div class="image-picker-label">3. Ảnh bìa chân trang Thank You:</div>
+            <input type="file" id="picker-thankyou" accept="image/*" class="form-input" />
+          </div>
+        </div>
+
+        <div class="customizer-section-title">✍️ Thay đổi nội dung & thông tin</div>
+
+        <div class="form-group">
+          <label class="form-label">Tên nhân vật chính:</label>
+          <input type="text" id="cust-owner-name" class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tiêu đề lớn (VD: GRADUATION / LỄ THÀNH HÔN):</label>
+          <input type="text" id="cust-badge-top" class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Chữ nghệ thuật (VD: Ceremony / Invitation):</label>
+          <input type="text" id="cust-badge-bottom" class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Ngày tổ chức (Ngày / Tháng / Năm):</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="cust-date" placeholder="28" style="width: 70px;" class="form-input" />
+            <input type="text" id="cust-month" placeholder="THÁNG 09" class="form-input" />
+            <input type="text" id="cust-year" placeholder="NĂM 2026" class="form-input" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Thời gian hiển thị (VD: 10:45, Thứ Hai):</label>
+          <input type="text" id="cust-time" class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tên địa điểm:</label>
+          <input type="text" id="cust-venue-name" class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Địa chỉ chi tiết:</label>
+          <input type="text" id="cust-venue-address" class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tiêu đề phần Tâm sự:</label>
+          <input type="text" id="cust-story-heading" class="form-input" />
+        </div>
+      </div>
+
+      <div class="customizer-footer">
+        <button class="btn-customizer-save" id="btn-customizer-save">
+          <i class="fa-solid fa-eye"></i> Cập nhật & Xem thử
+        </button>
+        <button class="btn-customizer-export" id="btn-customizer-export">
+          <i class="fa-solid fa-download"></i> Xuất file config.js
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Thông báo Toast -->
+  <div class="toast-msg" id="toast-notification"></div>
+
+  <!-- Tải file Cấu hình & Script thực thi -->
+  <script src="config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
