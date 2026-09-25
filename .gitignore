@@ -8,6 +8,7 @@ Thumbs.db
 .env.*
 !.env.example
 .next/
+next-env.d.ts
 out/
 *.tsbuildinfo
 playwright-report/

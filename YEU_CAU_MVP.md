@@ -2,7 +2,7 @@
 
 Phiên bản MVP 1.0 — ngày 24/09/2026.
 
-Tài liệu gốc: [YEU_CAU_DU_AN.md — v1.2](./YEU_CAU_DU_AN.md). Giao diện tham chiếu có sẵn: [index.html](./index.html), [script.js](./script.js), [config.js](./config.js).
+Tài liệu gốc: [YEU_CAU_DU_AN.md — v1.2](./YEU_CAU_DU_AN.md). Khi lập đặc tả, giao diện tham chiếu là các file tĩnh `index.html`, `script.js`, `config.js`; chúng đã được chuyển khỏi runtime và không còn trong repository phát hành.
 
 Đây là phạm vi rút gọn để sớm có bản chạy thật cho khách test: chủ sự kiện đăng nhập, sửa thông tin/nhạc, gửi email mời và xem phản hồi; người được mời mở thiệp và phản hồi **một lần duy nhất**. Tài liệu này mô tả việc cần triển khai, không xác nhận các tích hợp đã được kết nối.
 
@@ -45,9 +45,9 @@ Tài liệu gốc: [YEU_CAU_DU_AN.md — v1.2](./YEU_CAU_DU_AN.md). Giao diện 
 
 Quota được kiểm tra trực tiếp tại dashboard nhà cung cấp. Không xây bảng quota tạm bằng số suy đoán.
 
-## 4. Tận dụng trang thiệp đang có
+## 4. Yêu cầu chuyển thiết kế thiệp sang ứng dụng
 
-Qua đọc mã hiện tại:
+Các mô tả trong bảng dưới ghi lại hiện trạng của bản tĩnh tại thời điểm lập đặc tả. Bản triển khai Next.js hiện dùng `src/features/template/` và dữ liệu lấy từ database/API.
 
 | Thành phần | Hiện trạng | Việc làm cho MVP |
 | :--- | :--- | :--- |
@@ -60,7 +60,7 @@ Qua đọc mã hiện tại:
 | Nhạc | HTML có audio preload=auto và nguồn music.mp3. | Không tải nhạc ban đầu; xin signed URL sau thao tác mở/phát; xử lý trường hợp trình duyệt chặn autoplay. |
 | Maps/CDN | Có iframe Google Maps và CSS icon từ CDN. | Bỏ iframe; dùng link Maps ngoài. Đóng gói icon/font/asset cần thiết để trang Guest không phụ thuộc CDN bên thứ ba. |
 
-`index.html` là **nguồn giao diện**, không coi nguyên file tĩnh hiện tại là ứng dụng đã hoàn chỉnh. Không thiết kế lại toàn bộ thiệp để làm MVP; chuyển cấu trúc cần thiết sang template dùng chung cho xem trước và Guest. Chưa thay đổi các file đó trong bước lập đặc tả này.
+Các file tĩnh cũ chỉ là tài liệu tham chiếu thiết kế, không phải ứng dụng hoàn chỉnh. MVP chuyển cấu trúc cần thiết sang template dùng chung cho xem trước và Guest; bản runtime hiện nằm trong `src/features/template/`.
 
 ## 5. Giao diện khách hàng — Host
 

@@ -1,59 +1,54 @@
 # E-Invitation MVP
 
-Đã có mã đến Bước 7: Host đăng nhập, sửa thiệp, tạo khách, RSVP một lần, danh sách phản hồi, upload/phát nhạc, và gửi email qua Brevo với ledger chống trùng. Bước 8 đang nghiệm thu và chuẩn bị Netlify; chưa có bằng chứng deploy hoặc email thật trong lượt nghiệm thu này. Theo dõi trạng thái trong `docs/STEP8_DEPLOY_HANDOVER.md`.
+Ứng dụng Next.js cho Host tạo thiệp, gửi lời mời qua Brevo và theo dõi RSVP trên Supabase. Khách mở link riêng trong email, chọn tham gia hoặc từ chối một lần; khi mở lại link sẽ thấy trạng thái đã gửi.
 
-## Chạy bản xem trước
+Production: [https://nc-thiepmoi.netlify.app](https://nc-thiepmoi.netlify.app) · Host login: `/login`.
 
-Cần Node.js 22 trở lên (đã kiểm tra bằng Node 24.15.0).
+## Chạy local
+
+Cần Node.js 22 trở lên.
 
 ```powershell
 npm ci
+Copy-Item .env.example .env.local
+# Điền khóa Supabase/Brevo và SITE_URL vào .env.local; không commit file này.
 npm run dev
 ```
 
-Mở http://localhost:3000/preview để xem template bằng dữ liệu mẫu. Đây là route dành riêng cho development; khi chạy bản build production, route này trả 404. Trang gốc chuyển đến đăng nhập hoặc dashboard theo phiên.
+Mở `http://localhost:3000/login`. Host phải được cấp tài khoản Auth đã xác nhận, profile `active` và một event trước khi đăng nhập. Signup công khai không được bật.
 
-Preview có dữ liệu mẫu để kiểm tra thiết kế. Nút phản hồi bị khóa; nhạc chưa được kết nối. Không gửi email, không gọi database, không lưu localStorage. Tên khách và thông tin sự kiện được truyền qua `GuestInvitation`; không lấy tên từ query string.
+## Database và dịch vụ
 
-## Dùng dashboard với dữ liệu thật
+Áp các file `supabase/migrations/*.sql` theo thứ tự tên lên đúng Supabase project test. `supabase/test-project.json` ghim project để chặn vô tình chạy test-target code vào project khác. Không chạy migration trên production tùy ý.
 
-Đặt biến theo `.env.example` vào `.env.local`. Áp các migration theo thứ tự tên file trên project test, gồm `supabase/migrations/202609270001_mvp_email_ledger.sql`, và tắt public signup. Không lưu khóa hoặc mật khẩu trong Git. Host phải được cấp tài khoản, profile active và một event trước khi sử dụng.
+Các biến cần thiết được liệt kê trong `.env.example`. Netlify giữ giá trị ở context Production. Gói hiện tại không cho granular scopes; các biến dùng scope mặc định của Netlify. Chỉ cấp quyền quản trị site cho người cần thiết. Không đặt khóa trong `netlify.toml`, source code hoặc Git.
 
-Mở http://localhost:3000/login, đăng nhập bằng tài khoản đã cấp. Tại **Thiệp & thông tin**, sửa tiêu đề, ngày/giờ Việt Nam, địa điểm, địa chỉ và liên kết Google Maps. **Xem trước** chỉ cập nhật bản nháp ở cạnh form; **Lưu thay đổi** ghi vào Supabase. Tải lại trang sẽ lấy dữ liệu đã lưu. Tên khách trong preview là tên mẫu, không tạo khách hay ghi RSVP. **Khách mời** tạo rồi gửi email; **Phản hồi** chỉ đọc RSVP đã có.
+Email dùng sender Brevo đã xác minh. `SITE_URL` phải là HTTPS origin ổn định; ứng dụng dùng nó để tạo `/invite/{token}`. Không dùng `EMAIL_TRANSPORT=stub` trên hosting.
 
-`SITE_URL` là nguồn duy nhất để tạo link `/invite/{token}` trong email: HTTPS công khai, không dấu `/` cuối, không lấy từ `APP_BASE_URL` hay Origin của request. Thiếu `SITE_URL`, API key hoặc sender thì máy chủ từ chối trước khi giữ suất. Localhost không phải bản test email từ xa hoàn chỉnh.
-
-## Kiểm tra
+## Build và deploy
 
 ```powershell
+npm run check:deploy
 npm run typecheck
-npm run test:unit
-npm run test:integration
-npx playwright install chromium
-npm run test:e2e
 npm run build
-npm start
 ```
 
-E2E tự mở và đóng server riêng tại cổng 3100. Integration và E2E Auth/editor cần Supabase test thật, `SUPABASE_TARGET=test` và URL khớp `supabase/test-project.json`; chúng tạo/cập nhật fixture có namespace riêng. Chạy tuần tự hai bộ này vì dùng chung tài khoản test. Đợi E2E/server test dừng trước khi kiểm tra TypeScript/build để tránh đọc file kiểu đang được Next.js sinh lại.
+Site hiện được deploy từ workspace lên Netlify. Muốn Netlify tự deploy khi push `main`, cần nối site với repository GitHub và đặt production branch thành `main` trong Project configuration → Developer settings → Continuous deployment. Biến môi trường đã đặt ở Netlify không nằm trong repository.
 
-## Deploy và kiểm tra production
+Production smoke chỉ đọc:
 
-Cấu hình trong `netlify.toml`; không deploy HTML tĩnh vì Auth/API cần Next.js runtime. Đặt biến theo `.env.example` ở Netlify với phạm vi Builds và Functions; `SITE_URL` phải là URL HTTPS ổn định đã chọn. Không dùng `EMAIL_TRANSPORT=stub` trên hosting.
+```powershell
+$env:SMOKE_BASE_URL = 'https://nc-thiepmoi.netlify.app'
+npm run smoke:production
+```
 
-`npm run check:deploy` chặn thiếu cấu hình hoặc chọn transport giả lập. `npm run test:production` kiểm tra chỉ đọc server production local ở cổng 3200; đặt `SMOKE_BASE_URL` khi kiểm tra site thật. Công cụ quét secret chỉ kiểm tra `.next/static` local và các response đã lấy, không thay kiểm thử có đăng nhập/gửi email thật.
+## Cấu trúc
 
-Chi tiết cấu hình, cấp tài khoản và checklist sau deploy: `docs/STEP8_DEPLOY_HANDOVER.md`.
+- `src/`: Next.js pages, API và chức năng Host/Guest.
+- `supabase/migrations/`: schema, RLS và RPC.
+- `images/`: ảnh nguồn; `node scripts/prepare-template-assets.mjs` đồng bộ sang `public/templates/` và tạo bundle font.
+- `public/fonts/`, `public/templates/`: ảnh và font được ứng dụng phục vụ.
+- `docs/BREVO_SEND_CONTRACT.md`: quy tắc gửi email, trạng thái unknown và cách đối soát.
+- `YEU_CAU_MVP.md`, `YEU_CAU_DU_AN.md`: yêu cầu sản phẩm.
 
-## Cấu trúc chính
-
-- `src/features/template/`: giao diện, album/lightbox, đếm ngược theo giờ Việt Nam và điều khiển nhạc. Chế độ preview không nhận callback ghi phản hồi; chế độ guest dành chỗ cho form thật ở Bước 4.
-- `src/lib/contracts.ts`: kiểu dữ liệu dùng chung theo kế hoạch MVP.
-- `src/features/events/`: form Host, giao diện dashboard và truy vấn event bằng session/RLS; API ở `src/app/api/host/event/route.ts`.
-- `public/templates/wedding-floral-01/`: bản sao ảnh gốc; không sửa `images/`.
-- `public/fonts/`: font tự host cùng giấy phép. Có thể tái tạo bundle bằng `node scripts/prepare-template-assets.mjs` sau `npm ci`.
-- `.env.example`: tên biến kết nối. `SITE_URL` dùng cho link email; không còn `APP_BASE_URL`. Hợp đồng Brevo và cách đối soát unknown nằm ở `docs/BREVO_SEND_CONTRACT.md`.
-
-Giữ nguyên `index.html`, `config.js`, `style.css`, `script.js` làm tham chiếu. Next.js không nạp các script gốc có customizer/localStorage. Thiệp không tải Google Fonts, Font Awesome CDN hoặc iframe Maps; nút chỉ đường chỉ mở Maps khi người dùng bấm.
-
-Theo dõi tiến độ trong `docs/superpowers/plans/2026-09-24-mvp-e-invitation.md`; kết quả kiểm tra và điều kiện còn thiếu trong `docs/MVP_TEST_HANDOVER.md`.
+Mã thiệp cũ đã được chuyển vào ứng dụng Next.js; các file HTML/JS/CSS root trước đây không còn là runtime của site.

@@ -4,7 +4,7 @@
 
 [build.environment]
   NODE_VERSION = "24"
-  # This site sends real email. Local Playwright sets its own stub transport.
+  # This site sends real email. The application rejects stub transport on hosting.
   EMAIL_TRANSPORT = "brevo"
 
 # Netlify automatically installs its Next.js adapter.
