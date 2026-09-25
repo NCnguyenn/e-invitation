@@ -1,0 +1,48 @@
+{
+  "name": "e-invitation-mvp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "check:deploy": "node scripts/check-deploy.mjs",
+    "test:production": "node scripts/verify-production.mjs",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.117.1",
+    "next": "16.3.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "server-only": "0.0.1"
+  },
+  "devDependencies": {
+    "@fontsource/be-vietnam-pro": "5.3.0",
+    "@fontsource/borel": "5.3.0",
+    "@fontsource/ephesis": "5.3.0",
+    "@fontsource/inter": "5.3.0",
+    "@fontsource/itim": "5.3.0",
+    "@fontsource/merriweather": "5.3.0",
+    "@fontsource/patrick-hand": "5.3.0",
+    "@fontsource/playfair-display": "5.3.0",
+    "@fontsource/qwitcher-grypen": "5.3.0",
+    "@fontsource/viaoda-libre": "5.3.0",
+    "@fontsource/vujahday-script": "5.3.0",
+    "@fontsource/windsong": "5.3.0",
+    "@playwright/test": "1.63.0",
+    "@types/node": "26.6.2",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "typescript": "7.0.2",
+    "vitest": "5.0.1"
+  }
+}

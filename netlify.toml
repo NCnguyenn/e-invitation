@@ -1,0 +1,12 @@
+[build]
+  command = "npm run check:deploy && npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "24"
+  # This site sends real email. Local Playwright sets its own stub transport.
+  EMAIL_TRANSPORT = "brevo"
+
+# Netlify automatically installs its Next.js adapter.
+# Runtime secrets must be configured in Netlify UI/CLI (Builds + Functions scopes),
+# never in this file. Do not add a static SPA catch-all redirect.

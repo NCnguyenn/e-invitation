@@ -1,0 +1,26 @@
+import { test, expect } from '@playwright/test';
+test('preview preserves design and cannot submit a response', async ({ page }) => {
+  const errors: string[] = [];
+  const external: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  page.on('request', request => { if (!request.url().startsWith('http://127.0.0.1:3100')) external.push(request.url()); });
+  await page.goto('/preview');
+  await expect(page.getByRole('heading', { name: 'GRADUATION' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Gửi xác nhận' })).toBeDisabled();
+  expect(await page.locator('audio').getAttribute('src')).toBeNull();
+  expect(await page.locator('iframe').count()).toBe(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(await page.locator('meta[name="viewport"]').getAttribute('content')).not.toMatch(/user-scalable=no|maximum-scale=1/);
+  await page.getByRole('button', { name: 'Xem ảnh 1' }).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.getByRole('dialog').locator('img')).toHaveAttribute('src', /gallery-2/);
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).not.toBeVisible();
+  await expect(page.getByRole('button', { name: 'Xem ảnh 1' })).toBeFocused();
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  expect(await page.locator('.marquee-content').evaluate(el => getComputedStyle(el).animationName)).toBe('none');
+  expect(errors).toEqual([]);
+  expect(external).toEqual([]);
+  await page.screenshot({ path: `test-results/preview-${test.info().project.name}.png`, fullPage: true });
+});

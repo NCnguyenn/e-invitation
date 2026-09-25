@@ -4,3 +4,13 @@ Thumbs.db
 .env
 .env.local
 .vercel
+.netlify/
+.env.*
+!.env.example
+.next/
+out/
+*.tsbuildinfo
+playwright-report/
+test-results/
+coverage/
+supabase/.temp/
