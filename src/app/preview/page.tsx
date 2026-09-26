@@ -7,6 +7,7 @@ import { previewInvitation } from '@/features/template/preview.fixture';
 import { resolveTemplateKey } from '@/features/template/resolve-key';
 import { TemplateUnavailable } from '@/features/template/TemplateUnavailable';
 import type { GuestInvitation } from '@/lib/contracts';
+import { InvitationEntrance } from '@/features/guest/InvitationEntrance';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -45,10 +46,12 @@ export default async function PreviewPage({ searchParams }: Props) {
       };
 
   return (
-    <InvitationTemplate
-      invitation={invitation}
-      mode="preview"
-      previewContext={ownEvent ? 'host' : 'designer'}
-    />
+    <InvitationEntrance guestName={invitation.guestName} invitationNote={invitation.invitationNote} eventTitle={invitation.event.title}>
+      <InvitationTemplate
+        invitation={invitation}
+        mode="preview"
+        previewContext={ownEvent ? 'host' : 'designer'}
+      />
+    </InvitationEntrance>
   );
 }
