@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useId, useReducer, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useReducer, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { entranceTransition, hasViewedInvitation, rememberInvitation } from './entrance-state';
 import styles from './invitation-entrance.module.css';
 import '@/features/template/fonts.css';
 
-const OPENING_DURATION_MS = 720;
+const OPENING_DURATION_MS = 1260;
 const INVITATION_TRANSITION_MS = 220;
 
 type Props = {
@@ -34,8 +34,14 @@ function MailIcon() {
 
 function Flourish({ className }: { className: string }) {
   return <svg className={className} viewBox="0 0 240 240" fill="none" aria-hidden="true">
-    {Array.from({ length: 12 }, (_, index) => <ellipse key={index} cx="75" cy="75" rx="130" ry="49" transform={`rotate(${index * 15} 75 75)`} />)}
-    <circle cx="75" cy="75" r="101" /><circle cx="75" cy="75" r="108" />
+    {Array.from({ length: 18 }, (_, index) => <ellipse key={index} cx="12" cy="18" rx={82 + index * 6} ry={48 + index * 5} transform={`rotate(${index * 5} 12 18)`} />)}
+  </svg>;
+}
+
+function Sprig() {
+  return <svg className={styles.sprig} viewBox="0 0 100 240" fill="none" aria-hidden="true">
+    <path d="M12 232C25 165 69 91 61 12M27 178 7 142M40 149 81 118M49 118 26 82M57 87 84 60" />
+    {[[59, 23, -12], [56, 49, 24], [66, 63, 35], [43, 88, -38], [72, 94, 48], [36, 121, -38], [55, 137, 42], [23, 152, -40], [38, 176, 48], [13, 190, -30]].map(([x, y, angle], index) => <ellipse key={index} cx={x} cy={y} rx="4" ry="10" transform={`rotate(${angle} ${x} ${y})`} />)}
   </svg>;
 }
 
@@ -59,8 +65,9 @@ export function InvitationEntrance({ guestName, invitationNote, eventTitle, memo
   useEffect(() => {
     if (stage !== 'opening' && stage !== 'leaving') return;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    // Match the flap + paper sequence in CSS; a timer also works if animation events are suppressed.
-    const timer = window.setTimeout(() => dispatch('settled'), reduced ? 0 : stage === 'opening' ? OPENING_DURATION_MS : INVITATION_TRANSITION_MS);
+    // The paper's transitionend completes opening. Retain a bounded fallback
+    // for background tabs or browsers that suppress transition events.
+    const timer = window.setTimeout(() => dispatch('settled'), reduced ? 0 : stage === 'opening' ? OPENING_DURATION_MS + 160 : INVITATION_TRANSITION_MS);
     return () => window.clearTimeout(timer);
   }, [stage]);
 
@@ -97,10 +104,11 @@ export function InvitationEntrance({ guestName, invitationNote, eventTitle, memo
   }
 
   return <>
-    {stage !== 'invitation' && <section className={styles.entrance} data-stage={stage} aria-labelledby={headingId} aria-busy={busy}>
-      <div className={styles.frame} aria-hidden="true" />
+    {stage !== 'invitation' && <section className={styles.entrance} data-stage={stage} aria-labelledby={headingId} aria-busy={busy} style={{ '--opening-duration': `${OPENING_DURATION_MS}ms` } as CSSProperties}>
+      <div className={styles.frame} aria-hidden="true"><span /><span /><span /><span /></div>
       <Flourish className={styles.flourishTop} />
       <Flourish className={styles.flourishBottom} />
+      <Sprig />
       <div className={styles.layout}>
         <header className={styles.header}>
           <div className={styles.emblem}><span /><Cap /><span /></div>
@@ -111,20 +119,24 @@ export function InvitationEntrance({ guestName, invitationNote, eventTitle, memo
         <div className={styles.scene} data-open={open}>
           <div className={styles.envelope}>
             <div className={styles.back} aria-hidden="true" />
-            <div className={styles.flap} aria-hidden="true"><div className={styles.flapFront} /><div className={styles.flapBack} /></div>
-            <article id={letterId} ref={letterRef} className={styles.letter} tabIndex={stage === 'opened' ? 0 : -1} aria-hidden={!open} inert={stage !== 'opened'} aria-label={`Lời nhắn dành cho ${guestName}`}>
-              <div className={styles.letterInner}>
-                <span className={styles.star} aria-hidden="true">✦</span>
-                <p className={styles.salutation}>Gửi bạn</p>
-                <h2 className={styles.guestName}>{guestName}</h2>
-                <div className={styles.divider} aria-hidden="true" />
-                <p className={styles.note}>{note}</p>
-                <p className={styles.signature}>Hẹn gặp bạn nhé!</p>
-              </div>
-            </article>
-            <div className={styles.pocket} aria-hidden="true" />
+            <div className={styles.flapHinge} aria-hidden="true"><div className={styles.flap} data-envelope-part="flap" /></div>
+            <div className={styles.paper} data-envelope-part="paper" onTransitionEnd={event => {
+              if (event.target === event.currentTarget && event.propertyName === 'transform' && stage === 'opening') dispatch('settled');
+            }}>
+              <article id={letterId} ref={letterRef} className={styles.letter} tabIndex={stage === 'opened' ? 0 : -1} aria-hidden={!open} inert={stage !== 'opened'} aria-label={`Lời nhắn dành cho ${guestName}`}>
+                <div className={styles.letterInner}>
+                  <span className={styles.star} aria-hidden="true">✦</span>
+                  <p className={styles.salutation}>Gửi bạn</p>
+                  <h2 className={styles.guestName}>{guestName}</h2>
+                  <div className={styles.divider} aria-hidden="true" />
+                  <p className={styles.note}>{note}</p>
+                  <p className={styles.signature}>Hẹn gặp bạn nhé!</p>
+                </div>
+              </article>
+            </div>
+            <div className={styles.pocket} aria-hidden="true"><div className={styles.foldLeft} /><div className={styles.foldRight} /><div className={styles.foldBottom} /></div>
             <div className={styles.addressee} aria-hidden={open}><span>Kính gửi</span><p>{guestName}</p><i /></div>
-            <div className={styles.seal} aria-hidden="true"><Cap /></div>
+            <div className={styles.seal} data-envelope-part="seal" aria-hidden="true"><Cap /></div>
           </div>
         </div>
 

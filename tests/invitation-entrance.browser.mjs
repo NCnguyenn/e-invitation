@@ -25,7 +25,7 @@ async function openLetter() {
   const started = performance.now();
   await page.getByRole('button', { name: 'Mở thư', exact: true }).click();
   await page.locator('[data-stage="opened"]').waitFor();
-  assert.ok(performance.now() - started < 1550, 'open letter transition completes promptly');
+  assert.ok(performance.now() - started < 1850, 'sequenced opening completes without an extra loading delay');
   assert.equal(await page.locator('.invitation-template:visible').count(), 0, 'opening letter does not reveal event');
   assert.equal(await page.getByRole('button', { name: 'Xem thư mời', exact: true }).count(), 1);
   assert.equal(await page.getByRole('article').evaluate(el => el === document.activeElement), true);
@@ -130,7 +130,7 @@ try {
   await reducedPage.locator('[data-stage="closed"]').waitFor();
   await reducedPage.getByRole('button', { name: 'Mở thư', exact: true }).click();
   await reducedPage.locator('[data-stage="opened"]').waitFor();
-  assert.equal(await reducedPage.getByRole('article').evaluate(el => getComputedStyle(el).transitionDuration), '0s');
+  assert.equal(await reducedPage.locator('[data-envelope-part="paper"]').evaluate(el => getComputedStyle(el).transitionDuration), '0s');
   await reducedPage.getByRole('button', { name: 'Xem thư mời', exact: true }).click();
   await reducedPage.locator('.invitation-template:visible').waitFor();
   await reduced.close();
