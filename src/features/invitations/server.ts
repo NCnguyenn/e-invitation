@@ -116,21 +116,6 @@ export async function readHostInvitations(
   if (!event.data || event.data.lifecycle_status !== 'active') return null;
   const eventId = event.data.id;
 
-  const [pendingCount, acceptedCount, declinedCount] = await Promise.all([
-    client.from('invitations').select('id', { count: 'exact', head: true }).eq('event_id', eventId).eq('status', 'pending'),
-    client.from('invitations').select('id', { count: 'exact', head: true }).eq('event_id', eventId).eq('status', 'accepted'),
-    client.from('invitations').select('id', { count: 'exact', head: true }).eq('event_id', eventId).eq('status', 'declined'),
-  ]);
-  if (pendingCount.error || acceptedCount.error || declinedCount.error) {
-    throw new InvitationServiceError();
-  }
-
-  const pending = pendingCount.count ?? 0;
-  const accepted = acceptedCount.count ?? 0;
-  const declined = declinedCount.count ?? 0;
-  const total = pending + accepted + declined;
-  const totals: HostInvitationTotals = { total, pending, accepted, declined };
-
   const buildQuery = () => {
     let q = client
       .from('invitations')
@@ -157,8 +142,21 @@ export async function readHostInvitations(
   const from = (requestedPage - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
 
-  const result = await buildQuery().range(from, to);
-  if (result.error) throw new InvitationServiceError();
+  // Counts and page rows are independent. Run them concurrently, after stale
+  // email statuses have been reconciled above.
+  const [result, pendingCount, acceptedCount, declinedCount] = await Promise.all([
+    buildQuery().range(from, to),
+    client.from('invitations').select('id', { count: 'exact', head: true }).eq('event_id', eventId).eq('status', 'pending'),
+    client.from('invitations').select('id', { count: 'exact', head: true }).eq('event_id', eventId).eq('status', 'accepted'),
+    client.from('invitations').select('id', { count: 'exact', head: true }).eq('event_id', eventId).eq('status', 'declined'),
+  ]);
+  if (result.error || pendingCount.error || acceptedCount.error || declinedCount.error) {
+    throw new InvitationServiceError();
+  }
+  const pending = pendingCount.count ?? 0;
+  const accepted = acceptedCount.count ?? 0;
+  const declined = declinedCount.count ?? 0;
+  const totals: HostInvitationTotals = { total: pending + accepted + declined, pending, accepted, declined };
 
   const filteredTotal = result.count ?? 0;
   const totalPages = Math.max(1, Math.ceil(filteredTotal / PAGE_SIZE));

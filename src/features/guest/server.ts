@@ -1,4 +1,5 @@
 import 'server-only';
+import { cache } from 'react';
 import { randomBytes } from 'node:crypto';
 import type { GuestInvitation, RsvpDecision, RsvpReceipt, SubmitRsvpResult } from '@/lib/contracts';
 import { createAdminSupabaseClient } from '@/lib/supabase/admin';
@@ -13,7 +14,7 @@ export class GuestServiceError extends Error {
 }
 
 type EventEmbed = {
-  id: string; user_id: string; title: string; event_date: string; venue_name: string | null;
+  id: string; user_id: string; title: string; template_key?: string | null; event_date: string; venue_name: string | null;
   venue_address: string | null; google_map_url: string | null; music_path: string | null; lifecycle_status: string;
 };
 type InvitationEmbed = {
@@ -32,11 +33,11 @@ function receipt(status: string, guestMessage: string | null, respondedAt: strin
   return { status, guestMessage, respondedAt: normalized };
 }
 
-export async function readGuestInvitation(token: string): Promise<GuestInvitation | null> {
+export const readGuestInvitation = cache(async function readGuestInvitation(token: string): Promise<GuestInvitation | null> {
   if (!isInvitationToken(token)) return null;
   const admin = createAdminSupabaseClient();
   const { data, error } = await admin.from('invitations').select(
-    'guest_name, invitation_note, status, guest_message, responded_at, events!inner(id, user_id, title, event_date, venue_name, venue_address, google_map_url, music_path, lifecycle_status)',
+    'guest_name, invitation_note, status, guest_message, responded_at, events!inner(id, user_id, title, template_key, event_date, venue_name, venue_address, google_map_url, music_path, lifecycle_status)',
   ).eq('token', token).maybeSingle();
   if (error) throw new GuestServiceError();
   const row = data as InvitationEmbed | null;
@@ -53,6 +54,7 @@ export async function readGuestInvitation(token: string): Promise<GuestInvitatio
       respondedAt: row.responded_at,
       event: {
         id: event.id, userId: event.user_id, title: event.title, eventDate: event.event_date,
+        templateKey: event.template_key,
         venueName: event.venue_name, venueAddress: event.venue_address, googleMapUrl: event.google_map_url,
         musicPath: event.music_path, lifecycleStatus: event.lifecycle_status,
       },
@@ -62,7 +64,7 @@ export async function readGuestInvitation(token: string): Promise<GuestInvitatio
     if (cause instanceof InconsistentInvitationError) throw new GuestServiceError();
     throw cause;
   }
-}
+});
 
 export async function submitRsvpOnce(token: string, decision: RsvpDecision, guestMessage: string | null): Promise<SubmitRsvpResult> {
   if (!isInvitationToken(token)) return { kind: 'not_found' };

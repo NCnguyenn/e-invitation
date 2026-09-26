@@ -9,21 +9,38 @@ import {
 } from '@/lib/validation';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminSupabaseClient } from '@/lib/supabase/admin';
+import { previewReadUserId } from './preview-access';
 
-const COLUMNS = 'id, title, event_date, timezone, venue_name, venue_address, google_map_url, music_path';
+const COLUMNS = 'id, title, event_date, timezone, venue_name, venue_address, google_map_url, music_path, template_key';
 type EventRow = {
   id: string; title: string; event_date: string; timezone: string;
   venue_name: string | null; venue_address: string | null; google_map_url: string | null; music_path: string | null;
+  template_key?: string | null;
 };
 function project(row: EventRow): HostEvent {
-  return { id: row.id, title: row.title, eventDate: row.event_date, timezone: 'Asia/Ho_Chi_Minh',
-    venueName: row.venue_name, venueAddress: row.venue_address, googleMapUrl: row.google_map_url, hasMusic: Boolean(row.music_path) };
+  return {
+    id: row.id,
+    title: row.title,
+    eventDate: row.event_date,
+    timezone: 'Asia/Ho_Chi_Minh',
+    venueName: row.venue_name,
+    venueAddress: row.venue_address,
+    googleMapUrl: row.google_map_url,
+    hasMusic: Boolean(row.music_path),
+    templateKey: row.template_key?.trim() || undefined,
+  };
 }
 export async function readHostEvent(userId: string): Promise<HostEvent | null> {
   const client = await createServerSupabaseClient();
   const { data, error } = await client.from('events').select(COLUMNS).eq('user_id', userId).maybeSingle();
   if (error) throw new Error('Event read failed');
   return data ? project(data) : null;
+}
+
+export async function readPreviewEvent(userId?: string): Promise<HostEvent | null> {
+  const ownerId = previewReadUserId(userId);
+  if (!ownerId) return null;
+  return readHostEvent(ownerId);
 }
 export async function updateHostEvent(userId: string, input: EventUpdate): Promise<HostEvent | null> {
   // Use the user's session and RLS as well as the verified owner filter.

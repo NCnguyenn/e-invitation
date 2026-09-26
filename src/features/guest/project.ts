@@ -23,6 +23,7 @@ export type GuestInvitationSource = {
     venueAddress: string | null;
     googleMapUrl: string | null;
     musicPath: string | null;
+    templateKey?: string | null;
     lifecycleStatus: string;
   };
   host: { role: string; lifecycleStatus: string } | null;
@@ -55,6 +56,7 @@ export function projectGuestInvitation(source: GuestInvitationSource): GuestInvi
       venueAddress: source.event.venueAddress,
       googleMapUrl: source.event.googleMapUrl,
       hasMusic: Boolean(source.event.musicPath),
+      templateKey: source.event.templateKey?.trim() || undefined,
     },
     guestName: source.guestName,
     invitationNote: source.invitationNote,

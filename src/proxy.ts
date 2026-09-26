@@ -4,7 +4,7 @@ import { updateSession } from '@/lib/supabase/proxy';
 export async function proxy(request: NextRequest) {
   const response = await updateSession(request);
   const path = request.nextUrl.pathname;
-  if (path.startsWith('/invite') || path.startsWith('/api/guest') || path === '/api/host/invitations') {
+  if (path.startsWith('/invite') || path.startsWith('/preview') || path.startsWith('/api/guest') || path.startsWith('/api/host')) {
     response.headers.set('Cache-Control', 'private, no-store');
     response.headers.set('Referrer-Policy', 'no-referrer');
     response.headers.set('X-Robots-Tag', 'noindex, nofollow');

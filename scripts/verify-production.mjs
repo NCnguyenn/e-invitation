@@ -32,8 +32,13 @@ for (const [path, expected] of [
   [`/api/guest/${'0'.repeat(64)}`, 404], [`/invite/${'0'.repeat(64)}`, 404],
 ]) {
   const response = await fetch(new URL(path, target), { redirect: 'manual', signal: AbortSignal.timeout(20000) });
-  check(response.status === expected, `${path.startsWith('/invite/') || path.startsWith('/api/guest/') ? 'invalid guest token' : path} HTTP ${response.status} (expected ${expected})`);
   const body = await response.text();
+  // A loading boundary can flush HTTP 200 before the authenticated page
+  // redirects. Next then emits the redirect in the streamed HTML instead.
+  const streamedLoginRedirect = path === '/dashboard' && response.status === 200
+    && body.includes('id="__next-page-redirect"')
+    && /http-equiv="refresh" content="\d+;url=\/login"/.test(body);
+  check(response.status === expected || streamedLoginRedirect, `${path.startsWith('/invite/') || path.startsWith('/api/guest/') ? 'invalid guest token' : path} HTTP ${response.status}${streamedLoginRedirect ? ' (streamed login redirect)' : ` (expected ${expected})`}`);
   check(noSecrets(body), 'response contains no configured private keys');
   if (path !== '/preview') {
     check(/no-store|no-cache/.test(response.headers.get('cache-control') ?? ''), 'private response bypasses cache');

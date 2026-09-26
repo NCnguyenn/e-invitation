@@ -10,6 +10,7 @@ export type SubmitRsvpResult =
 export type HostEvent = {
   id: string; title: string; eventDate: string; timezone: 'Asia/Ho_Chi_Minh';
   venueName: string | null; venueAddress: string | null; googleMapUrl: string | null; hasMusic: boolean;
+  templateKey?: string;
 };
 export type GuestInvitation = {
   event: HostEvent; guestName: string; invitationNote: string | null;

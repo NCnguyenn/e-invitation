@@ -1,0 +1,22 @@
+.header { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+.headingContent { min-width: 0; flex: 1; }
+.titleRow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.player { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 0 0 12px; }
+.player button, .cancel { min-height: 40px; padding: 8px 12px; border: 1px solid #c8d3dd; border-radius: 8px; background: #f6f8fa; color: #193b59; font: inherit; font-size: 12px; cursor: pointer; }
+.player button:hover, .cancel:hover { background: #eaf0f5; }
+.dropzone { display: block; width: 100%; padding: 16px; border: 1px dashed #afbfce; border-radius: 9px; background: #f9fafc; color: #193b59; cursor: pointer; }
+.dropzone:hover, .dragOver { border-color: #315978; background: #f0f5f9; }
+.dropzone[aria-disabled='true'] { opacity: .6; cursor: wait; }
+.dropContent { display: flex; align-items: center; justify-content: center; gap: 14px; text-align: left; }
+.dropContent > svg { flex-shrink: 0; width: 28px; height: 28px; }
+.dropText { display: grid; gap: 5px; min-width: 0; }
+.dropText strong { font-size: 12px; font-weight: 500; line-height: 1.6; overflow-wrap: anywhere; }
+.dropText small { color: #617185; font-size: 11px; line-height: 1.6; }
+.actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.feedback { font-size: 12px; line-height: 1.7; }
+.feedback:empty { display: none; }
+.error { margin: 10px 0 0; color: #922d3a; }
+.success { margin: 10px 0 0; color: #285b40; }
+.status { margin: 10px 0 0; color: #52677c; }
+.error:empty { display: none; }
+@media (max-width: 520px) { .header { align-items: flex-start; } .titleRow { gap: 5px; } .dropzone { padding: 14px 10px; } .dropContent { gap: 10px; } }

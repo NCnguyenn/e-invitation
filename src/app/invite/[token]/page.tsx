@@ -4,7 +4,9 @@ import { notFound } from 'next/navigation';
 import { GuestResponse } from '@/features/guest/GuestResponse';
 import { GuestAudioControl } from '@/features/guest/GuestAudioControl';
 import { readGuestInvitation } from '@/features/guest/server';
+import { resolveTemplateKey } from '@/features/template/resolve-key';
 import { InvitationTemplate } from '@/features/template/InvitationTemplate';
+import { TemplateUnavailable } from '@/features/template/TemplateUnavailable';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -17,6 +19,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const invitation = await readGuestInvitation(token);
     if (!invitation) return { title: 'Thiệp mời', robots };
+    if (!resolveTemplateKey(invitation.event.templateKey)) {
+      return { title: 'Mẫu thiệp không khả dụng', robots };
+    }
     const place = invitation.event.venueName;
     return { title: invitation.event.title, description: place ? `${invitation.event.title} tại ${place}` : invitation.event.title, robots };
   } catch {
@@ -28,6 +33,9 @@ export default async function InvitePage({ params }: Props) {
   const { token } = await params;
   const invitation = await readGuestInvitation(token);
   if (!invitation) notFound();
+  if (!resolveTemplateKey(invitation.event.templateKey)) {
+    return <TemplateUnavailable />;
+  }
   return (
     <InvitationTemplate
       mode="guest"
