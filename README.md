@@ -4,6 +4,8 @@
 
 Production: [https://nc-thiepmoi.netlify.app](https://nc-thiepmoi.netlify.app) · Host login: `/login`.
 
+> 💡 **Thành viên mới tham gia dự án?** Hãy xem ngay hướng dẫn chi tiết tại [**`ONBOARDING.md`**](./ONBOARDING.md) để nắm toàn bộ cấu trúc dự án, tài khoản test, cách cài đặt, chạy test và các nền tảng liên kết.
+
 ## Chạy local
 
 Cần Node.js 22 trở lên.
@@ -49,6 +51,7 @@ npm run smoke:production
 - `images/`: ảnh nguồn; `node scripts/prepare-template-assets.mjs` đồng bộ sang `public/templates/` và tạo bundle font.
 - `public/fonts/`, `public/templates/`: ảnh và font được ứng dụng phục vụ.
 - `docs/BREVO_SEND_CONTRACT.md`: quy tắc gửi email, trạng thái unknown và cách đối soát.
+- `ONBOARDING.md`: hướng dẫn chi tiết toàn diện dành cho thành viên mới (thiết lập, tài khoản, test, kiến trúc).
 - `YEU_CAU_MVP.md`, `YEU_CAU_DU_AN.md`: yêu cầu sản phẩm.
 
 Mã thiệp cũ đã được chuyển vào ứng dụng Next.js; các file HTML/JS/CSS root trước đây không còn là runtime của site.
