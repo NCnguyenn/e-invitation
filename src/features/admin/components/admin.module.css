@@ -12,6 +12,7 @@
 /* Sidebar */
 .sidebar {
   width: 260px;
+  box-sizing: border-box;
   background-color: #0f172a;
   color: #f8fafc;
   display: flex;

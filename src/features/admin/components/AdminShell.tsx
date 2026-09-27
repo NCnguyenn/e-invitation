@@ -89,6 +89,7 @@ export function AdminShell({
   const [snapshots, setSnapshots] = useState<MetricSnapshot[]>(initialSnapshots);
   const [internalMetrics, setInternalMetrics] = useState<InternalActivityMetrics>(initialInternalMetrics);
   const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(initialSyncedAt);
+  const [syncBlockedReason, setSyncBlockedReason] = useState<string | null>(initialSyncBlockedReason);
 
   // Shared modal triggers
   const [createHostModalOpen, setCreateHostModalOpen] = useState(false);
@@ -126,6 +127,7 @@ export function AdminShell({
         if (d.snapshots) setSnapshots(d.snapshots);
         if (d.internalMetrics) setInternalMetrics(d.internalMetrics);
         if (d.lastSyncedAt) setLastSyncedAt(d.lastSyncedAt);
+        setSyncBlockedReason(d.syncBlockedReason ?? null);
       }
     } catch {
       // Ignore
@@ -260,8 +262,13 @@ export function AdminShell({
               initialSnapshots={snapshots}
               initialInternalMetrics={internalMetrics}
               initialSyncedAt={lastSyncedAt}
-              initialSyncBlockedReason={initialSyncBlockedReason}
-              onRefreshTriggered={refreshData}
+              initialSyncBlockedReason={syncBlockedReason}
+              onMetricsUpdated={(data) => {
+                setSnapshots(data.snapshots || []);
+                if (data.internalMetrics) setInternalMetrics(data.internalMetrics);
+                setLastSyncedAt(data.lastSyncedAt ?? null);
+                setSyncBlockedReason(data.syncBlockedReason ?? null);
+              }}
             />
           )}
 

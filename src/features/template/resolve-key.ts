@@ -1,4 +1,4 @@
-export const REGISTERED_TEMPLATE_KEYS = ['wedding-floral-01', 'graduation-floral-01'] as const;
+export const REGISTERED_TEMPLATE_KEYS = ['wedding-floral-01', 'graduation-floral-01', 'graduation-editorial-01'] as const;
 
 export type RegisteredTemplateKey = (typeof REGISTERED_TEMPLATE_KEYS)[number];
 

@@ -26,6 +26,7 @@ test('generateSecurePassword generates 16-character complex password', () => {
 test('Template registry validates allowed templates correctly', () => {
   assert.equal(isRegisteredTemplate('wedding-floral-01'), true);
   assert.equal(isRegisteredTemplate('graduation-floral-01'), true);
+  assert.equal(isRegisteredTemplate('graduation-editorial-01'), true);
   assert.equal(isRegisteredTemplate('unknown-template-xyz'), false);
   assert.equal(isRegisteredTemplate(''), false);
   assert.equal(isRegisteredTemplate(null), false);
@@ -33,6 +34,7 @@ test('Template registry validates allowed templates correctly', () => {
 
   const keys = listTemplateKeys();
   assert.ok(keys.includes('wedding-floral-01'));
+  assert.ok(keys.includes('graduation-editorial-01'));
 });
 
 test('Google Maps URL validation enforces strict allowlist per Section 6', () => {

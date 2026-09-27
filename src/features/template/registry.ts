@@ -9,9 +9,15 @@ async function loadWeddingFloral01() {
   return loaded.WeddingFloral01;
 }
 
+async function loadGraduationEditorial01() {
+  const loaded = await import('./templates/GraduationEditorial01');
+  return loaded.GraduationEditorial01;
+}
+
 const LOADERS: Record<RegisteredTemplateKey, TemplateLoader> = {
   'wedding-floral-01': loadWeddingFloral01,
   'graduation-floral-01': loadWeddingFloral01,
+  'graduation-editorial-01': loadGraduationEditorial01,
 };
 
 async function loadWeddingFloral01Cover() {
@@ -19,9 +25,15 @@ async function loadWeddingFloral01Cover() {
   return loaded.WeddingFloral01Cover;
 }
 
+async function loadGraduationEditorial01Cover() {
+  const loaded = await import('./templates/GraduationEditorial01Cover');
+  return loaded.GraduationEditorial01Cover;
+}
+
 const COVER_LOADERS: Record<RegisteredTemplateKey, () => Promise<ComponentType<TemplateCoverProps>>> = {
   'wedding-floral-01': loadWeddingFloral01Cover,
   'graduation-floral-01': loadWeddingFloral01Cover,
+  'graduation-editorial-01': loadGraduationEditorial01Cover,
 };
 
 export async function loadTemplateCover(key: string): Promise<ComponentType<TemplateCoverProps>> {

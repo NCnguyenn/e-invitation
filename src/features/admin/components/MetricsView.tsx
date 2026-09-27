@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
-import type { InternalActivityMetrics, MetricProvider, MetricSnapshot } from '../contracts';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import type { InternalActivityMetrics, MetricProvider, MetricSnapshot, SyncResult } from '../contracts';
 import { DIRECT_DASHBOARD_LINKS, PUBLISHED_REFERENCE_LIMITS } from '../metrics/reference';
+import { snapshotAtTime, summarizeProviderMeasurements } from '../metrics/measurement-status';
+import { unavailableInternalMetrics } from '../metrics/integrity';
 import { MetricCard } from './MetricCard';
 import styles from './admin.module.css';
 
@@ -11,7 +13,7 @@ interface MetricsViewProps {
   initialInternalMetrics: InternalActivityMetrics;
   initialSyncedAt: string | null;
   initialSyncBlockedReason?: string | null;
-  onRefreshTriggered?: () => void;
+  onMetricsUpdated?: (data: SyncResult) => void;
 }
 
 const REFRESH_COOLDOWN_SEC = 60;
@@ -26,20 +28,17 @@ const PROVIDERS: Array<{ id: MetricProvider; name: string; summary: string }> = 
 
 function getProviderMeasurementStatus(provider: MetricProvider, snapshots: MetricSnapshot[]) {
   const providerMetrics = snapshots.filter((snapshot) => snapshot.provider === provider);
-  const measuredCount = providerMetrics.filter((snapshot) => snapshot.value !== null).length;
-  const freshCount = providerMetrics.filter(
-    (snapshot) => snapshot.status === 'fresh' && snapshot.value !== null,
-  ).length;
+  const summary = summarizeProviderMeasurements(providerMetrics);
 
-  if (measuredCount > 0) {
+  if (summary.measuredCount > 0) {
     return {
-      label: freshCount === measuredCount
-        ? `${measuredCount}/${providerMetrics.length} chỉ số có số đo mới`
-        : `${freshCount}/${providerMetrics.length} số đo mới · ${measuredCount - freshCount} cũ`,
-      className: freshCount === measuredCount ? styles.statusGreen : styles.statusAmber,
+      label: summary.allFresh
+        ? `${summary.freshCount}/${summary.totalCount} chỉ số có số đo mới`
+        : `${summary.freshCount}/${summary.totalCount} số đo mới · ${summary.totalCount - summary.freshCount} thiếu/cũ`,
+      className: summary.allFresh ? styles.statusGreen : styles.statusAmber,
     };
   }
-  if (providerMetrics.length > 0 && providerMetrics.every((snapshot) => snapshot.status === 'not_connected')) {
+  if (summary.allNotConnected) {
     return { label: 'Chưa cấu hình kết nối API', className: styles.statusAmber };
   }
   if (provider === 'netlify' || provider === 'github') {
@@ -55,6 +54,7 @@ function getSyncBlockLabel(reason: string | null) {
   if (reason === 'locked') return 'Một tiến trình khác đang đồng bộ.';
   if (reason === 'cooldown') return 'Đang trong thời gian chờ giữa các lần đồng bộ.';
   if (reason === 'lease_unavailable') return 'Không thể lấy quyền đồng bộ lúc này.';
+  if (reason === 'persistence_failed') return 'Không lưu được số đo mới. Đang giữ dữ liệu đã lưu trước đó.';
   return null;
 }
 
@@ -63,7 +63,7 @@ export function MetricsView({
   initialInternalMetrics,
   initialSyncedAt,
   initialSyncBlockedReason = null,
-  onRefreshTriggered,
+  onMetricsUpdated,
 }: MetricsViewProps) {
   const [snapshots, setSnapshots] = useState<MetricSnapshot[]>(initialSnapshots);
   const [internalMetrics, setInternalMetrics] = useState<InternalActivityMetrics>(initialInternalMetrics);
@@ -73,60 +73,77 @@ export function MetricsView({
   const [autoRefreshCountdown, setAutoRefreshCountdown] = useState(AUTO_REFRESH_INTERVAL_SEC);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const isVisibleRef = useRef(true);
+  const refreshLockRef = useRef(false);
+  const requestRef = useRef<AbortController | null>(null);
+  const mountedRef = useRef(true);
+  const cooldownUntilRef = useRef(0);
+  const nextRefreshAtRef = useRef(Date.now() + AUTO_REFRESH_INTERVAL_SEC * 1000);
 
-  useEffect(() => {
-    function handleVisibilityChange() {
-      isVisibleRef.current = document.visibilityState === 'visible';
-    }
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, []);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCooldownSeconds((previous) => (previous > 0 ? previous - 1 : 0));
-      if (isVisibleRef.current) {
-        setAutoRefreshCountdown((previous) => {
-          if (previous <= 1) {
-            void handleRefresh(false);
-            return AUTO_REFRESH_INTERVAL_SEC;
-          }
-          return previous - 1;
-        });
-      }
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  async function handleRefresh(force = true) {
-    if (isRefreshing || (force && cooldownSeconds > 0)) return;
+  const handleRefresh = useCallback(async (force = true) => {
+    if (refreshLockRef.current || Date.now() < cooldownUntilRef.current) return;
+    refreshLockRef.current = true;
+    cooldownUntilRef.current = Date.now() + REFRESH_COOLDOWN_SEC * 1000;
+    nextRefreshAtRef.current = Date.now() + AUTO_REFRESH_INTERVAL_SEC * 1000;
+    setCooldownSeconds(REFRESH_COOLDOWN_SEC);
+    setAutoRefreshCountdown(AUTO_REFRESH_INTERVAL_SEC);
     setIsRefreshing(true);
     setErrorMessage(null);
+    const controller = new AbortController();
+    requestRef.current = controller;
+    const timeout = setTimeout(() => controller.abort(), 30000);
 
     try {
-      const response = await fetch(`/api/admin/metrics?refresh=${force ? 'true' : 'false'}`);
+      const response = await fetch(`/api/admin/metrics?refresh=${force ? 'true' : 'false'}`, { signal: controller.signal, cache: 'no-store' });
       if (!response.ok) {
         const body = await response.json().catch(() => null);
         throw new Error(body?.message || 'Không thể đồng bộ số đo.');
       }
 
-      const data = await response.json();
-      setSnapshots(Array.isArray(data.snapshots) ? data.snapshots : []);
-      if (data.internalMetrics) setInternalMetrics(data.internalMetrics);
-      setLastSyncedAt(typeof data.lastSyncedAt === 'string' ? data.lastSyncedAt : null);
-      setSyncBlockedReason(typeof data.syncBlockedReason === 'string' ? data.syncBlockedReason : null);
-      if (force) {
-        setCooldownSeconds(REFRESH_COOLDOWN_SEC);
-        setAutoRefreshCountdown(AUTO_REFRESH_INTERVAL_SEC);
-      }
-      onRefreshTriggered?.();
+      const data: SyncResult = await response.json();
+      if (!Array.isArray(data.snapshots) || !data.internalMetrics?.dailyEmailBudget) throw new Error('Phản hồi đồng bộ thiếu dữ liệu.');
+      if (!mountedRef.current) return;
+      const normalized = { ...data, snapshots: data.snapshots.map(s => snapshotAtTime(s)) };
+      setSnapshots(normalized.snapshots);
+      setInternalMetrics(normalized.internalMetrics);
+      setLastSyncedAt(normalized.lastSyncedAt);
+      setSyncBlockedReason(normalized.syncBlockedReason ?? null);
+      onMetricsUpdated?.(normalized);
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'Lỗi đồng bộ số liệu.');
+      if (!mountedRef.current) return;
+      const retained: SyncResult = {
+        snapshots: snapshots.map(s => s.value === null ? s : { ...s, status: 'stale' as const }),
+        internalMetrics: unavailableInternalMetrics(),
+        lastSyncedAt,
+        syncBlockedReason: null,
+      };
+      setSnapshots(retained.snapshots);
+      setInternalMetrics(retained.internalMetrics);
+      setSyncBlockedReason(null);
+      onMetricsUpdated?.(retained);
+      setErrorMessage(error instanceof DOMException && error.name === 'AbortError' ? 'Đồng bộ quá thời gian chờ.' : error instanceof Error ? error.message : 'Lỗi đồng bộ số liệu.');
     } finally {
-      setIsRefreshing(false);
+      clearTimeout(timeout);
+      requestRef.current = null;
+      if (mountedRef.current) setIsRefreshing(false);
+      refreshLockRef.current = false;
     }
-  }
+  }, [snapshots, lastSyncedAt, onMetricsUpdated]);
+
+  useEffect(() => {
+    const tick = () => {
+      setCooldownSeconds(Math.max(0, Math.ceil((cooldownUntilRef.current - Date.now()) / 1000)));
+      setAutoRefreshCountdown(Math.max(0, Math.ceil((nextRefreshAtRef.current - Date.now()) / 1000)));
+      if (document.visibilityState === 'visible' && Date.now() >= nextRefreshAtRef.current) void handleRefresh(false);
+    };
+    const timer = setInterval(tick, 1000);
+    document.addEventListener('visibilitychange', tick);
+    return () => { clearInterval(timer); document.removeEventListener('visibilitychange', tick); };
+  }, [handleRefresh]);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; requestRef.current?.abort(); };
+  }, []);
 
   const emailBudget = internalMetrics.dailyEmailBudget;
   const appReserved = emailBudget?.reservedAttempts;
@@ -226,6 +243,7 @@ export function MetricsView({
                       <div className={styles.resourceLimitTop}>
                         <div>
                           <span className={styles.resourceCategory}>{limit.category}</span>
+                          <div>{limit.name}</div>
                           <strong>{limit.publishedLimit}</strong>
                         </div>
                         <a href={limit.sourceUrl} target="_blank" rel="noopener noreferrer" className={styles.linkExternal}>
@@ -233,7 +251,9 @@ export function MetricsView({
                         </a>
                       </div>
                       <p>{limit.notes}</p>
-                      <span className={styles.checkedDate}>Đối chiếu nguồn: {limit.checkedAt}</span>
+                        <span className={styles.checkedDate}>
+                          Hạn mức công bố · chỉ đối chiếu Dashboard · nguồn kiểm tra: {limit.checkedAt}
+                        </span>
                     </div>
                   )) : (
                     <p className={styles.emptyInline}>Chưa có hạn mức tham khảo được ghi nguồn.</p>

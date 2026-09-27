@@ -1,0 +1,105 @@
+.graduation-editorial-template {
+  --editorial-ink: #641c34;
+  --editorial-coral: #ea5d45;
+  --editorial-blush: #eac9ce;
+  --editorial-cream: #fff6e9;
+  --editorial-paper: #fffaf2;
+  --editorial-muted: #795363;
+  min-height: 100vh;
+  background: #ead7d4;
+  color: var(--editorial-ink);
+  font-family: 'Inter', sans-serif;
+}
+.graduation-editorial-template *, .graduation-editorial-template *::before, .graduation-editorial-template *::after { box-sizing: border-box; }
+.graduation-editorial-template .editorial-preview-notice { position: sticky; top: 0; z-index: 20; width: min(100%, 760px); margin: 0 auto; padding: 9px 16px; color: var(--editorial-cream); background: var(--editorial-ink); font-size: 11px; letter-spacing: .06em; }
+.graduation-editorial-template .editorial-floating-control { position: fixed; top: 42px; right: max(12px, calc(50% - 360px)); z-index: 30; }
+.graduation-editorial-template .editorial-container { width: min(100%, 760px); margin: 0 auto; overflow: hidden; background: var(--editorial-cream); box-shadow: 0 0 48px #641c3426; position: relative; }
+.graduation-editorial-template .editorial-topbar { display: flex; justify-content: space-between; padding: 13px 22px; color: var(--editorial-cream); background: var(--editorial-ink); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; }
+.graduation-editorial-template .editorial-chapter-rail { position: fixed; right: max(8px, calc(50% - 392px)); top: 30%; z-index: 15; display: grid; gap: 8px; color: var(--editorial-ink); font-size: 9px; opacity: .65; }
+.graduation-editorial-template .editorial-chapter-rail span { display: grid; place-items: center; width: 23px; height: 23px; border: 1px solid currentColor; border-radius: 50%; background: #fff6e9cc; }
+.graduation-editorial-template .editorial-hero { display: grid; grid-template-columns: 43% 57%; min-height: 550px; padding: 58px 32px 30px; background: var(--editorial-cream); position: relative; overflow: hidden; }
+.graduation-editorial-template .editorial-hero::after { content: ''; position: absolute; width: 340px; height: 340px; right: -110px; top: 40px; border: 2px solid var(--editorial-blush); border-radius: 50%; }
+.graduation-editorial-template .editorial-hero-copy { position: relative; z-index: 2; align-self: center; }
+.graduation-editorial-template .editorial-kicker, .graduation-editorial-template .editorial-section-label { display: block; font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.graduation-editorial-template .editorial-hero h1 { margin: 20px 0 0; font-size: clamp(4rem, 11vw, 7rem); line-height: .78; letter-spacing: -.08em; color: var(--editorial-ink); }
+.graduation-editorial-template .editorial-script { margin: 12px 0; font-family: 'Viaoda Libre', serif; font-size: clamp(2.6rem, 7vw, 4.8rem); font-style: italic; line-height: .9; }
+.graduation-editorial-template .editorial-hero-note { font-family: 'Merriweather', serif; font-size: 13px; line-height: 1.6; }
+.graduation-editorial-template .editorial-primary, .graduation-editorial-template .editorial-ticket-button { border: 0; border-radius: 999px; padding: 12px 20px; color: var(--editorial-cream); background: var(--editorial-ink); font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; }
+.graduation-editorial-template .editorial-scroll-hint { display: block; margin-top: 28px; color: var(--editorial-muted); font-size: 10px; }
+.graduation-editorial-template .editorial-hero-portrait { position: relative; z-index: 1; align-self: end; min-height: 450px; }
+.graduation-editorial-template .editorial-hero-portrait img { width: 100%; height: 480px; object-fit: cover; object-position: center; border-radius: 45% 45% 5px 5px; filter: saturate(.85); }
+.graduation-editorial-template .editorial-sticker { position: absolute; left: -24px; top: 26px; padding: 15px 10px; color: var(--editorial-cream); background: var(--editorial-coral); transform: rotate(-12deg); font-weight: 800; font-size: 11px; }
+.graduation-editorial-template .editorial-year { position: absolute; right: -14px; bottom: 20px; color: transparent; font-size: 110px; line-height: 1; -webkit-text-stroke: 1px var(--editorial-ink); }
+.graduation-editorial-template .editorial-memory-section { padding: 42px 32px 50px; color: var(--editorial-cream); background: var(--editorial-ink); }
+.graduation-editorial-template .editorial-memory-section h2, .graduation-editorial-template .editorial-ticket-main h2, .graduation-editorial-template .editorial-gallery-intro h2, .graduation-editorial-template .editorial-rsvp-section h2, .graduation-editorial-template .editorial-thank-you h2 { margin: 18px 0 4px; font-family: 'Merriweather', serif; font-size: clamp(2.2rem, 6vw, 4.4rem); line-height: 1.05; }
+.graduation-editorial-template .editorial-memory-section h2 span { color: var(--editorial-coral); }
+.graduation-editorial-template .editorial-lead { margin: 0 0 28px; color: var(--editorial-blush); font-family: 'Viaoda Libre', serif; font-style: italic; }
+.graduation-editorial-template .editorial-route { display: grid; grid-template-columns: repeat(3, 1fr); gap: 13px; position: relative; }
+.graduation-editorial-template .editorial-route::before { content: ''; position: absolute; top: 52%; left: 8%; right: 8%; border-top: 2px solid var(--editorial-coral); transform: rotate(-4deg); }
+.graduation-editorial-template .editorial-route > div { position: relative; z-index: 1; }
+.graduation-editorial-template .editorial-route > div:nth-child(2) { margin-top: 20px; }
+.graduation-editorial-template .editorial-route img { display: block; width: 100%; aspect-ratio: 1.1; object-fit: cover; border: 5px solid var(--editorial-cream); transform: rotate(-4deg); }
+.graduation-editorial-template .editorial-route > div:nth-child(2) img { transform: rotate(4deg); }
+.graduation-editorial-template .editorial-route b, .graduation-editorial-template .editorial-route small { display: block; margin-top: 9px; }
+.graduation-editorial-template .editorial-route b { color: var(--editorial-coral); font-size: 18px; }
+.graduation-editorial-template .editorial-route small { font-size: 10px; line-height: 1.4; }
+.graduation-editorial-template .editorial-letter-section, .graduation-editorial-template .editorial-gallery-intro { padding: 44px 32px; background: var(--editorial-paper); }
+.graduation-editorial-template .editorial-letter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: center; }
+.graduation-editorial-template .editorial-letter-grid img { width: 100%; aspect-ratio: .8; object-fit: cover; filter: saturate(.8); }
+.graduation-editorial-template .editorial-hand { margin: 12px 0 20px; font-family: 'Qwitcher Grypen', cursive; font-size: clamp(3.1rem, 8vw, 5rem); line-height: .78; }
+.graduation-editorial-template .editorial-letter-grid > div > p:not(.editorial-hand):not(.editorial-signature) { font-family: 'Merriweather', serif; font-size: 12px; line-height: 1.7; }
+.graduation-editorial-template .editorial-signature { font-family: 'Qwitcher Grypen', cursive; font-size: 2.7rem; }
+.graduation-editorial-template .editorial-ticket-section { padding: 34px 22px; background: var(--editorial-blush); }
+.graduation-editorial-template .editorial-ticket { display: grid; grid-template-columns: 86px 1fr 28px; overflow: hidden; background: #f6dce0; border: 1px solid var(--editorial-ink); box-shadow: 0 10px 25px #641c3430; }
+.graduation-editorial-template .editorial-ticket-stub { padding: 24px 10px; border-right: 1px dashed var(--editorial-ink); font-size: 9px; letter-spacing: .12em; line-height: 1.8; }
+.graduation-editorial-template .editorial-ticket-main { padding: 26px 22px; }
+.graduation-editorial-template .editorial-ticket-main h2 { margin-top: 10px; font-size: clamp(2.5rem, 8vw, 5rem); }
+.graduation-editorial-template .editorial-ticket-details { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 14px; margin: 20px 0; }
+.graduation-editorial-template .editorial-ticket-details span, .graduation-editorial-template .editorial-ticket-details strong { display: block; }
+.graduation-editorial-template .editorial-ticket-details span { font-size: 9px; letter-spacing: .1em; }
+.graduation-editorial-template .editorial-ticket-details strong { margin-top: 4px; font-family: 'Merriweather', serif; font-size: 16px; }
+.graduation-editorial-template .editorial-ticket-barcode { writing-mode: vertical-rl; display: grid; place-items: center; border-left: 1px dashed var(--editorial-ink); letter-spacing: 4px; }
+.graduation-editorial-template .editorial-gallery-intro { padding-bottom: 0; }
+.graduation-editorial-template .editorial-gallery-intro h2 { font-size: clamp(2.2rem, 7vw, 4.8rem); }
+.graduation-editorial-template .editorial-gallery-intro h2 em { color: var(--editorial-coral); }
+.graduation-editorial-template .editorial-gallery-intro .gallery-section { padding: 28px 0 42px; background: transparent; }
+.graduation-editorial-template .editorial-gallery-intro .gallery-title { display: none; }
+.graduation-editorial-template .editorial-gallery-intro .gallery-grid { grid-template-columns: 1.3fr .7fr; gap: 12px; }
+.graduation-editorial-template .editorial-gallery-intro .gallery-item { height: 170px !important; border: 4px solid var(--editorial-paper); border-radius: 0; box-shadow: 0 8px 20px #641c3422; }
+.graduation-editorial-template .editorial-gallery-intro .gallery-item:nth-child(3n + 1) { grid-column: span 2; height: 260px !important; }
+.graduation-editorial-template .editorial-rsvp-section { padding: 44px 32px; color: var(--editorial-cream); background: var(--editorial-ink); }
+.graduation-editorial-template .editorial-rsvp-layout { display: grid; grid-template-columns: .95fr 1.05fr; gap: 28px; align-items: start; }
+.graduation-editorial-template .editorial-rsvp-section h2 { font-size: clamp(2.5rem, 7vw, 4.6rem); }
+.graduation-editorial-template .editorial-rsvp-section p { color: var(--editorial-blush); }
+.graduation-editorial-template .editorial-rsvp-section .rsvp-card { padding: 0; background: transparent; border: 0; box-shadow: none; }
+.graduation-editorial-template .editorial-rsvp-section .rsvp-title { display: none; }
+.graduation-editorial-template .editorial-rsvp-section .guest-rsvp-name, .graduation-editorial-template .editorial-rsvp-section .rsvp-once-note { color: var(--editorial-blush); }
+.graduation-editorial-template .editorial-rsvp-section .radio-card { color: var(--editorial-ink); background: var(--editorial-paper); border: 0; }
+.graduation-editorial-template .editorial-rsvp-section .form-textarea { background: var(--editorial-paper); border: 0; }
+.graduation-editorial-template .editorial-rsvp-section .btn-rsvp-submit { background: var(--editorial-coral); }
+.graduation-editorial-template .editorial-thank-you { position: relative; min-height: 420px; color: var(--editorial-cream); overflow: hidden; }
+.graduation-editorial-template .editorial-thank-you img { width: 100%; height: 100%; min-height: 420px; object-fit: cover; filter: saturate(.7); }
+.graduation-editorial-template .editorial-thank-you::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, #641c34dd, #641c3440); }
+.graduation-editorial-template .editorial-thank-you > div { position: absolute; inset: auto 32px 34px; z-index: 1; }
+.graduation-editorial-template .editorial-thank-you h2 { font-size: clamp(3rem, 8vw, 5.6rem); }
+.graduation-editorial-template .editorial-thank-you p:last-child { max-width: 260px; font-family: 'Merriweather', serif; font-size: 12px; }
+.graduation-editorial-template .editorial-footer { padding: 20px; color: var(--editorial-cream); background: #401426; text-align: center; font-size: 9px; letter-spacing: .12em; }
+.graduation-editorial-template .editorial-cover { min-height: 420px; padding: 38px 28px; background: var(--editorial-cream); position: relative; overflow: hidden; }
+.graduation-editorial-template .editorial-cover h1 { margin: 18px 0 -40px; font-size: 5.4rem; line-height: .8; }
+.graduation-editorial-template .editorial-cover img { display: block; width: 72%; height: 280px; margin-left: auto; object-fit: cover; border-radius: 50% 50% 0 0; }
+.graduation-editorial-template .editorial-cover p { margin: -15px 0 12px; font-family: 'Viaoda Libre', serif; font-size: 3rem; font-style: italic; }
+.graduation-editorial-template .editorial-cover strong { font-size: 11px; }
+@media (max-width: 620px) {
+  .graduation-editorial-template .editorial-topbar { font-size: 8px; padding: 11px 12px; }
+  .graduation-editorial-template .editorial-hero { grid-template-columns: 1fr; padding: 38px 22px 25px; }
+  .graduation-editorial-template .editorial-hero-copy { margin-bottom: 20px; }
+  .graduation-editorial-template .editorial-hero-portrait { min-height: 360px; width: 74%; margin-left: auto; }
+  .graduation-editorial-template .editorial-hero-portrait img { height: 370px; }
+  .graduation-editorial-template .editorial-chapter-rail { display: none; }
+  .graduation-editorial-template .editorial-memory-section, .graduation-editorial-template .editorial-letter-section, .graduation-editorial-template .editorial-gallery-intro, .graduation-editorial-template .editorial-rsvp-section { padding-left: 20px; padding-right: 20px; }
+  .graduation-editorial-template .editorial-ticket-details, .graduation-editorial-template .editorial-rsvp-layout { grid-template-columns: 1fr; gap: 12px; }
+  .graduation-editorial-template .editorial-ticket { grid-template-columns: 54px 1fr; }
+  .graduation-editorial-template .editorial-ticket-barcode { display: none; }
+  .graduation-editorial-template .editorial-ticket-stub { padding: 18px 7px; font-size: 7px; }
+}
+@media (prefers-reduced-motion: reduce) { .graduation-editorial-template *, .graduation-editorial-template *::before, .graduation-editorial-template *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }

@@ -1,7 +1,8 @@
 import type { MetricSnapshot } from '../contracts';
+import { metricEnvironment } from './context.ts';
 
 const SUPABASE_MGMT_BASE = 'https://api.supabase.com';
-const MAPPING_VERSION = '1.0';
+const MAPPING_VERSION = '2.0';
 const SOURCE_CHECKED_AT = '2026-09-24';
 
 export async function fetchSupabaseMgmtMetrics(
@@ -9,8 +10,8 @@ export async function fetchSupabaseMgmtMetrics(
   projectRef?: string,
 ): Promise<MetricSnapshot[]> {
   const now = new Date().toISOString();
-  const effectiveToken = token || process.env.SUPABASE_MANAGEMENT_TOKEN?.trim();
-  const effectiveRef = projectRef || process.env.SUPABASE_PROJECT_REF?.trim();
+  const effectiveToken = (token !== undefined ? token : process.env.SUPABASE_MANAGEMENT_TOKEN)?.trim();
+  const effectiveRef = (projectRef !== undefined ? projectRef : process.env.SUPABASE_PROJECT_REF)?.trim();
   const scopeId = effectiveRef || 'primary';
 
   if (!effectiveToken || !effectiveRef) {
@@ -68,9 +69,9 @@ export async function fetchSupabaseMgmtMetrics(
           createErrorSnapshot('supabase-disk-fs-avail', 'Supabase DB Filesystem Available', 'byte', 'GET /v1/projects/{ref}/config/disk/util', 'metrics.fs_avail_bytes', 'invalid_response', 'METRICS_OBJECT_MISSING', scopeId),
         );
       } else {
-        const fsSize = typeof metrics.fs_size_bytes === 'number' ? metrics.fs_size_bytes : null;
-        const fsUsed = typeof metrics.fs_used_bytes === 'number' ? metrics.fs_used_bytes : null;
-        const fsAvail = typeof metrics.fs_avail_bytes === 'number' ? metrics.fs_avail_bytes : null;
+        const fsSize = Number.isFinite(metrics.fs_size_bytes) && metrics.fs_size_bytes >= 0 ? metrics.fs_size_bytes : null;
+        const fsUsed = Number.isFinite(metrics.fs_used_bytes) && metrics.fs_used_bytes >= 0 ? metrics.fs_used_bytes : null;
+        const fsAvail = Number.isFinite(metrics.fs_avail_bytes) && metrics.fs_avail_bytes >= 0 ? metrics.fs_avail_bytes : null;
 
         results.push({
           provider: 'supabase',
@@ -78,7 +79,7 @@ export async function fetchSupabaseMgmtMetrics(
           scope_id: effectiveRef,
           metric_key: 'supabase-disk-fs-size',
           display_name: 'Supabase DB Filesystem Size',
-          environment: 'production',
+          environment: metricEnvironment(),
           value: fsSize,
           unit: 'byte',
           limit_value: null,
@@ -105,7 +106,7 @@ export async function fetchSupabaseMgmtMetrics(
           scope_id: effectiveRef,
           metric_key: 'supabase-disk-fs-used',
           display_name: 'Supabase DB Filesystem Used',
-          environment: 'production',
+          environment: metricEnvironment(),
           value: fsUsed,
           unit: 'byte',
           limit_value: fsSize,
@@ -132,7 +133,7 @@ export async function fetchSupabaseMgmtMetrics(
           scope_id: effectiveRef,
           metric_key: 'supabase-disk-fs-avail',
           display_name: 'Supabase DB Filesystem Available',
-          environment: 'production',
+          environment: metricEnvironment(),
           value: fsAvail,
           unit: 'byte',
           limit_value: null,
@@ -196,19 +197,20 @@ export async function fetchSupabaseMgmtMetrics(
       );
     } else {
       const data = await countsRes.json().catch(() => null);
-      const row = Array.isArray(data?.result) ? data.result[0] : (data?.result || data);
+      const rows = Array.isArray(data?.result) ? data.result : (data?.result && typeof data.result === 'object' ? [data.result] : []);
+      const row = rows.length === 1 ? rows[0] : null;
       if (!row || typeof row !== 'object') {
         results.push(
-          createErrorSnapshot('supabase-api-auth', 'Supabase Auth API Requests', 'count', 'GET /v1/projects/{ref}/analytics/endpoints/usage.api-counts', 'total_auth_requests', 'invalid_response', 'INVALID_RESPONSE_FORMAT', scopeId),
-          createErrorSnapshot('supabase-api-rest', 'Supabase REST API Requests', 'count', 'GET /v1/projects/{ref}/analytics/endpoints/usage.api-counts', 'total_rest_requests', 'invalid_response', 'INVALID_RESPONSE_FORMAT', scopeId),
-          createErrorSnapshot('supabase-api-storage', 'Supabase Storage API Requests', 'count', 'GET /v1/projects/{ref}/analytics/endpoints/usage.api-counts', 'total_storage_requests', 'invalid_response', 'INVALID_RESPONSE_FORMAT', scopeId),
-          createErrorSnapshot('supabase-api-realtime', 'Supabase Realtime API Requests', 'count', 'GET /v1/projects/{ref}/analytics/endpoints/usage.api-counts', 'total_realtime_requests', 'invalid_response', 'INVALID_RESPONSE_FORMAT', scopeId),
+          createErrorSnapshot('supabase-api-auth', 'Supabase Auth API Requests', 'count', 'GET /v1/projects/{ref}/analytics/endpoints/usage.api-counts', 'total_auth_requests', 'invalid_response', 'AMBIGUOUS_RESPONSE_ROWS', scopeId),
+          createErrorSnapshot('supabase-api-rest', 'Supabase REST API Requests', 'count', 'GET /v1/projects/{ref}/analytics/endpoints/usage.api-counts', 'total_rest_requests', 'invalid_response', 'AMBIGUOUS_RESPONSE_ROWS', scopeId),
+          createErrorSnapshot('supabase-api-storage', 'Supabase Storage API Requests', 'count', 'GET /v1/projects/{ref}/analytics/endpoints/usage.api-counts', 'total_storage_requests', 'invalid_response', 'AMBIGUOUS_RESPONSE_ROWS', scopeId),
+          createErrorSnapshot('supabase-api-realtime', 'Supabase Realtime API Requests', 'count', 'GET /v1/projects/{ref}/analytics/endpoints/usage.api-counts', 'total_realtime_requests', 'invalid_response', 'AMBIGUOUS_RESPONSE_ROWS', scopeId),
         );
       } else {
-        const authCount = typeof row.total_auth_requests === 'number' ? row.total_auth_requests : null;
-        const restCount = typeof row.total_rest_requests === 'number' ? row.total_rest_requests : null;
-        const storageCount = typeof row.total_storage_requests === 'number' ? row.total_storage_requests : null;
-        const realtimeCount = typeof row.total_realtime_requests === 'number' ? row.total_realtime_requests : null;
+        const authCount = Number.isFinite(row.total_auth_requests) && row.total_auth_requests >= 0 ? row.total_auth_requests : null;
+        const restCount = Number.isFinite(row.total_rest_requests) && row.total_rest_requests >= 0 ? row.total_rest_requests : null;
+        const storageCount = Number.isFinite(row.total_storage_requests) && row.total_storage_requests >= 0 ? row.total_storage_requests : null;
+        const realtimeCount = Number.isFinite(row.total_realtime_requests) && row.total_realtime_requests >= 0 ? row.total_realtime_requests : null;
 
         results.push(createApiCountSnapshot('supabase-api-auth', 'Supabase Auth API Requests', 'total_auth_requests', authCount, effectiveRef, now));
         results.push(createApiCountSnapshot('supabase-api-rest', 'Supabase REST API Requests', 'total_rest_requests', restCount, effectiveRef, now));
@@ -244,7 +246,7 @@ function createApiCountSnapshot(
     scope_id: scopeId,
     metric_key: metricKey,
     display_name: displayName,
-    environment: 'production',
+    environment: metricEnvironment(),
     value,
     unit: 'count',
     limit_value: null,
@@ -281,7 +283,7 @@ function createNotConnectedSnapshot(
     scope_id: scopeId,
     metric_key: metricKey,
     display_name: displayName,
-    environment: 'production',
+    environment: metricEnvironment(),
     value: null,
     unit,
     limit_value: null,
@@ -320,7 +322,7 @@ function createErrorSnapshot(
     scope_id: scopeId,
     metric_key: metricKey,
     display_name: displayName,
-    environment: 'production',
+    environment: metricEnvironment(),
     value: null,
     unit,
     limit_value: null,

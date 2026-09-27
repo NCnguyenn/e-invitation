@@ -3,168 +3,108 @@ import type { MetricSnapshot, SyncBlockedReason, SyncResult } from '../contracts
 import { fetchBrevoMetrics } from './brevo';
 import { fetchSupabaseMgmtMetrics } from './supabase-mgmt';
 import { fetchInternalActivityMetrics } from './internal';
-import { canFetchProviders, unavailableInternalMetrics } from './integrity';
+import { unavailableInternalMetrics } from './integrity';
+import { hasMeasurement, mergeMetricSnapshots, newestFetchedAt, snapshotKey } from './snapshot-merge';
+import { expectedSnapshots } from './sync-schema';
 
 const TTL_MS = 5 * 60 * 1000;
-
-async function readInternalMetrics() {
-  return fetchInternalActivityMetrics().catch(() => unavailableInternalMetrics());
-}
-
-export async function getOrSyncMetrics(forceRefresh = false): Promise<SyncResult> {
-  const supabase = createAdminSupabaseClient();
-  const now = Date.now();
-  const internalMetrics = await readInternalMetrics();
-
-  let existingSnapshots: MetricSnapshot[] = [];
-  let tableAvailable = true;
-  try {
-    const { data, error } = await supabase.from('provider_metric_snapshots').select('*');
-    if (error) {
-      tableAvailable = false;
-    } else if (Array.isArray(data)) {
-      const byKey = new Map<string, MetricSnapshot>();
-      for (const item of data as MetricSnapshot[]) {
-        const existing = byKey.get(item.metric_key);
-        if (
-          !existing ||
-          (item.fetched_at && (!existing.fetched_at || new Date(item.fetched_at).getTime() > new Date(existing.fetched_at).getTime()))
-        ) {
-          byKey.set(item.metric_key, item);
-        }
-      }
-      existingSnapshots = Array.from(byKey.values());
-    }
-  } catch {
-    tableAvailable = false;
+const fields = ['provider','scope_type','scope_id','metric_key','display_name','environment','value','unit',
+  'limit_value','remaining_value','period_start','period_end','period_timezone','provider_updated_at',
+  'fetched_at','source_kind','source_url','endpoint','field_path','status','last_attempt_at','error_code',
+  'mapping_version','source_checked_at'] as const;
+function sanitize(snapshot: MetricSnapshot): MetricSnapshot {
+  const clean = Object.fromEntries(fields.map(field => [field, snapshot[field]])) as unknown as MetricSnapshot;
+  for (const field of ['value','limit_value','remaining_value'] as const) {
+    if (typeof clean[field] !== 'number' || !Number.isFinite(clean[field]) || clean[field]! < 0) clean[field] = null;
   }
-
-  const cachedAt = existingSnapshots[0]?.fetched_at ?? null;
-  const isFresh =
-    !forceRefresh &&
-    existingSnapshots.length > 0 &&
-    existingSnapshots.every((snapshot) => snapshot.fetched_at && now - new Date(snapshot.fetched_at).getTime() < TTL_MS);
-
-  if (isFresh) {
+  if (clean.status === 'fresh' && !hasMeasurement(clean)) {
+    clean.status = 'invalid_response'; clean.error_code = 'INVALID_MEASUREMENT';
+    clean.value = null; clean.limit_value = null; clean.remaining_value = null;
+  }
+  return clean;
+}
+function expire(snapshot: MetricSnapshot): MetricSnapshot {
+  if (snapshot.status !== 'fresh') return snapshot;
+  const age = Date.now() - Date.parse(snapshot.fetched_at);
+  const periodEnded = snapshot.period_end !== null &&
+    (!Number.isFinite(Date.parse(snapshot.period_end)) || Date.parse(snapshot.period_end) <= Date.now());
+  return age < 0 || age >= TTL_MS || periodEnded ? { ...snapshot, status: 'stale' } : snapshot;
+}
+export async function getOrSyncMetrics(forceRefresh = false): Promise<SyncResult> {
+  const db = createAdminSupabaseClient();
+  const internalMetrics = await fetchInternalActivityMetrics().catch(() => unavailableInternalMetrics());
+  const expected = expectedSnapshots();
+  const schema = new Map(expected.map(s => [snapshotKey(s), s]));
+  const matches = (s: MetricSnapshot) => {
+    const def = schema.get(snapshotKey(s));
+    return def && s.mapping_version === def.mapping_version && s.unit === def.unit &&
+      s.field_path === def.field_path && s.endpoint === def.endpoint && s.source_kind === def.source_kind;
+  };
+  let cached: MetricSnapshot[] = [];
+  let available = true;
+  try {
+    const { data, error } = await db.from('provider_metric_snapshots').select(fields.join(','));
+    if (error || !Array.isArray(data)) available = false;
+    else {
+      const unique = new Map<string, MetricSnapshot>();
+      for (const raw of data as unknown as MetricSnapshot[]) {
+        if (!matches(raw)) continue;
+        const s = expire(sanitize(raw)), prior = unique.get(snapshotKey(s));
+        if (!prior || Date.parse(s.last_attempt_at || s.fetched_at) > Date.parse(prior.last_attempt_at || prior.fetched_at)) unique.set(snapshotKey(s), s);
+      }
+      cached = [...unique.values()];
+    }
+  } catch { available = false; }
+  const cachedAt = newestFetchedAt(cached);
+  const blocked = (reason: SyncBlockedReason): SyncResult => {
+    const byKey = new Map(cached.map(s => [snapshotKey(s), expire(s)]));
     return {
-      snapshots: existingSnapshots,
+      snapshots: expected.map(def => byKey.get(snapshotKey(def)) ?? { ...def, error_code: 'SYNC_BLOCKED' }),
       internalMetrics,
       lastSyncedAt: cachedAt,
-      isLocked: false,
-      syncBlockedReason: null,
+      isLocked: true,
+      syncBlockedReason: reason,
     };
+  };
+  if (!forceRefresh && cached.length === expected.length && cached.every(s => s.status === 'fresh')) {
+    return { snapshots: cached, internalMetrics, lastSyncedAt: cachedAt, isLocked: false, syncBlockedReason: null };
   }
-
-  const blocked = (reason: SyncBlockedReason): SyncResult => ({
-    snapshots: existingSnapshots,
-    internalMetrics,
-    lastSyncedAt: cachedAt,
-    isLocked: true,
-    syncBlockedReason: reason,
-  });
-
-  if (!tableAvailable) return blocked('lease_unavailable');
-
-  let leaseToken: string | null = null;
-  let leaseError = true;
-  let acquired = false;
-  let reason: SyncBlockedReason = 'lease_unavailable';
+  if (!available) return blocked('lease_unavailable');
+  let token: string;
   try {
-    const { data: leaseData, error } = await supabase.rpc('acquire_provider_sync_lease', {
-      p_provider: 'global',
-      p_scope_id: 'admin_sync',
-      p_ttl_seconds: 35,
+    const { data, error } = await db.rpc('acquire_provider_sync_lease', {
+      p_provider: 'global', p_scope_id: 'admin_sync', p_ttl_seconds: 35,
     });
-    const lease = leaseData as { acquired?: boolean; lease_token?: string; reason?: string } | null;
-    leaseError = Boolean(error) || !lease;
-    acquired = !leaseError && lease?.acquired === true && typeof lease.lease_token === 'string';
-    if (acquired && lease?.lease_token) {
-      leaseToken = lease.lease_token;
-    } else {
-      acquired = false;
-      reason = leaseError ? 'lease_unavailable' : lease?.reason === 'cooldown' ? 'cooldown' : 'locked';
+    if (error || !data) return blocked('lease_unavailable');
+    if (data.acquired !== true || typeof data.lease_token !== 'string' || !data.lease_token) {
+      return blocked(data.reason === 'cooldown' ? 'cooldown' : 'locked');
     }
-  } catch {
-    leaseError = true;
-    acquired = false;
-    reason = 'lease_unavailable';
-  }
-
-  if (!canFetchProviders({ tableAvailable, leaseError, acquired })) {
-    return blocked(reason);
-  }
-
-  let persisted = false;
+    token = data.lease_token;
+  } catch { return blocked('lease_unavailable'); }
   try {
-    const [brevoResult, supabaseResult] = await Promise.allSettled([
-      fetchBrevoMetrics(),
-      fetchSupabaseMgmtMetrics(),
-    ]);
-    const brevoSnapshots = brevoResult.status === 'fulfilled' ? brevoResult.value : [];
-    const supabaseSnapshots = supabaseResult.status === 'fulfilled' ? supabaseResult.value : [];
-    const allSnapshots = [...brevoSnapshots, ...supabaseSnapshots];
-
-    if (allSnapshots.length > 0) {
-      const upsert = await supabase.from('provider_metric_snapshots').upsert(
-        allSnapshots.map((snapshot) => ({
-          provider: snapshot.provider,
-          scope_type: snapshot.scope_type,
-          scope_id: snapshot.scope_id,
-          metric_key: snapshot.metric_key,
-          display_name: snapshot.display_name,
-          environment: snapshot.environment,
-          value: snapshot.value,
-          unit: snapshot.unit,
-          limit_value: snapshot.limit_value,
-          remaining_value: snapshot.remaining_value,
-          period_start: snapshot.period_start,
-          period_end: snapshot.period_end,
-          period_timezone: snapshot.period_timezone,
-          provider_updated_at: snapshot.provider_updated_at,
-          fetched_at: snapshot.fetched_at,
-          source_kind: snapshot.source_kind,
-          source_url: snapshot.source_url,
-          endpoint: snapshot.endpoint,
-          field_path: snapshot.field_path,
-          status: snapshot.status,
-          last_attempt_at: snapshot.last_attempt_at,
-          error_code: snapshot.error_code,
-          mapping_version: snapshot.mapping_version,
-          source_checked_at: snapshot.source_checked_at,
-          updated_at: new Date().toISOString(),
-        })),
-        { onConflict: 'provider, scope_id, metric_key' },
-      );
-      persisted = !upsert.error;
-    }
-
-    const merged = new Map<string, MetricSnapshot>();
-    for (const snapshot of existingSnapshots) {
-      merged.set(snapshot.metric_key, { ...snapshot, status: snapshot.status === 'fresh' ? 'stale' : snapshot.status });
-    }
-    for (const snapshot of allSnapshots) {
-      merged.set(snapshot.metric_key, snapshot);
-    }
-    const fetchedAny = brevoResult.status === 'fulfilled' || supabaseResult.status === 'fulfilled';
-    return {
-      snapshots: Array.from(merged.values()),
-      internalMetrics,
-      lastSyncedAt: fetchedAny ? new Date().toISOString() : cachedAt,
-      isLocked: false,
-      syncBlockedReason: null,
-    };
-  } finally {
-    if (leaseToken) {
-      try {
-        await supabase.rpc('release_provider_sync_lease', {
-          p_provider: 'global',
-          p_scope_id: 'admin_sync',
-          p_lease_token: leaseToken,
-          p_cooldown_seconds: persisted ? 60 : 0,
-        });
-      } catch {
-        // lease_until releases a crashed holder.
+    const results = await Promise.allSettled([fetchBrevoMetrics(), fetchSupabaseMgmtMetrics()]);
+    const incoming: MetricSnapshot[] = [];
+    for (const [i, provider] of (['brevo', 'supabase'] as const).entries()) {
+      const result = results[i];
+      const rows = result.status === 'fulfilled' && Array.isArray(result.value) ? result.value.filter(matches).map(sanitize) : [];
+      const byKey = new Map(rows.map(s => [snapshotKey(s), s]));
+      const errorCode = result.status === 'rejected'
+        ? (result.reason instanceof Error && result.reason.name === 'TimeoutError' ? 'TIMEOUT' : 'SOURCE_FETCH_FAILED')
+        : 'SOURCE_RESPONSE_MISSING';
+      for (const def of expected.filter(s => s.provider === provider)) {
+        incoming.push(byKey.get(snapshotKey(def)) || { ...def, error_code: errorCode, last_attempt_at: new Date().toISOString() });
       }
     }
+    const merged = mergeMetricSnapshots(cached, incoming).map(sanitize).map(expire);
+    try {
+      const { data, error } = await db.rpc('persist_provider_metric_snapshots', { p_lease_token: token, p_snapshots: merged });
+      if (error || data !== true) return blocked('persistence_failed');
+    } catch { return blocked('persistence_failed'); }
+    return { snapshots: merged, internalMetrics, lastSyncedAt: newestFetchedAt(merged), isLocked: false, syncBlockedReason: null };
+  } finally {
+    try {
+      await db.rpc('release_provider_sync_lease', { p_provider: 'global', p_scope_id: 'admin_sync',
+        p_lease_token: token, p_cooldown_seconds: 60 });
+    } catch { /* The lease expires; acquisition also enforces a cooldown. */ }
   }
 }

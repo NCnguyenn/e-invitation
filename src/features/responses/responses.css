@@ -1,0 +1,204 @@
+/* Host-only letter paper. Shared dashboard controls keep their existing defaults. */
+.response-guestbook {
+  --letter-ink: #173a63;
+  --letter-rule: #ded4c3;
+  min-width: 0;
+}
+
+.response-guestbook .invitation-page-header { margin-bottom: 20px; }
+.response-guestbook .editor-eyebrow { color: #95713b; font-weight: 500; letter-spacing: 1.7px; }
+.response-guestbook .invitation-main-title { font-size: clamp(28px, 3.1vw, 44px); }
+.response-guestbook .invitation-main-desc { margin-bottom: 0; }
+.response-guestbook .guestbook-header-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.response-guestbook .response-header-actions-luxury { display: flex; flex-direction: column-reverse; align-items: flex-end; gap: 8px; flex-shrink: 0; }
+.response-guestbook .last-updated-text-luxury { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; color: #687583; }
+.response-guestbook .button-refresh-luxury { min-height: 40px; background: transparent; box-shadow: none; }
+
+/* A single quiet summary strip, so the letters remain the focus. */
+.response-guestbook .memory-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 20px 0;
+  margin-bottom: 24px;
+  border-block: 1px solid var(--letter-rule);
+}
+.response-guestbook .memory-metric-card { display: flex; align-items: center; gap: 18px; padding: 0 28px; min-width: 0; }
+.response-guestbook .memory-metric-card + .memory-metric-card { border-left: 1px solid var(--letter-rule); }
+.response-guestbook .metric-icon-bubble { display: grid; place-items: center; flex-shrink: 0; }
+.response-guestbook .metric-icon-bubble svg { width: 28px; height: 28px; stroke-width: 1.5; }
+.response-guestbook .metric-content { display: flex; flex-direction: column; gap: 4px; }
+.response-guestbook .metric-label { font-size: 12px; line-height: 1.5; color: #364c63; }
+.response-guestbook .metric-value { font: 500 30px/1.15 'Playfair Display', Georgia, serif; color: var(--letter-ink); }
+.response-guestbook .bubble-navy { color: var(--letter-ink); }
+.response-guestbook .bubble-emerald, .response-guestbook .highlight-accepted .metric-value { color: #29674f; }
+.response-guestbook .bubble-rose, .response-guestbook .highlight-declined .metric-value { color: #924d62; }
+.response-guestbook .bubble-amber, .response-guestbook .highlight-pending .metric-value { color: #94703a; }
+
+.response-guestbook .guestbook-wall-card { min-width: 0; }
+.response-guestbook .guestbook-controls-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px 24px; flex-wrap: wrap; margin-bottom: 22px; }
+.response-guestbook .search-form-luxury { flex: 1 1 320px; max-width: 480px; min-width: 0; flex-wrap: wrap; }
+.response-guestbook .search-input-wrapper { min-width: 160px; }
+.response-guestbook .search-input-wrapper input { min-height: 44px; height: 44px; border-width: 1px; border-radius: 6px; background: #ffffff60; }
+.response-guestbook .button-search-submit { height: 44px; border-radius: 6px; padding-inline: 16px; }
+.response-guestbook .search-clear-btn { right: 1px; width: 36px; height: 40px; }
+.response-guestbook .guestbook-filter-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.response-guestbook .guestbook-tab {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid #c7ced6;
+  border-radius: 24px;
+  background: #ffffff60;
+  color: #40536b;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+}
+.response-guestbook .guestbook-tab:hover { border-color: #6d839a; }
+.response-guestbook .guestbook-tab.active { background: var(--letter-ink); border-color: var(--letter-ink); color: white; box-shadow: 0 3px 8px #173a631c; }
+.response-guestbook .tab-count { font-size: 10px; opacity: .8; font-variant-numeric: tabular-nums; }
+.response-guestbook button:focus-visible { outline: 2px solid #173a63; outline-offset: 3px; }
+.response-guestbook .guestbook-collection-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 18px; }
+.response-guestbook .guestbook-collection-heading h2 { margin: 0; font: 500 clamp(21px, 2vw, 26px)/1.4 'Playfair Display', Georgia, serif; }
+.response-guestbook .guestbook-collection-heading > span { color: #657383; font-size: 12px; }
+
+.response-guestbook .wish-wall-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; gap: 22px; }
+.response-guestbook .wish-note-card {
+  --paper: #fffdf7;
+  --paper-edge: #e6dfd3;
+  --paper-line: #c6b69440;
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  min-height: 230px;
+  padding: 20px 24px 16px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid transparent;
+  color: var(--letter-ink);
+  filter: drop-shadow(0 5px 6px #3d33231a) drop-shadow(0 1px 1px #3d33230a);
+  transition: transform 200ms ease, filter 200ms ease;
+  /* Do not capture/prevent pointer events: scrolling and text selection stay native. */
+  touch-action: auto;
+}
+/* Shape only the paper surface, never clip guest text or the hover shadow. */
+.response-guestbook .wish-note-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 5px 0 7px 4px / 4px 0 4px 7px;
+  background-color: var(--paper);
+  background-image: linear-gradient(115deg, #ffffff50, transparent 45%, #e5dcc918), repeating-linear-gradient(0deg, #78674403 0 1px, transparent 1px 3px);
+  /* Slightly uneven cut edges and a real cut-out behind the folded corner. */
+  clip-path: polygon(
+    0 1px, 22% 0, 53% 1px, calc(100% - 26px) 0,
+    100% 26px, calc(100% - 1px) 48%, 100% 78%, calc(100% - 1px) calc(100% - 3px),
+    94% calc(100% - 1px), 87% calc(100% - 2px), 78% 100%, 69% calc(100% - 1px),
+    61% calc(100% - 3px), 53% calc(100% - 1px), 44% calc(100% - 2px),
+    35% 100%, 27% calc(100% - 2px), 18% calc(100% - 1px), 9% calc(100% - 3px),
+    1px calc(100% - 1px), 0 73%, 1px 38%
+  );
+}
+.response-guestbook .wish-note-card[data-paper='1'] { --paper: #f3f6f2; --paper-edge: #d7e0d5; --paper-line: #9cac9740; }
+.response-guestbook .wish-note-card[data-paper='2'] { --paper: #faf3f1; --paper-edge: #e8dcd8; --paper-line: #c4a39a40; }
+.response-guestbook .wish-note-card[data-paper='3'] { --paper: #f1f5f8; --paper-edge: #d6dfe8; --paper-line: #a0b4c840; }
+.response-guestbook .wish-note-card[data-paper='5'] { --paper: #f8f3f2; --paper-edge: #e5dcda; --paper-line: #c0aaa040; }
+
+/* Every sheet has a small fold, including a collection with just one response. */
+.response-guestbook .wish-paper-fold {
+  display: block;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 26px;
+  height: 26px;
+  pointer-events: none;
+  filter: drop-shadow(-1px 2px 2px #524b3d24);
+}
+.response-guestbook .wish-paper-fold::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-bottom-left-radius: 4px;
+  background: linear-gradient(135deg, #fffefb, var(--paper) 48%, var(--paper-edge));
+  clip-path: polygon(0 0, 0 100%, 100% 100%);
+}
+.response-guestbook .wish-note-header { display: flex; justify-content: flex-end; margin-bottom: 12px; padding-right: 5px; }
+.response-guestbook .wish-badge { display: inline-flex; align-items: center; gap: 6px; font: italic 14px/1.5 Georgia, 'Times New Roman', serif; }
+.response-guestbook .wish-badge svg { width: 17px; height: 17px; flex-shrink: 0; }
+.response-guestbook .wish-badge-accepted { color: #29674f; }
+.response-guestbook .wish-badge-declined { color: #924d62; }
+.response-guestbook .wish-badge-pending { color: #886631; }
+.response-guestbook .wish-note-body {
+  --rule-height: 28px;
+  flex: 1;
+  min-height: 84px;
+  padding: 0 4px 0 22px;
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--rule-height) - 1px), var(--paper-line) calc(var(--rule-height) - 1px), var(--paper-line) var(--rule-height));
+}
+.response-guestbook .wish-message-quote { position: relative; margin: 0; }
+.response-guestbook .quote-mark-icon { position: absolute; left: -23px; top: -3px; color: #af8b50; font: 32px/1 Georgia, serif; }
+.response-guestbook .wish-message-text {
+  margin: 0;
+  font: italic 18px/var(--rule-height) Georgia, 'Times New Roman', serif;
+  color: var(--letter-ink);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.response-guestbook .wish-empty-message { color: #6b7480; font: italic 16px/var(--rule-height) Georgia, 'Times New Roman', serif; }
+.response-guestbook .wish-empty-message p { margin: 0; }
+.response-guestbook .wish-note-footer { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; padding-top: 12px; }
+.response-guestbook .wish-timestamp { flex-shrink: 0; padding-bottom: 3px; font: italic 12px/1.5 Georgia, 'Times New Roman', serif; color: #65696d; }
+.response-guestbook .wish-signature { min-width: 0; max-width: 100%; margin-left: auto; text-align: right; }
+.response-guestbook .wish-guest-name { margin: 0; color: var(--letter-ink); font: 400 32px/1.25 'Ephesis', cursive; overflow-wrap: anywhere; }
+.response-guestbook .wish-guest-email { display: block; color: #697580; font-size: 10px; line-height: 1.6; overflow-wrap: anywhere; }
+
+@media (hover: hover) and (pointer: fine) {
+  .response-guestbook .wish-note-card:hover { transform: translateY(-4px); filter: drop-shadow(0 11px 10px #3d332324) drop-shadow(0 2px 2px #3d33230d); }
+}
+.response-guestbook .wish-note-card[data-pressed='true'] { transform: translateY(1px) scale(.99); filter: drop-shadow(0 2px 3px #3d33231a); }
+
+.response-guestbook .pagination-bar-luxury { margin-top: 28px; padding-top: 18px; border-color: var(--letter-rule); font-size: 11px; }
+.response-guestbook .pagination-btn-luxury { min-height: 44px; background: #ffffff60; }
+.response-guestbook .guestbook-empty-state { display: flex; flex-direction: column; align-items: center; padding: 50px 20px; text-align: center; }
+.response-guestbook .empty-keepsake-icon { display: grid; place-items: center; margin-bottom: 16px; color: #a58754; }
+.response-guestbook .guestbook-empty-state h3 { margin: 0 0 10px; font: 500 24px/1.4 'Playfair Display', Georgia, serif; }
+.response-guestbook .guestbook-empty-state p { max-width: 460px; margin: 0; color: #64748b; font-size: 14px; line-height: 1.7; }
+.response-guestbook .guestbook-empty-state .button-secondary { min-height: 44px; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
+
+@media (max-width: 1100px) {
+  .response-guestbook .wish-wall-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .response-guestbook .memory-metric-card { padding-inline: 18px; gap: 12px; }
+  .response-guestbook .search-form-luxury { max-width: none; }
+}
+@media (max-width: 700px) {
+  .response-guestbook .guestbook-header-row { flex-direction: column; align-items: stretch; gap: 16px; }
+  .response-guestbook .response-header-actions-luxury { flex-direction: row; align-items: center; justify-content: space-between; }
+  .response-guestbook .memory-metrics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 0; padding-block: 18px; }
+  .response-guestbook .memory-metric-card { padding-inline: 10px; gap: 12px; }
+  .response-guestbook .memory-metric-card:nth-child(3) { border-left: 0; }
+  .response-guestbook .metric-label { font-size: 11px; }
+  .response-guestbook .metric-value { font-size: 27px; }
+  .response-guestbook .metric-icon-bubble svg { width: 23px; height: 23px; }
+  .response-guestbook .guestbook-controls-bar { gap: 14px; }
+  .response-guestbook .search-form-luxury { flex-basis: 100%; }
+  .response-guestbook .search-input-wrapper input { font-size: 16px; }
+  .response-guestbook .guestbook-filter-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; }
+  .response-guestbook .guestbook-tab { padding-inline: 10px; }
+  .response-guestbook .wish-wall-grid { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .response-guestbook .wish-note-card { padding: 18px 22px 16px; }
+  .response-guestbook .pagination-bar-luxury { flex-direction: column; align-items: stretch; text-align: center; }
+  .response-guestbook .pagination-actions { justify-content: center; flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .response-guestbook .wish-note-card,
+  .response-guestbook .wish-note-card:hover,
+  .response-guestbook .wish-note-card[data-pressed='true'] { transform: none; transition: none; }
+  .response-guestbook .guestbook-tab { transition: none; }
+}

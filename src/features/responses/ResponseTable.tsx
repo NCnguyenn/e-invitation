@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useResponses } from './useResponses';
 import { EditorIcon } from '@/features/events/EditorIcon';
+import './responses.css';
 
 function formatVietnamDateTime(isoString: string | null): string {
   if (!isoString) return '—';
@@ -34,11 +35,13 @@ function formatVietnamTimeOnly(date: Date | null): string {
   }).format(date);
 }
 
-function getInitials(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return 'KM';
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+// Keep each guest's paper color consistent through searches and polling updates.
+function paperTone(id: string) {
+  return Array.from(id).reduce((hash, character) => (hash * 31 + character.charCodeAt(0)) >>> 0, 0) % 6;
+}
+
+function releasePaper(event: React.PointerEvent<HTMLElement>) {
+  delete event.currentTarget.dataset.pressed;
 }
 
 export function ResponseTable() {
@@ -63,10 +66,10 @@ export function ResponseTable() {
   });
 
   useEffect(() => {
-    if (data && data.page !== page) {
-      setPage(data.page);
-    }
-  }, [data, page]);
+    // Apply a server-clamped page only when a new response arrives. Watching
+    // `page` here would undo a user's navigation using the previous response.
+    if (data) setPage(data.page);
+  }, [data]);
 
   function handleFilterChange(newStatus: 'all' | 'pending' | 'accepted' | 'declined') {
     setStatus(newStatus);
@@ -91,16 +94,16 @@ export function ResponseTable() {
   const totalPages = Math.max(1, Math.ceil(filteredTotal / pageSize));
 
   return (
-    <>
+    <div className="response-guestbook">
       <header className="invitation-page-header">
         <div className="header-badge-row">
-          <span className="editor-eyebrow">Sổ lưu bút & Lời nhắn</span>
+          <span className="editor-eyebrow">Sổ lưu bút</span>
         </div>
         <div className="guestbook-header-row">
           <div>
-            <h1 className="invitation-main-title">Những lời chúc thanh xuân</h1>
+            <h1 className="invitation-main-title">Những lời nhắn thương mến</h1>
             <p className="invitation-main-desc">
-              Lưu giữ trọn vẹn những câu trả lời và lời nhắn gửi yêu thương từ những người quan trọng trong ngày trọng đại.
+              Gói ghém những lời chúc, lưu giữ những yêu thương.
             </p>
           </div>
           <div className="response-header-actions-luxury">
@@ -126,7 +129,6 @@ export function ResponseTable() {
         </div>
       </header>
 
-      {/* Metrics Totals Cards - Memory Keepsake Style */}
       <section className="memory-metrics-grid" aria-label="Tổng quan phản hồi">
         <div className="memory-metric-card" data-testid="metric-total">
           <div className="metric-icon-bubble bubble-navy">
@@ -135,7 +137,6 @@ export function ResponseTable() {
           <div className="metric-content">
             <span className="metric-label">Tổng khách mời</span>
             <span className="metric-value">{data ? totals.total : '—'}</span>
-            <span className="metric-subtext">Đã gửi thiệp mời</span>
           </div>
         </div>
 
@@ -144,9 +145,8 @@ export function ResponseTable() {
             <EditorIcon name="heart" width="20" height="20" />
           </div>
           <div className="metric-content">
-            <span className="metric-label">Sẽ đến chung vui</span>
+            <span className="metric-label">Sẽ tham dự</span>
             <span className="metric-value">{data ? totals.accepted : '—'}</span>
-            <span className="metric-subtext">Xác nhận tham dự</span>
           </div>
         </div>
 
@@ -155,9 +155,8 @@ export function ResponseTable() {
             <EditorIcon name="sparkles" width="20" height="20" />
           </div>
           <div className="metric-content">
-            <span className="metric-label">Gửi lời chúc từ xa</span>
+            <span className="metric-label">Không tham dự</span>
             <span className="metric-value">{data ? totals.declined : '—'}</span>
-            <span className="metric-subtext">Không thể đến dự</span>
           </div>
         </div>
 
@@ -166,15 +165,13 @@ export function ResponseTable() {
             <EditorIcon name="clock" width="20" height="20" />
           </div>
           <div className="metric-content">
-            <span className="metric-label">Chờ hồi âm</span>
+            <span className="metric-label">Chưa hồi âm</span>
             <span className="metric-value">{data ? totals.pending : '—'}</span>
-            <span className="metric-subtext">Chưa gửi phản hồi</span>
           </div>
         </div>
       </section>
 
-      {/* Main Guestbook Wall Card */}
-      <section className="editor-card guestbook-wall-card" aria-label="Góc lưu bút">
+      <section className="guestbook-wall-card" aria-label="Góc lưu bút">
         {/* Search and Status Filters */}
         <div className="guestbook-controls-bar">
           <form className="search-form-luxury" onSubmit={handleSearchSubmit}>
@@ -184,7 +181,7 @@ export function ResponseTable() {
               </span>
               <input
                 type="search"
-                placeholder="Tìm lời nhắn theo tên hoặc email…"
+                placeholder="Tìm theo tên hoặc email…"
                 value={queryInput}
                 onChange={(e) => setQueryInput(e.target.value)}
                 aria-label="Tìm kiếm trong sổ lưu bút"
@@ -214,6 +211,7 @@ export function ResponseTable() {
             <button
               type="button"
               className={status === 'all' ? 'guestbook-tab active' : 'guestbook-tab'}
+              aria-pressed={status === 'all'}
               onClick={() => handleFilterChange('all')}
             >
               <span>Tất cả</span>
@@ -222,28 +220,36 @@ export function ResponseTable() {
             <button
               type="button"
               className={status === 'accepted' ? 'guestbook-tab active tab-accepted' : 'guestbook-tab tab-accepted'}
+              aria-pressed={status === 'accepted'}
               onClick={() => handleFilterChange('accepted')}
             >
-              <span>Tham gia</span>
+              <span>Tham dự</span>
               <span className="tab-count">{data ? totals.accepted : 0}</span>
             </button>
             <button
               type="button"
               className={status === 'declined' ? 'guestbook-tab active tab-declined' : 'guestbook-tab tab-declined'}
+              aria-pressed={status === 'declined'}
               onClick={() => handleFilterChange('declined')}
             >
-              <span>Gửi lời chúc</span>
+              <span>Không tham dự</span>
               <span className="tab-count">{data ? totals.declined : 0}</span>
             </button>
             <button
               type="button"
               className={status === 'pending' ? 'guestbook-tab active tab-pending' : 'guestbook-tab tab-pending'}
+              aria-pressed={status === 'pending'}
               onClick={() => handleFilterChange('pending')}
             >
               <span>Chưa hồi âm</span>
               <span className="tab-count">{data ? totals.pending : 0}</span>
             </button>
           </div>
+        </div>
+
+        <div className="guestbook-collection-heading">
+          <h2>Những lá thư gửi bạn</h2>
+          {data && <span role="status">{filteredTotal} phản hồi{status === 'all' ? '' : ' trong bộ lọc'}</span>}
         </div>
 
         {/* Feedback / Stale Warning */}
@@ -273,8 +279,8 @@ export function ResponseTable() {
             <div className="empty-keepsake-icon">
               <EditorIcon name="envelope" width="40" height="40" />
             </div>
-            <h3>Sổ lưu bút thanh xuân đang mở</h3>
-            <p>Chưa có phản hồi nào được ghi nhận. Khi khách mời mở thiệp và gửi lời nhắn, những mẩu giấy kỷ niệm sẽ xuất hiện tại đây.</p>
+            <h3>Sổ lưu bút đang mở</h3>
+            <p>Khi bạn thêm khách mời, những lá thư và tình trạng phản hồi của khách sẽ xuất hiện tại đây.</p>
           </div>
         ) : data && totals.total > 0 && filteredTotal === 0 ? (
           <div className="guestbook-empty-state">
@@ -282,70 +288,64 @@ export function ResponseTable() {
               <EditorIcon name="search" width="36" height="36" />
             </div>
             <h3>Không tìm thấy lời nhắn phù hợp</h3>
-            <p>Không có phản hồi nào khớp với từ khóa &ldquo;{appliedQuery}&rdquo;.</p>
-            <button className="button-secondary" type="button" onClick={handleResetSearch} style={{ marginTop: '14px' }}>
+            <p>{appliedQuery ? <>Không có phản hồi nào khớp với từ khóa &ldquo;{appliedQuery}&rdquo; và bộ lọc hiện tại.</> : 'Chưa có khách mời nào trong trạng thái đã chọn.'}</p>
+            <button className="button-secondary" type="button" onClick={() => { handleResetSearch(); handleFilterChange('all'); }} style={{ marginTop: '14px' }}>
               Xem toàn bộ sổ lưu bút
             </button>
           </div>
         ) : (
           <>
-            {/* The Wall of Notes: Mẫu Giấy Ghi Chú Thanh Xuân */}
-            <div className="wish-wall-grid" aria-label="Bức tường lưu bút và lời nhắn">
+            <div className="wish-wall-grid" aria-label="Những lá thư và phản hồi của khách mời">
               {data?.items.map((item) => (
                 <article
                   key={item.id}
                   className={`wish-note-card wish-note-${item.status}`}
+                  data-paper={paperTone(item.id)}
                   data-testid={`response-row-${item.id}`}
+                  aria-labelledby={`guest-signature-${item.id}`}
+                  onPointerDown={(event) => {
+                    if (event.isPrimary && event.button === 0) event.currentTarget.dataset.pressed = 'true';
+                  }}
+                  onPointerUp={releasePaper}
+                  onPointerCancel={releasePaper}
+                  onPointerLeave={releasePaper}
+                  onLostPointerCapture={releasePaper}
                 >
-                  {/* Decorative Washi Tape Bar */}
-                  <div className="washi-tape-pin" aria-hidden="true" />
-
-                  {/* Header: Guest Info & Status Badge */}
+                  <span className="wish-paper-fold" aria-hidden="true" />
                   <div className="wish-note-header">
-                    <div className="wish-guest-profile">
-                      <div className="wish-guest-avatar" aria-hidden="true">
-                        {getInitials(item.guestName)}
-                      </div>
-                      <div className="wish-guest-meta">
-                        <h3 className="wish-guest-name">{item.guestName}</h3>
-                        <span className="wish-guest-email">{item.guestEmail}</span>
-                      </div>
-                    </div>
-
                     <div className="wish-status-badge-wrap">
                       {item.status === 'accepted' ? (
                         <span className="wish-badge wish-badge-accepted">
                           <EditorIcon name="heart" width="13" height="13" />
-                          <span>Sẽ đến chung vui</span>
+                          <span>Sẽ tham dự</span>
                         </span>
                       ) : item.status === 'declined' ? (
                         <span className="wish-badge wish-badge-declined">
-                          <EditorIcon name="envelope" width="13" height="13" />
-                          <span>Gửi lời chúc từ xa</span>
+                          <EditorIcon name="sparkles" width="13" height="13" />
+                          <span>Không tham dự</span>
                         </span>
                       ) : (
                         <span className="wish-badge wish-badge-pending">
                           <EditorIcon name="clock" width="13" height="13" />
-                          <span>Chờ hồi âm</span>
+                          <span>Chưa hồi âm</span>
                         </span>
                       )}
                     </div>
                   </div>
 
-                  {/* Body: The Wish / Heartfelt Message */}
                   <div className="wish-note-body">
-                    {item.guestMessage ? (
-                      <div className="wish-message-quote">
+                    {item.guestMessage?.trim() ? (
+                      <blockquote className="wish-message-quote">
                         <span className="quote-mark-icon" aria-hidden="true">“</span>
                         <p className="wish-message-text">{item.guestMessage}</p>
-                      </div>
+                      </blockquote>
                     ) : item.status === 'accepted' ? (
                       <div className="wish-empty-message accepted">
-                        <p>Khách đã xác nhận tham dự và gửi trọn niềm vui đến bạn.</p>
+                        <p>Đã xác nhận tham dự. Khách chưa để lại lời nhắn.</p>
                       </div>
                     ) : item.status === 'declined' ? (
                       <div className="wish-empty-message declined">
-                        <p>Khách gửi lời chúc phúc từ xa và rất tiếc không thể đến chung vui.</p>
+                        <p>Đã phản hồi không tham dự. Khách chưa để lại lời nhắn.</p>
                       </div>
                     ) : (
                       <div className="wish-empty-message pending">
@@ -354,26 +354,27 @@ export function ResponseTable() {
                     )}
                   </div>
 
-                  {/* Footer: Timestamp */}
                   <footer className="wish-note-footer">
                     {item.respondedAt ? (
-                      <span className="wish-timestamp">
-                        <EditorIcon name="clock" width="12" height="12" />
-                        <span>Phản hồi lúc {formatVietnamDateTime(item.respondedAt)}</span>
-                      </span>
+                      <time className="wish-timestamp" dateTime={item.respondedAt}>
+                        {formatVietnamDateTime(item.respondedAt)}
+                      </time>
                     ) : (
                       <span className="wish-timestamp pending-time">
-                        <EditorIcon name="clock" width="12" height="12" />
                         <span>Chưa phản hồi</span>
                       </span>
                     )}
+                    <div className="wish-signature">
+                      <h3 className="wish-guest-name" id={`guest-signature-${item.id}`}>{item.guestName}</h3>
+                      <span className="wish-guest-email">{item.guestEmail}</span>
+                    </div>
                   </footer>
                 </article>
               ))}
             </div>
 
             {/* Pagination */}
-            <div className="pagination-bar-luxury" style={{ marginTop: '32px' }}>
+            <div className="pagination-bar-luxury">
               <span className="pagination-info">
                 Hiển thị {filteredTotal > 0 ? (page - 1) * pageSize + 1 : 0} –{' '}
                 {Math.min(page * pageSize, filteredTotal)} trên tổng số {filteredTotal} phản hồi
@@ -405,6 +406,6 @@ export function ResponseTable() {
           </>
         )}
       </section>
-    </>
+    </div>
   );
 }

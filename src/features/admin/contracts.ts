@@ -71,7 +71,7 @@ export interface InternalActivityMetrics {
   };
 }
 
-export type SyncBlockedReason = 'locked' | 'cooldown' | 'lease_unavailable';
+export type SyncBlockedReason = 'locked' | 'cooldown' | 'lease_unavailable' | 'persistence_failed';
 
 export interface PublishedReferenceLimit {
   id: string;

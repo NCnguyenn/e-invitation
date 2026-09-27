@@ -3,6 +3,8 @@
 import React from 'react';
 import type { InternalActivityMetrics, AdminEventItem, MetricSnapshot, MetricProvider } from '../contracts';
 import styles from './admin.module.css';
+import { snapshotAtTime, summarizeProviderMeasurements } from '../metrics/measurement-status';
+import { useMeasurementClock } from './useMeasurementClock';
 
 interface OverviewViewProps {
   internalMetrics: InternalActivityMetrics;
@@ -17,17 +19,17 @@ function formatCount(value: number | null) {
   return value === null ? '—' : value.toLocaleString('vi-VN');
 }
 
-function getMeasurementSummary(provider: MetricProvider, snapshots: MetricSnapshot[]) {
-  const providerSnapshots = snapshots.filter((snapshot) => snapshot.provider === provider);
+function getMeasurementSummary(provider: MetricProvider, snapshots: MetricSnapshot[], now: number) {
+  const providerSnapshots = snapshots.filter((snapshot) => snapshot.provider === provider).map(snapshot => snapshotAtTime(snapshot, now));
+  const summary = summarizeProviderMeasurements(providerSnapshots, now);
   const available = providerSnapshots.filter((snapshot) => snapshot.value !== null);
   const fresh = available.filter((snapshot) => snapshot.status === 'fresh');
   const stale = available.filter((snapshot) => snapshot.status === 'stale');
 
-  if (fresh.length > 0) {
-    return { label: `${fresh.length} chỉ số API có số đo`, hint: 'Đã đọc được giá trị từ API nền tảng.', tone: 'green' as const };
-  }
+  if (fresh.length > 0 && fresh.length === providerSnapshots.length) return { label: `${fresh.length}/${summary.totalCount} chỉ số API có số đo`, hint: 'Đã đọc được giá trị từ API nền tảng.', tone: 'green' as const };
+  if (fresh.length > 0) return { label: `${fresh.length}/${summary.totalCount} chỉ số API có số đo · phần còn lại thiếu/cũ`, hint: 'Không suy ra quota hoặc sức khỏe dịch vụ từ phần thiếu.', tone: 'amber' as const };
   if (stale.length > 0) {
-    return { label: `${stale.length} số đo đã cũ`, hint: 'Đang hiển thị lần đọc gần nhất.', tone: 'amber' as const };
+    return { label: `0/${summary.totalCount} chỉ số mới · ${stale.length} số đo đã cũ`, hint: 'Đang hiển thị lần đọc gần nhất.', tone: 'amber' as const };
   }
   if (providerSnapshots.length > 0 && providerSnapshots.every((snapshot) => snapshot.status === 'not_connected')) {
     return { label: 'Chưa cấu hình API', hint: 'Không có số đo tài khoản để hiển thị.', tone: 'neutral' as const };
@@ -46,6 +48,7 @@ export function OverviewView({
   onOpenCreateHost,
   onOpenCreateEvent,
 }: OverviewViewProps) {
+  const now = useMeasurementClock();
   const invitationCount = internalMetrics.totalInvitations;
   const respondedCount = internalMetrics.rsvpBreakdown.responded;
   const responseRate = invitationCount !== null && invitationCount > 0 && respondedCount !== null
@@ -142,7 +145,7 @@ export function OverviewView({
                 : internalMetrics.status === 'partial'
                   ? { label: 'Database có số liệu một phần', hint: 'Một vài phép đếm chưa lấy được.', tone: 'amber' as const }
                   : { label: 'Không đọc được database', hint: 'Số liệu chưa thể xác định.', tone: 'amber' as const }
-              : getMeasurementSummary(provider.id, snapshots);
+              : getMeasurementSummary(provider.id, snapshots, now);
 
             return (
               <article className={styles.healthCard} key={provider.id}>

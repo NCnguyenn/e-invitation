@@ -38,6 +38,10 @@ test('development designer can select a registered template without an event', (
     decidePreviewTemplate({ ...base, isDevelopment: true, hasHost: false, requestedKey: 'graduation-floral-01' }),
     { status: 'selected', templateKey: 'graduation-floral-01' },
   );
+  assert.deepEqual(
+    decidePreviewTemplate({ ...base, isDevelopment: true, hasHost: false, requestedKey: 'graduation-editorial-01' }),
+    { status: 'selected', templateKey: 'graduation-editorial-01' },
+  );
 });
 
 test('production host without an event cannot inspect a client template', () => {

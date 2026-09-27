@@ -3,6 +3,73 @@ import assert from 'node:assert/strict';
 import { fetchBrevoMetrics } from '../src/features/admin/metrics/brevo.ts';
 import { fetchSupabaseMgmtMetrics } from '../src/features/admin/metrics/supabase-mgmt.ts';
 import { PUBLISHED_REFERENCE_LIMITS, DIRECT_DASHBOARD_LINKS } from '../src/features/admin/metrics/reference.ts';
+import { mergeMetricSnapshots } from '../src/features/admin/metrics/snapshot-merge.ts';
+import { summarizeProviderMeasurements } from '../src/features/admin/metrics/measurement-status.ts';
+
+function snapshot(overrides = {}) {
+  return {
+    provider: 'supabase',
+    scope_type: 'project',
+    scope_id: 'project-a',
+    metric_key: 'supabase-disk-fs-used',
+    display_name: 'Supabase DB Filesystem Used',
+    environment: 'production',
+    value: 42,
+    unit: 'byte',
+    limit_value: 100,
+    remaining_value: 58,
+    period_start: null,
+    period_end: null,
+    period_timezone: null,
+    provider_updated_at: null,
+    fetched_at: '2026-09-27T10:00:00.000Z',
+    source_kind: 'api',
+    source_url: 'https://supabase.com/docs/reference/api/v1-get-disk-utilization',
+    endpoint: 'GET /v1/projects/{ref}/config/disk/util',
+    field_path: 'metrics.fs_used_bytes',
+    status: 'fresh',
+    last_attempt_at: '2026-09-27T10:00:00.000Z',
+    error_code: null,
+    mapping_version: '1.0',
+    source_checked_at: '2026-09-27',
+    ...overrides,
+  };
+}
+
+test('failed refresh preserves the last successful provider measurement', () => {
+  const previous = snapshot();
+  const failed = snapshot({
+    value: null,
+    limit_value: null,
+    remaining_value: null,
+    fetched_at: '2026-09-27T10:05:00.000Z',
+    last_attempt_at: '2026-09-27T10:05:00.000Z',
+    status: 'unavailable',
+    error_code: 'TIMEOUT',
+  });
+
+  const [merged] = mergeMetricSnapshots([previous], [failed]);
+
+  assert.equal(merged.value, 42);
+  assert.equal(merged.limit_value, 100);
+  assert.equal(merged.remaining_value, 58);
+  assert.equal(merged.fetched_at, previous.fetched_at);
+  assert.equal(merged.status, 'stale');
+  assert.equal(merged.last_attempt_at, failed.last_attempt_at);
+  assert.equal(merged.error_code, 'TIMEOUT');
+});
+
+test('partial provider measurements never qualify as fully healthy', () => {
+  const measured = snapshot({ metric_key: 'brevo-credits', provider: 'brevo', value: 12, status: 'fresh' });
+  const unavailable = snapshot({ metric_key: 'brevo-smtp-requests', provider: 'brevo', value: null, status: 'unavailable' });
+
+  const summary = summarizeProviderMeasurements([measured, unavailable], Date.parse('2026-09-27T10:01:00.000Z'));
+
+  assert.equal(summary.allFresh, false);
+  assert.equal(summary.freshCount, 1);
+  assert.equal(summary.totalCount, 2);
+  assert.equal(summary.unavailableCount, 1);
+});
 
 test('Brevo adapter returns not_connected when API key is missing', async () => {
   const snapshots = await fetchBrevoMetrics('');
@@ -211,7 +278,7 @@ test('Supabase Management adapter flags invalid_response when payload missing fi
 });
 
 test('Published reference limits and direct dashboard links comply with spec', () => {
-  assert.ok(PUBLISHED_REFERENCE_LIMITS.length >= 6);
+  assert.ok(PUBLISHED_REFERENCE_LIMITS.length >= 14);
   const providers = new Set(PUBLISHED_REFERENCE_LIMITS.map(l => l.provider));
   assert.ok(providers.has('netlify'));
   assert.ok(providers.has('supabase'));
@@ -223,6 +290,24 @@ test('Published reference limits and direct dashboard links comply with spec', (
     assert.ok(l.sourceUrl.startsWith('https://'));
     assert.ok(l.publishedLimit.length > 0);
   }
+
+  const expectedIds = [
+    'netlify-credits',
+    'netlify-credit-rates',
+    'supabase-database',
+    'supabase-storage',
+    'supabase-egress-uncached',
+    'supabase-egress-cached',
+    'supabase-mau',
+    'supabase-realtime-messages',
+    'supabase-realtime-connections',
+    'brevo-daily-emails',
+    'brevo-contacts',
+    'brevo-free-branding',
+    'github-actions',
+    'github-actions-cache',
+  ];
+  for (const id of expectedIds) assert.ok(PUBLISHED_REFERENCE_LIMITS.some((item) => item.id === id), `missing ${id}`);
 
   assert.equal(DIRECT_DASHBOARD_LINKS.length, 4);
   for (const d of DIRECT_DASHBOARD_LINKS) {
