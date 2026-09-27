@@ -2,6 +2,7 @@ import { connection } from 'next/server';
 import { notFound } from 'next/navigation';
 import { getVerifiedHost } from '@/features/auth/server';
 import { readPreviewEvent } from '@/features/events/server';
+import { decidePreviewTemplate } from '@/features/events/preview-template-policy';
 import { InvitationTemplate } from '@/features/template/InvitationTemplate';
 import { previewInvitation } from '@/features/template/preview.fixture';
 import { resolveTemplateKey } from '@/features/template/resolve-key';
@@ -23,13 +24,17 @@ export default async function PreviewPage({ searchParams }: Props) {
   if (!isDev && !host) notFound();
 
   const params = await searchParams;
-  if (params.template !== undefined && !resolveTemplateKey(params.template)) {
-    return <TemplateUnavailable />;
-  }
-  const override = resolveTemplateKey(params.template);
   const ownEvent = host ? await readPreviewEvent(host.userId) : null;
-  const templateKey = override ?? resolveTemplateKey(ownEvent?.templateKey ?? previewInvitation.event.templateKey);
-  if (!templateKey) return <TemplateUnavailable />;
+  const decision = decidePreviewTemplate({
+    isDevelopment: isDev,
+    hasHost: Boolean(host),
+    requestedKey: params.template,
+    ownEventKey: ownEvent?.templateKey,
+    fallbackKey: previewInvitation.event.templateKey,
+  }, resolveTemplateKey);
+  if (decision.status === 'not_found') notFound();
+  if (decision.status === 'unavailable') return <TemplateUnavailable />;
+  const templateKey = decision.templateKey;
 
   const invitation: GuestInvitation = ownEvent
     ? {
