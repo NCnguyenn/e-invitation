@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { LoginForm } from '@/features/auth/LoginForm';
 import { LoginIcon } from '@/features/auth/LoginIcon';
 import { getVerifiedHost } from '@/features/auth/server';
+import { getVerifiedDeveloper } from '@/features/admin/server';
 import '@fontsource/be-vietnam-pro/400.css';
 import '@fontsource/be-vietnam-pro/500.css';
 import '@fontsource/playfair-display/500.css';
@@ -15,6 +16,8 @@ export const metadata: Metadata = { title: 'Đăng nhập | e-invitation' };
 export default async function LoginPage() {
   const host = await getVerifiedHost();
   if (host) redirect('/dashboard');
+  const developer = await getVerifiedDeveloper();
+  if (developer) redirect('/system-admin');
   return (
     <div className={styles.page}>
       <div className={styles.shell}>

@@ -52,6 +52,7 @@ npm run smoke:production
 - `public/fonts/`, `public/templates/`: ảnh và font được ứng dụng phục vụ.
 - `docs/BREVO_SEND_CONTRACT.md`: quy tắc gửi email, trạng thái unknown và cách đối soát.
 - `ONBOARDING.md`: hướng dẫn chi tiết toàn diện dành cho thành viên mới (thiết lập, tài khoản, test, kiến trúc).
+- `docs/QUY_TRINH_TRIEN_KHAI_KHACH_HANG.md`: quy trình làm thiệp tốt nghiệp cho từng khách. `docs/HUONG_DAN_TAO_THIEP_MOI.md` chỉ trỏ về file đó.
 - `YEU_CAU_MVP.md`, `YEU_CAU_DU_AN.md`: yêu cầu sản phẩm.
 
 Mã thiệp cũ đã được chuyển vào ứng dụng Next.js; các file HTML/JS/CSS root trước đây không còn là runtime của site.

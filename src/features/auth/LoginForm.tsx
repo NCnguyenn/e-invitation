@@ -31,13 +31,19 @@ export function LoginForm() {
         body: JSON.stringify({ email, password }),
       });
       if (!response.ok) {
-        const body = (await response.json().catch(() => null)) as { message?: string } | null;
+        const body = (await response.json().catch(() => null)) as { message?: string; role?: string } | null;
         setError(body?.message || GENERIC_LOGIN_ERROR);
         return;
       }
-      // The login response has already set the session cookies. A separate
-      // refresh duplicates the destination request and its authenticated reads.
-      startTransition(() => router.replace('/dashboard'));
+      const data = (await response.json().catch(() => null)) as { role?: string } | null;
+      const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+      const returnTo = searchParams?.get('returnTo');
+      const destination = returnTo && returnTo.startsWith('/')
+        ? returnTo
+        : data?.role === 'developer'
+        ? '/system-admin'
+        : '/dashboard';
+      startTransition(() => router.replace(destination));
     } catch {
       setError('Không thể đăng nhập lúc này. Hãy thử lại.');
     } finally {
