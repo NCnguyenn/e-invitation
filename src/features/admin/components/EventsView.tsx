@@ -221,21 +221,23 @@ export function EventsView({
       {/* Main Events Table Card */}
       <div className={styles.sectionCard}>
         <div className={styles.sectionHeader}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+          <div className={styles.listHeading}>
             <h2 className={styles.sectionTitle}>
               <span>🎉 Quản lý Sự kiện & Thiệp ({filteredEvents.length})</span>
             </h2>
             <div className={styles.searchBox}>
               <span>🔍</span>
               <input
-                type="text"
-                placeholder="Tìm theo tên sự kiện, host, template..."
+                type="search"
+                aria-label="Tìm sự kiện theo tên, chủ tiệc hoặc mẫu thiệp"
+                placeholder="Tìm theo sự kiện, Host hoặc mẫu thiệp…"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
               />
             </div>
           </div>
           <button
+            type="button"
             className={styles.btnPrimary}
             onClick={() => {
               onOpenCreateModal();
@@ -249,7 +251,7 @@ export function EventsView({
         </div>
 
         <div className={styles.tableWrapper}>
-          <table className={styles.dataTable}>
+          <table className={styles.dataTable} aria-label="Danh sách sự kiện và thiệp mời">
             <thead>
               <tr>
                 <th>Tiêu đề sự kiện</th>
@@ -587,9 +589,9 @@ export function EventsView({
                   <table className={styles.dataTable}>
                     <thead>
                       <tr>
-                        <th>Tên khách</th>
+                        <th>Khách mời</th>
                         <th>Email</th>
-                        <th>Email</th>
+                        <th>Gửi thư</th>
                         <th>RSVP</th>
                       </tr>
                     </thead>

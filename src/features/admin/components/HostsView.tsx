@@ -135,27 +135,28 @@ export function HostsView({
       {/* Main Host Table Card */}
       <div className={styles.sectionCard}>
         <div className={styles.sectionHeader}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+          <div className={styles.listHeading}>
             <h2 className={styles.sectionTitle}>
               <span>👥 Danh sách Host ({filteredHosts.length})</span>
             </h2>
             <div className={styles.searchBox}>
               <span>🔍</span>
               <input
-                type="text"
-                placeholder="Tìm kiếm theo email..."
+                type="search"
+                aria-label="Tìm Host theo email hoặc mã tài khoản"
+                placeholder="Tìm theo email hoặc mã tài khoản…"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
               />
             </div>
           </div>
-          <button className={styles.btnPrimary} onClick={() => { onOpenCreateModal(); setActionError(null); }}>
+          <button type="button" className={styles.btnPrimary} onClick={() => { onOpenCreateModal(); setActionError(null); }}>
             + Tạo Host mới
           </button>
         </div>
 
         <div className={styles.tableWrapper}>
-          <table className={styles.dataTable}>
+          <table className={styles.dataTable} aria-label="Danh sách khách hàng Host">
             <thead>
               <tr>
                 <th>Email Khách hàng</th>

@@ -1,205 +1,182 @@
 'use client';
 
 import React from 'react';
-import type { InternalActivityMetrics, AdminHostItem, AdminEventItem, MetricSnapshot } from '../contracts';
+import type { InternalActivityMetrics, AdminEventItem, MetricSnapshot, MetricProvider } from '../contracts';
 import styles from './admin.module.css';
 
 interface OverviewViewProps {
   internalMetrics: InternalActivityMetrics;
   snapshots: MetricSnapshot[];
-  hosts: AdminHostItem[];
   events: AdminEventItem[];
   onNavigate: (tab: 'overview' | 'hosts' | 'events' | 'metrics' | 'operations') => void;
   onOpenCreateHost: () => void;
   onOpenCreateEvent: () => void;
 }
 
+function formatCount(value: number | null) {
+  return value === null ? '—' : value.toLocaleString('vi-VN');
+}
+
+function getMeasurementSummary(provider: MetricProvider, snapshots: MetricSnapshot[]) {
+  const providerSnapshots = snapshots.filter((snapshot) => snapshot.provider === provider);
+  const available = providerSnapshots.filter((snapshot) => snapshot.value !== null);
+  const fresh = available.filter((snapshot) => snapshot.status === 'fresh');
+  const stale = available.filter((snapshot) => snapshot.status === 'stale');
+
+  if (fresh.length > 0) {
+    return { label: `${fresh.length} chỉ số API có số đo`, hint: 'Đã đọc được giá trị từ API nền tảng.', tone: 'green' as const };
+  }
+  if (stale.length > 0) {
+    return { label: `${stale.length} số đo đã cũ`, hint: 'Đang hiển thị lần đọc gần nhất.', tone: 'amber' as const };
+  }
+  if (providerSnapshots.length > 0 && providerSnapshots.every((snapshot) => snapshot.status === 'not_connected')) {
+    return { label: 'Chưa cấu hình API', hint: 'Không có số đo tài khoản để hiển thị.', tone: 'neutral' as const };
+  }
+  if (provider === 'netlify') {
+    return { label: 'Chưa có phép đo API', hint: 'Mức dùng hiện tại cần xem trong Netlify Dashboard.', tone: 'neutral' as const };
+  }
+  return { label: 'Chưa có số đo API', hint: 'Không suy ra trạng thái dịch vụ từ hạn mức gói.', tone: 'neutral' as const };
+}
+
 export function OverviewView({
   internalMetrics,
   snapshots,
-  hosts,
   events,
   onNavigate,
   onOpenCreateHost,
   onOpenCreateEvent,
 }: OverviewViewProps) {
-  // Check provider health based on snapshots
-  const brevoSnapshot = snapshots.find(s => s.provider === 'brevo');
-  const supabaseSnapshot = snapshots.find(s => s.provider === 'supabase');
-
-  const isBrevoHealthy = brevoSnapshot ? brevoSnapshot.status === 'fresh' || brevoSnapshot.status === 'stale' : false;
-  const isSupabaseDbHealthy = internalMetrics.totalHosts !== null;
+  const invitationCount = internalMetrics.totalInvitations;
+  const respondedCount = internalMetrics.rsvpBreakdown.responded;
+  const responseRate = invitationCount !== null && invitationCount > 0 && respondedCount !== null
+    ? `${Math.round((respondedCount / invitationCount) * 100)}%`
+    : '—';
+  const emailBudget = internalMetrics.dailyEmailBudget;
+  const emailReserved = emailBudget.reservedAttempts;
+  const providers: Array<{ id: MetricProvider; name: string; description: string }> = [
+    { id: 'brevo', name: 'Brevo', description: 'Số đo email từ API tài khoản' },
+    { id: 'supabase', name: 'Supabase', description: 'Số đo Management API và database' },
+    { id: 'netlify', name: 'Netlify', description: 'Usage cần xem trong dashboard' },
+    { id: 'internal', name: 'Email trong ứng dụng', description: 'Bộ đếm trong database hệ thống' },
+  ];
 
   return (
-    <div>
-      {/* 1. KPI Summary Cards */}
-      <div className={styles.kpiGrid}>
-        {/* Host Card */}
-        <div className={styles.kpiCard}>
+    <div className={styles.overviewPage}>
+      <section className={styles.kpiGrid} aria-label="Số liệu tổng quan">
+        <article className={styles.kpiCard}>
           <div className={styles.kpiTop}>
             <span className={styles.kpiTitle}>Khách hàng (Host)</span>
-            <div className={`${styles.kpiIconWrap} ${styles.iconPurple}`}>👤</div>
+            <span className={`${styles.kpiIconWrap} ${styles.iconPurple}`} aria-hidden="true">01</span>
           </div>
           <div className={styles.kpiValueRow}>
-            <span className={styles.kpiValue}>
-              {internalMetrics.totalHosts !== null ? internalMetrics.totalHosts : '—'}
-            </span>
+            <span className={styles.kpiValue}>{formatCount(internalMetrics.totalHosts)}</span>
             <span className={styles.kpiUnit}>tài khoản</span>
           </div>
           <div className={styles.kpiFooter}>
-            <span>Đang hoạt động</span>
-            <button className={styles.btnSecondary} style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem' }} onClick={onOpenCreateHost}>
-              + Tạo Host
-            </button>
+            <span>Tổng số Host trong database</span>
+            <button type="button" className={styles.btnText} onClick={() => onNavigate('hosts')}>Danh sách</button>
+            <button type="button" className={styles.btnText} onClick={onOpenCreateHost}>Tạo Host</button>
           </div>
-        </div>
+        </article>
 
-        {/* Event Card */}
-        <div className={styles.kpiCard}>
+        <article className={styles.kpiCard}>
           <div className={styles.kpiTop}>
-            <span className={styles.kpiTitle}>Sự kiện & Thiệp</span>
-            <div className={`${styles.kpiIconWrap} ${styles.iconIndigo}`}>🎉</div>
+            <span className={styles.kpiTitle}>Sự kiện</span>
+            <span className={`${styles.kpiIconWrap} ${styles.iconIndigo}`} aria-hidden="true">02</span>
           </div>
           <div className={styles.kpiValueRow}>
-            <span className={styles.kpiValue}>
-              {internalMetrics.totalEvents !== null ? internalMetrics.totalEvents : '—'}
-            </span>
-            <span className={styles.kpiUnit}>thiệp</span>
+            <span className={styles.kpiValue}>{formatCount(internalMetrics.totalEvents)}</span>
+            <span className={styles.kpiUnit}>sự kiện</span>
           </div>
           <div className={styles.kpiFooter}>
-            <span>Tốt nghiệp / Cưới</span>
-            <button className={styles.btnSecondary} style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem' }} onClick={onOpenCreateEvent}>
-              + Tạo Thiệp
-            </button>
+            <span>Tổng số sự kiện trong database</span>
+            <button type="button" className={styles.btnText} onClick={() => onNavigate('events')}>Mở danh sách</button>
           </div>
-        </div>
+        </article>
 
-        {/* Guests Card */}
-        <div className={styles.kpiCard}>
+        <article className={styles.kpiCard}>
           <div className={styles.kpiTop}>
-            <span className={styles.kpiTitle}>Tổng khách mời</span>
-            <div className={`${styles.kpiIconWrap} ${styles.iconEmerald}`}>💌</div>
+            <span className={styles.kpiTitle}>Khách mời</span>
+            <span className={`${styles.kpiIconWrap} ${styles.iconEmerald}`} aria-hidden="true">03</span>
           </div>
           <div className={styles.kpiValueRow}>
-            <span className={styles.kpiValue}>
-              {internalMetrics.totalInvitations !== null ? internalMetrics.totalInvitations : '—'}
-            </span>
-            <span className={styles.kpiUnit}>thư mời</span>
+            <span className={styles.kpiValue}>{formatCount(invitationCount)}</span>
+            <span className={styles.kpiUnit}>lời mời</span>
           </div>
           <div className={styles.kpiFooter}>
-            <span>
-              Đã phản hồi: <strong>{internalMetrics.rsvpBreakdown?.responded ?? '—'}</strong>
-            </span>
-            <span style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 600 }}>
-              {internalMetrics.totalInvitations && internalMetrics.rsvpBreakdown?.responded
-                ? `${Math.round((internalMetrics.rsvpBreakdown.responded / internalMetrics.totalInvitations) * 100)}%`
-                : '0%'}
-            </span>
+            <span>Đã phản hồi: <strong>{formatCount(respondedCount)}</strong></span>
+            <span className={styles.kpiFootValue}>{responseRate}{responseRate !== '—' ? ' phản hồi' : ''}</span>
           </div>
-        </div>
+        </article>
 
-        {/* Email Budget Today */}
-        <div className={styles.kpiCard}>
+        <article className={styles.kpiCard}>
           <div className={styles.kpiTop}>
-            <span className={styles.kpiTitle}>Email gửi hôm nay</span>
-            <div className={`${styles.kpiIconWrap} ${styles.iconAmber}`}>📬</div>
+            <span className={styles.kpiTitle}>Email theo sổ ứng dụng</span>
+            <span className={`${styles.kpiIconWrap} ${styles.iconAmber}`} aria-hidden="true">04</span>
           </div>
           <div className={styles.kpiValueRow}>
-            <span className={styles.kpiValue}>
-              {internalMetrics.dailyEmailBudget?.reservedAttempts ?? '0'}
-            </span>
-            <span className={styles.kpiUnit}>/ {internalMetrics.dailyEmailBudget?.cap ?? 300} suất</span>
+            <span className={styles.kpiValue}>{emailReserved ?? '—'}</span>
+            <span className={styles.kpiUnit}>/ {emailBudget.cap} suất hôm nay</span>
           </div>
           <div className={styles.kpiFooter}>
-            <span>
-              Thành công: <strong>{internalMetrics.dailyEmailBudget?.acceptedAttempts ?? 0}</strong>
-            </span>
-            <button className={styles.btnSecondary} style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem' }} onClick={() => onNavigate('metrics')}>
-              Chi tiết ↗
-            </button>
+            <span>Thành công: <strong>{emailBudget.acceptedAttempts ?? '—'}</strong></span>
+            <button type="button" className={styles.btnText} onClick={() => onNavigate('metrics')}>Xem số liệu</button>
           </div>
-        </div>
-      </div>
+        </article>
+      </section>
 
-      {/* 2. System Health Status */}
-      <div className={styles.sectionCard}>
+      <section className={styles.sectionCard}>
         <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>
-            <span>🩺 Tình trạng sức khỏe hệ thống</span>
-          </h2>
-          <button className={styles.btnSecondary} style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }} onClick={() => onNavigate('metrics')}>
-            Quản lý tài nguyên ↗
-          </button>
+          <div>
+            <h2 className={styles.sectionTitle}>Tình trạng lấy số liệu</h2>
+            <p className={styles.sectionDescription}>Trạng thái bên dưới nói về dữ liệu đã đọc được, không phải cam kết uptime của nhà cung cấp.</p>
+          </div>
+          <button type="button" className={styles.btnSecondary} onClick={() => onNavigate('metrics')}>Xem tài nguyên</button>
         </div>
 
         <div className={styles.healthGrid}>
-          {/* Brevo Email Health */}
-          <div className={styles.healthCard}>
-            <div className={styles.healthIcon}>✉️</div>
-            <div className={styles.healthInfo}>
-              <span className={styles.healthName}>Brevo Email v3</span>
-              <span className={`${styles.healthStatus} ${isBrevoHealthy ? styles.statusGreen : styles.statusAmber}`}>
-                <span className={`${styles.statusDot} ${isBrevoHealthy ? styles.dotGreen : styles.dotAmber}`} />
-                {isBrevoHealthy ? 'Sẵn sàng gửi thư' : 'Chưa cấu hình API Key'}
-              </span>
-            </div>
-          </div>
+          {providers.map((provider) => {
+            const result = provider.id === 'internal'
+              ? internalMetrics.status === 'ok'
+                ? { label: 'Database có đủ số liệu', hint: 'Bộ đếm được đọc từ database ứng dụng.', tone: 'green' as const }
+                : internalMetrics.status === 'partial'
+                  ? { label: 'Database có số liệu một phần', hint: 'Một vài phép đếm chưa lấy được.', tone: 'amber' as const }
+                  : { label: 'Không đọc được database', hint: 'Số liệu chưa thể xác định.', tone: 'amber' as const }
+              : getMeasurementSummary(provider.id, snapshots);
 
-          {/* Supabase DB Health */}
-          <div className={styles.healthCard}>
-            <div className={styles.healthIcon}>🗄️</div>
-            <div className={styles.healthInfo}>
-              <span className={styles.healthName}>Supabase PostgreSQL</span>
-              <span className={`${styles.healthStatus} ${isSupabaseDbHealthy ? styles.statusGreen : styles.statusAmber}`}>
-                <span className={`${styles.statusDot} ${isSupabaseDbHealthy ? styles.dotGreen : styles.dotAmber}`} />
-                {isSupabaseDbHealthy ? 'Cơ sở dữ liệu hoạt động' : 'Kiểm tra kết nối'}
-              </span>
-            </div>
-          </div>
-
-          {/* Netlify Hosting */}
-          <div className={styles.healthCard}>
-            <div className={styles.healthIcon}>☁️</div>
-            <div className={styles.healthInfo}>
-              <span className={styles.healthName}>Netlify Hosting</span>
-              <span className={`${styles.healthStatus} ${styles.statusGreen}`}>
-                <span className={`${styles.statusDot} ${styles.dotGreen}`} />
-                Đang chạy trực tuyến
-              </span>
-            </div>
-          </div>
-
-          {/* Storage Health */}
-          <div className={styles.healthCard}>
-            <div className={styles.healthIcon}>📁</div>
-            <div className={styles.healthInfo}>
-              <span className={styles.healthName}>Supabase Storage</span>
-              <span className={`${styles.healthStatus} ${styles.statusGreen}`}>
-                <span className={`${styles.statusDot} ${styles.dotGreen}`} />
-                Lưu trữ audio sẵn sàng
-              </span>
-            </div>
-          </div>
+            return (
+              <article className={styles.healthCard} key={provider.id}>
+                <span className={styles.healthIcon} aria-hidden="true">{provider.id === 'brevo' ? '✉' : provider.id === 'supabase' ? '◈' : provider.id === 'netlify' ? '⌂' : '↗'}</span>
+                <div className={styles.healthInfo}>
+                  <span className={styles.healthName}>{provider.name}</span>
+                  <span className={styles.healthDescription}>{provider.description}</span>
+                  <span className={`${styles.healthStatus} ${result.tone === 'green' ? styles.statusGreen : result.tone === 'amber' ? styles.statusAmber : styles.statusNeutral}`}>
+                    <span className={`${styles.statusDot} ${result.tone === 'green' ? styles.dotGreen : result.tone === 'amber' ? styles.dotAmber : styles.dotGray}`} />
+                    {result.label}
+                  </span>
+                  <span className={styles.healthHint}>{result.hint}</span>
+                </div>
+              </article>
+            );
+          })}
         </div>
-      </div>
+      </section>
 
-      {/* 3. Recent Events Table */}
-      <div className={styles.sectionCard}>
+      <section className={styles.sectionCard}>
         <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>
-            <span>🎉 Sự kiện mới nhất</span>
-          </h2>
-          <button className={styles.btnSecondary} style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }} onClick={() => onNavigate('events')}>
-            Xem tất cả sự kiện ({events.length}) ↗
+          <div>
+            <h2 className={styles.sectionTitle}>Sự kiện mới nhất</h2>
+            <p className={styles.sectionDescription}>Dữ liệu sự kiện được tải khi mở trang quản trị.</p>
+          </div>
+          <button type="button" className={styles.btnSecondary} onClick={() => onNavigate('events')}>
+            Mở danh sách sự kiện
           </button>
         </div>
 
         {events.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '2rem 1rem', color: '#64748b' }}>
-            <p style={{ margin: '0 0 1rem' }}>Chưa có sự kiện nào được tạo.</p>
-            <button className={styles.btnPrimary} onClick={onOpenCreateEvent}>
-              + Tạo Sự kiện đầu tiên
-            </button>
+          <div className={styles.emptyState}>
+            <p>Chưa có sự kiện nào trong dữ liệu đã tải.</p>
+            <button type="button" className={styles.btnPrimary} onClick={onOpenCreateEvent}>Tạo sự kiện đầu tiên</button>
           </div>
         ) : (
           <div className={styles.tableWrapper}>
@@ -207,39 +184,31 @@ export function OverviewView({
               <thead>
                 <tr>
                   <th>Tên sự kiện</th>
-                  <th>Chủ sở hữu (Host)</th>
-                  <th>Mẫu thiệp (Template)</th>
+                  <th>Host</th>
+                  <th>Mẫu thiệp</th>
                   <th>Ngày tổ chức</th>
                   <th>Khách mời</th>
-                  <th>Phản hồi</th>
+                  <th>Đã phản hồi</th>
                 </tr>
               </thead>
               <tbody>
-                {events.slice(0, 5).map(ev => (
-                  <tr key={ev.id}>
-                    <td style={{ fontWeight: 600, color: '#0f172a' }}>{ev.title}</td>
-                    <td style={{ color: '#475569' }}>{ev.hostEmail}</td>
-                    <td>
-                      <span className={styles.badge} style={{ background: '#e0e7ff', color: '#4338ca' }}>
-                        {ev.templateKey}
-                      </span>
-                    </td>
-                    <td style={{ color: '#64748b' }}>
-                      {new Date(ev.eventDate).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                    </td>
-                    <td>
-                      <strong>{ev.guestCount}</strong> khách
-                    </td>
-                    <td>
-                      <span style={{ color: '#059669', fontWeight: 600 }}>{ev.respondedCount} phản hồi</span>
-                    </td>
+                {events.slice(0, 5).map((event) => (
+                  <tr key={event.id}>
+                    <td className={styles.tablePrimaryCell}>{event.title}</td>
+                    <td>{event.hostEmail}</td>
+                    <td><span className={`${styles.badge} ${styles.badgeNeutral}`}>{event.templateKey}</span></td>
+                    <td>{Number.isNaN(new Date(event.eventDate).getTime())
+                      ? '—'
+                      : new Date(event.eventDate).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
+                    <td>{event.guestCount.toLocaleString('vi-VN')}</td>
+                    <td>{event.respondedCount.toLocaleString('vi-VN')}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 }

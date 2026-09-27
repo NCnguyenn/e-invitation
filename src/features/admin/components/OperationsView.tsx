@@ -94,7 +94,7 @@ export function OperationsView({ initialAttempts, initialJobs }: OperationsViewP
   }
 
   return (
-    <div>
+    <div className={styles.operationsPage}>
       {/* Alert notifications */}
       {alertSuccess ? (
         <div className={styles.alertBanner} style={{ backgroundColor: '#f0fdf4', borderColor: '#bbf7d0', color: '#166534', marginBottom: '1.5rem' }}>
@@ -110,19 +110,16 @@ export function OperationsView({ initialAttempts, initialJobs }: OperationsViewP
         </div>
       ) : null}
 
-      {/* Section 1: Unknown Email Reconciliation */}
       <div className={styles.sectionCard}>
         <div className={styles.sectionHeader}>
           <div>
-            <h2 className={styles.sectionTitle}>
-              <span>📬 Đối soát Email chưa rõ kết quả (Unknown Attempts)</span>
-            </h2>
-            <div style={{ color: '#64748b', fontSize: '0.825rem', marginTop: '0.25rem' }}>
+            <h2 className={styles.sectionTitle}>Email chưa rõ kết quả</h2>
+            <p className={styles.sectionDescription}>
               Các lượt gửi email bị timeout hoặc gián đoạn mạng cần đối soát thủ công trước khi mở khóa gửi lại.
-            </div>
+            </p>
           </div>
-          <button className={styles.btnSecondary} onClick={refreshData} disabled={loading}>
-            🔄 Làm mới
+          <button type="button" className={styles.btnSecondary} onClick={refreshData} disabled={loading}>
+            {loading ? 'Đang tải…' : 'Làm mới danh sách'}
           </button>
         </div>
 
@@ -131,38 +128,37 @@ export function OperationsView({ initialAttempts, initialJobs }: OperationsViewP
             <thead>
               <tr>
                 <th>Sự kiện</th>
-                <th>Khách mời</th>
-                <th>Email nhận</th>
+                <th>Khách mời / Email</th>
                 <th>Thời điểm</th>
-                <th>Mã lỗi</th>
-                <th>Provider Msg ID</th>
                 <th>Trạng thái</th>
-                <th style={{ textAlign: 'right' }}>Hành động</th>
+                <th>Thao tác</th>
               </tr>
             </thead>
             <tbody>
               {attempts.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className={styles.emptyState}>
-                    Không có lượt gửi nào cần đối soát. Hệ thống đang hoạt động ổn định.
+                  <td colSpan={5} className={styles.emptyState}>
+                    Không có lượt gửi email cần đối soát trong danh sách đã tải.
                   </td>
                 </tr>
               ) : (
                 attempts.map(a => (
                   <tr key={a.id}>
-                    <td style={{ fontWeight: 600, color: '#0f172a' }}>{a.eventTitle || '—'}</td>
-                    <td>{a.guestName || '—'}</td>
-                    <td style={{ fontSize: '0.85rem' }}>{a.guestEmail || '—'}</td>
-                    <td style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                      {a.startedAt ? new Date(a.startedAt).toLocaleString('vi-VN') : a.budgetDate}
+                    <td>
+                      <div className={styles.tablePrimaryCell}>{a.eventTitle || '—'}</div>
+                      <details className={styles.inlineDetails}>
+                        <summary>Chi tiết gửi</summary>
+                        <div><span>Mã lỗi:</span> <code>{a.errorCode || '—'}</code></div>
+                        <div><span>Provider message ID:</span> <code>{a.providerMessageId || '—'}</code></div>
+                        <div><span>Attempt ID:</span> <code>{a.id}</code></div>
+                      </details>
                     </td>
                     <td>
-                      <span className={styles.badge} style={{ background: '#fee2e2', color: '#b91c1c', fontFamily: 'monospace' }}>
-                        {a.errorCode || 'TIMEOUT'}
-                      </span>
+                      <div className={styles.tablePrimaryCell}>{a.guestName || '—'}</div>
+                      <div className={styles.tableCellSecondary}>{a.guestEmail || 'Chưa có email'}</div>
                     </td>
-                    <td style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                      {a.providerMessageId ? <code>{a.providerMessageId}</code> : '—'}
+                    <td className={styles.tableCellSecondary}>
+                      {a.startedAt ? new Date(a.startedAt).toLocaleString('vi-VN') : a.budgetDate}
                     </td>
                     <td>
                       {a.resolvedAt ? (
@@ -177,8 +173,9 @@ export function OperationsView({ initialAttempts, initialJobs }: OperationsViewP
                     </td>
                     <td style={{ textAlign: 'right' }}>
                       <button
+                        type="button"
                         className={styles.btnSecondary}
-                        style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem' }}
+                        aria-label={`${a.resolvedAt ? 'Xem' : 'Mở'} đối soát email ${a.guestEmail || a.id}`}
                         onClick={() => {
                           setResolveAttemptTarget(a);
                           setResolutionText(a.resolution || '');
@@ -186,7 +183,7 @@ export function OperationsView({ initialAttempts, initialJobs }: OperationsViewP
                           setAlertError(null);
                         }}
                       >
-                        {a.resolvedAt ? 'Xem đối soát' : 'Xử lý đối soát'}
+                        {a.resolvedAt ? 'Xem' : 'Đối soát'}
                       </button>
                     </td>
                   </tr>
@@ -197,16 +194,13 @@ export function OperationsView({ initialAttempts, initialJobs }: OperationsViewP
         </div>
       </div>
 
-      {/* Section 2: Storage Maintenance Jobs */}
       <div className={styles.sectionCard}>
         <div className={styles.sectionHeader}>
           <div>
-            <h2 className={styles.sectionTitle}>
-              <span>🧹 Công việc bảo trì & Dọn dẹp tệp tin (Maintenance Jobs)</span>
-            </h2>
-            <div style={{ color: '#64748b', fontSize: '0.825rem', marginTop: '0.25rem' }}>
+            <h2 className={styles.sectionTitle}>Công việc bảo trì</h2>
+            <p className={styles.sectionDescription}>
               Theo dõi và thử lại việc dọn dẹp file Storage khi xóa Host hoặc xóa Sự kiện nếu có lỗi phát sinh.
-            </div>
+            </p>
           </div>
         </div>
 
@@ -214,33 +208,39 @@ export function OperationsView({ initialAttempts, initialJobs }: OperationsViewP
           <table className={styles.dataTable}>
             <thead>
               <tr>
-                <th>Hạng mục</th>
-                <th>Target ID</th>
-                <th>Đường dẫn tệp (Prefixes)</th>
+                <th>Công việc</th>
+                <th>Đối tượng</th>
+                <th>Cập nhật</th>
                 <th>Trạng thái</th>
-                <th>Lỗi gần nhất</th>
-                <th>Thời điểm tạo</th>
-                <th style={{ textAlign: 'right' }}>Hành động</th>
+                <th>Thao tác</th>
               </tr>
             </thead>
             <tbody>
               {jobs.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className={styles.emptyState}>
-                    Không có công việc bảo trì nào tồn đọng.
+                  <td colSpan={5} className={styles.emptyState}>
+                    Không có công việc bảo trì trong danh sách đã tải.
                   </td>
                 </tr>
               ) : (
                 jobs.map(j => (
                   <tr key={j.id}>
-                    <td style={{ fontWeight: 600, color: '#0f172a' }}>
+                    <td className={styles.tablePrimaryCell}>
                       {j.kind === 'delete_event' ? 'Xóa Sự kiện' : j.kind === 'delete_host' ? 'Xóa Host' : 'Dọn tệp'}
+                      <details className={styles.inlineDetails}>
+                        <summary>Chi tiết công việc</summary>
+                        <div><span>Job ID:</span> <code>{j.id}</code></div>
+                        <div><span>Target ID:</span> <code>{j.targetId}</code></div>
+                        <div><span>Đường dẫn:</span> <code>{j.objectPrefixes.join(', ') || '—'}</code></div>
+                        <div><span>Mã lỗi gần nhất:</span> <code>{j.lastErrorCode || '—'}</code></div>
+                      </details>
                     </td>
-                    <td style={{ fontSize: '0.8rem', fontFamily: 'monospace', color: '#64748b' }}>
-                      {j.targetId.slice(0, 8)}…
+                    <td>
+                      <code className={styles.shortId}>{j.targetId.slice(0, 8)}…</code>
+                      <div className={styles.tableCellSecondary}>{j.kind === 'delete_event' ? 'Sự kiện' : j.kind === 'delete_host' ? 'Host' : 'Tệp lưu trữ'}</div>
                     </td>
-                    <td style={{ fontSize: '0.8rem', color: '#475569' }}>
-                      {j.objectPrefixes.join(', ')}
+                    <td className={styles.tableCellSecondary}>
+                      {new Date(j.updatedAt).toLocaleString('vi-VN')}
                     </td>
                     <td>
                       <span className={`${styles.badge} ${
@@ -250,24 +250,18 @@ export function OperationsView({ initialAttempts, initialJobs }: OperationsViewP
                           ? styles.badgeDanger
                           : styles.badgeWarning
                       }`}>
-                        {j.status === 'completed' ? 'Thành công' : j.status === 'failed' ? 'Thất bại' : 'Đang chạy'}
+                        {j.status === 'completed' ? 'Đã hoàn thành' : j.status === 'failed' ? 'Thất bại' : j.status === 'pending' ? 'Chờ xử lý' : 'Đang chạy'}
                       </span>
                     </td>
-                    <td style={{ fontSize: '0.8rem', color: '#b91c1c' }}>
-                      {j.lastErrorCode || '—'}
-                    </td>
-                    <td style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                      {new Date(j.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                    </td>
-                    <td style={{ textAlign: 'right' }}>
+                    <td>
                       {j.status === 'failed' || j.status === 'running' ? (
                         <button
+                          type="button"
                           className={styles.btnPrimary}
-                          style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem' }}
                           onClick={() => handleRetryJob(j.id)}
                           disabled={loading}
                         >
-                          Thử lại
+                          {loading ? 'Đang xử lý…' : 'Thử lại'}
                         </button>
                       ) : (
                         <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Đã hoàn tất</span>
@@ -296,7 +290,7 @@ export function OperationsView({ initialAttempts, initialJobs }: OperationsViewP
                   <div><strong>Sự kiện:</strong> {resolveAttemptTarget.eventTitle || '—'}</div>
                   <div><strong>Khách mời:</strong> {resolveAttemptTarget.guestName} ({resolveAttemptTarget.guestEmail})</div>
                   <div><strong>Attempt ID:</strong> <code>{resolveAttemptTarget.id}</code></div>
-                  <div><strong>Mã lỗi:</strong> <span style={{ color: '#dc2626' }}>{resolveAttemptTarget.errorCode || 'TIMEOUT'}</span></div>
+                  <div><strong>Mã lỗi:</strong> <span style={{ color: '#dc2626' }}>{resolveAttemptTarget.errorCode || '—'}</span></div>
                 </div>
 
                 <div className={styles.formField}>

@@ -219,7 +219,7 @@ test('Published reference limits and direct dashboard links comply with spec', (
   assert.ok(providers.has('github'));
 
   for (const l of PUBLISHED_REFERENCE_LIMITS) {
-    assert.equal(l.checkedAt, '2026-09-24');
+    assert.equal(l.checkedAt, '2026-09-27');
     assert.ok(l.sourceUrl.startsWith('https://'));
     assert.ok(l.publishedLimit.length > 0);
   }

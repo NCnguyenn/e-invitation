@@ -32,6 +32,41 @@ interface AdminShellProps {
 
 export type AdminTab = 'overview' | 'hosts' | 'events' | 'metrics' | 'operations';
 
+const ADMIN_TABS: Array<{ id: AdminTab; label: string }> = [
+  { id: 'overview', label: 'Tổng quan' },
+  { id: 'hosts', label: 'Khách hàng' },
+  { id: 'events', label: 'Sự kiện & Thiệp' },
+  { id: 'metrics', label: 'Tài nguyên' },
+  { id: 'operations', label: 'Vận hành' },
+];
+
+function AdminNavIcon({ tab }: { tab: AdminTab }) {
+  const common = {
+    'aria-hidden': true as const,
+    viewBox: '0 0 24 24',
+    width: 20,
+    height: 20,
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 1.8,
+    strokeLinecap: 'round' as const,
+    strokeLinejoin: 'round' as const,
+  };
+
+  switch (tab) {
+    case 'overview':
+      return <svg {...common}><path d="M3 13h8V3H3zM13 21h8V11h-8zM13 3h8v6h-8zM3 17h8v4H3z" /></svg>;
+    case 'hosts':
+      return <svg {...common}><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="10" cy="7" r="4" /><path d="M20 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg>;
+    case 'events':
+      return <svg {...common}><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M16 3v4M8 3v4M3 10h18M8 14h3M8 17h6" /></svg>;
+    case 'metrics':
+      return <svg {...common}><ellipse cx="12" cy="5" rx="8" ry="3" /><path d="M4 5v7c0 1.66 3.58 3 8 3s8-1.34 8-3V5M4 12v7c0 1.66 3.58 3 8 3s8-1.34 8-3v-7" /></svg>;
+    case 'operations':
+      return <svg {...common}><path d="M12 8v4l3 2" /><circle cx="12" cy="12" r="9" /><path d="M3.5 8h4M4 8l2-2" /></svg>;
+  }
+}
+
 export function AdminShell({
   developerEmail,
   initialSnapshots,
@@ -100,31 +135,30 @@ export function AdminShell({
   // Navigation tab meta
   const tabTitles: Record<AdminTab, { title: string; subtitle: string }> = {
     overview: {
-      title: 'Bảng tổng quan',
-      subtitle: 'Theo dõi nhanh chỉ số hoạt động, khách hàng và trạng thái hệ thống',
+      title: 'Tổng quan hệ thống',
+      subtitle: 'Theo dõi khách hàng, sự kiện, RSVP và email từ số liệu đang có',
     },
     hosts: {
-      title: 'Quản lý Khách hàng (Host)',
-      subtitle: 'Tạo tài khoản Host, cấp mật khẩu 1 lần ngẫu nhiên và dọn dẹp an toàn',
+      title: 'Khách hàng (Host)',
+      subtitle: 'Tìm tài khoản, xem sự kiện và quản lý quyền truy cập',
     },
     events: {
       title: 'Quản lý Sự kiện & Thiệp',
-      subtitle: 'Khởi tạo sự kiện, chọn mẫu thiệp từ Registry và xem danh sách khách',
+      subtitle: 'Tạo sự kiện, chọn mẫu thiệp và mở danh sách khách mời',
     },
     metrics: {
-      title: 'Giám sát tài nguyên Free Tier',
-      subtitle: 'Theo dõi hạn mức sử dụng Brevo, Supabase, Netlify và bảng tham chiếu',
+      title: 'Tài nguyên nền tảng',
+      subtitle: 'Phân biệt số đo lấy từ API với hạn mức Free được công bố',
     },
     operations: {
       title: 'Vận hành & Đối soát',
-      subtitle: 'Xử lý các lượt gửi email chưa rõ kết quả và công việc bảo trì Storage',
+      subtitle: 'Theo dõi email cần đối soát và công việc dọn dữ liệu',
     },
   };
 
   return (
     <div className={styles.adminLayout}>
-      {/* 1. Left Sidebar Navigation */}
-      <aside className={styles.sidebar}>
+      <aside className={styles.sidebar} aria-label="Điều hướng quản trị">
         <div className={styles.sidebarBrand}>
           <div className={styles.brandLogo}>E</div>
           <div className={styles.brandInfo}>
@@ -133,46 +167,19 @@ export function AdminShell({
           </div>
         </div>
 
-        <nav className={styles.sidebarNav}>
-          <button
-            className={`${styles.navItem} ${activeTab === 'overview' ? styles.navItemActive : ''}`}
-            onClick={() => setActiveTab('overview')}
-          >
-            <span className={styles.navIcon}>📊</span>
-            <span>Tổng quan</span>
-          </button>
-
-          <button
-            className={`${styles.navItem} ${activeTab === 'hosts' ? styles.navItemActive : ''}`}
-            onClick={() => setActiveTab('hosts')}
-          >
-            <span className={styles.navIcon}>👥</span>
-            <span>Khách hàng (Host)</span>
-          </button>
-
-          <button
-            className={`${styles.navItem} ${activeTab === 'events' ? styles.navItemActive : ''}`}
-            onClick={() => setActiveTab('events')}
-          >
-            <span className={styles.navIcon}>🎉</span>
-            <span>Sự kiện & Thiệp</span>
-          </button>
-
-          <button
-            className={`${styles.navItem} ${activeTab === 'metrics' ? styles.navItemActive : ''}`}
-            onClick={() => setActiveTab('metrics')}
-          >
-            <span className={styles.navIcon}>☁️</span>
-            <span>Tài nguyên Free</span>
-          </button>
-
-          <button
-            className={`${styles.navItem} ${activeTab === 'operations' ? styles.navItemActive : ''}`}
-            onClick={() => setActiveTab('operations')}
-          >
-            <span className={styles.navIcon}>🛠️</span>
-            <span>Vận hành & Đối soát</span>
-          </button>
+        <nav className={styles.sidebarNav} aria-label="Các trang quản trị">
+          {ADMIN_TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              className={`${styles.navItem} ${activeTab === tab.id ? styles.navItemActive : ''}`}
+              onClick={() => setActiveTab(tab.id)}
+              aria-current={activeTab === tab.id ? 'page' : undefined}
+            >
+              <span className={styles.navIcon}><AdminNavIcon tab={tab.id} /></span>
+              <span>{tab.label}</span>
+            </button>
+          ))}
         </nav>
 
         <div className={styles.sidebarFooter}>
@@ -196,43 +203,23 @@ export function AdminShell({
 
       {/* 2. Main Content Area */}
       <div className={styles.mainContent}>
-        {/* Top Header Bar */}
         <header className={styles.topBar}>
           <div className={styles.pageHeader}>
+            <span className={styles.pageEyebrow}>E-INVITATION / QUẢN TRỊ</span>
             <h1 className={styles.pageTitle}>{tabTitles[activeTab].title}</h1>
-            <span className={styles.pageSubtitle}>{tabTitles[activeTab].subtitle}</span>
+            <p className={styles.pageSubtitle}>{tabTitles[activeTab].subtitle}</p>
           </div>
-
-          <div className={styles.topBarActions}>
-            <button
-              className={styles.btnSecondary}
-              onClick={() => {
-                setActiveTab('hosts');
-                setCreateHostModalOpen(true);
-              }}
-            >
-              + Tạo Host
-            </button>
-            <button
-              className={styles.btnPrimary}
-              onClick={() => {
-                setActiveTab('events');
-                setCreateEventModalOpen(true);
-              }}
-              disabled={hosts.length === 0}
-            >
-              + Tạo Sự kiện
-            </button>
+          <div className={styles.headerIdentity}>
+            <span className={styles.headerIdentityLabel}>Đang đăng nhập</span>
+            <strong title={developerEmail}>{developerEmail}</strong>
           </div>
         </header>
 
-        {/* Page Body */}
-        <main className={styles.pageBody}>
+        <main className={styles.pageBody} id="admin-main-content">
           {activeTab === 'overview' && (
             <OverviewView
               internalMetrics={internalMetrics}
               snapshots={snapshots}
-              hosts={hosts}
               events={events}
               onNavigate={(tab) => setActiveTab(tab)}
               onOpenCreateHost={() => {
