@@ -28,7 +28,10 @@ export function isGoogleMapsUrl(raw: string): boolean {
   const trimmed = raw.trim();
   try {
     const url = new URL(trimmed);
-    if (url.protocol !== 'https:' && url.protocol !== 'http:') return false;
+    if (url.protocol !== 'https:') return false;
+    if (url.username || url.password) return false;
+    if (url.port && url.port !== '443') return false;
+
     const host = url.hostname.toLowerCase();
     if (host === 'maps.app.goo.gl' || host === 'maps.google.com') return true;
     if ((host === 'google.com' || host === 'www.google.com') && (url.pathname === '/maps' || url.pathname.startsWith('/maps/'))) {

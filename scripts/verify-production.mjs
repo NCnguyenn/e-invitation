@@ -40,11 +40,10 @@ for (const [path, expected] of [
     && /http-equiv="refresh" content="\d+;url=\/login"/.test(body);
   check(response.status === expected || streamedLoginRedirect, `${path.startsWith('/invite/') || path.startsWith('/api/guest/') ? 'invalid guest token' : path} HTTP ${response.status}${streamedLoginRedirect ? ' (streamed login redirect)' : ` (expected ${expected})`}`);
   check(noSecrets(body), 'response contains no configured private keys');
-  if (path !== '/preview') {
-    check(/no-store|no-cache/.test(response.headers.get('cache-control') ?? ''), 'private response bypasses cache');
-    check(response.headers.get('referrer-policy') === 'no-referrer', 'referrer-policy');
-    check((response.headers.get('x-robots-tag') ?? '').includes('noindex'), 'noindex');
-  }
+  const cacheControl = response.headers.get('cache-control') ?? '';
+  check(/\bprivate\b/.test(cacheControl) && /\bno-store\b/.test(cacheControl), 'private response bypasses cache');
+  check(response.headers.get('referrer-policy') === 'no-referrer', 'referrer-policy');
+  check((response.headers.get('x-robots-tag') ?? '').includes('noindex'), 'noindex');
 }
 check((await fetch(new URL('/api/auth/logout', target), { signal: AbortSignal.timeout(20000) })).status === 405, 'GET cannot log out');
 if (failures.length) {

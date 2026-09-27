@@ -144,7 +144,7 @@ Hệ thống đã có sẵn 1 tài khoản Host dùng để kiểm thử tính n
 - **Sự kiện mẫu gắn kèm:** Sự kiện `Lễ Tốt Nghiệp` (ngày 18/10/2026 tại Đại học Cần Thơ — Khu II, đường 3/2, phường Ninh Kiều, Cần Thơ).
 
 ### 4.2. Cách tạo tài khoản Host mới cho khách hàng (Dành cho Admin/Developer)
-Vì hệ thống **không cho đăng ký tự do**, quy trình tạo tài khoản khách hàng mới diễn ra như sau:
+Vì hệ thống **không cho đăng ký tự do**, quy trình tạo tài khoản khách hàng mới diễn ra như sau. Trước khi gán `template_key` hoặc nhận khách thứ hai, làm theo `docs/QUY_TRINH_TRIEN_KHAI_KHACH_HANG.md`. Không gán khách mới vào `wedding-floral-01` hoặc `graduation-floral-01`: hai key này đang dùng chung một component và `content.ts`.
 
 #### Bước 1: Tạo User trên Supabase Authentication
 1. Mở trang quản trị Supabase -> Chọn dự án -> Mục **Authentication** -> **Users**.
@@ -154,7 +154,7 @@ Vì hệ thống **không cho đăng ký tự do**, quy trình tạo tài khoả
 5. Khi user được tạo, database trigger `on_auth_user_created` sẽ tự động tạo 1 bản ghi tương ứng trong bảng `public.profiles` với `role = 'host'` và `lifecycle_status = 'active'`.
 
 #### Bước 2: Tạo Sự kiện (Event) cho Host đó
-Mở mục **SQL Editor** trên Supabase và chạy câu lệnh sau (thay thế UID vừa copy):
+Mở mục **SQL Editor** trên Supabase và chạy câu lệnh sau (thay thế UID vừa copy). `template_key` phải là key đã có trong bản production, theo `docs/QUY_TRINH_TRIEN_KHAI_KHACH_HANG.md`. Ví dụ dưới đây chỉ minh họa cú pháp; đừng dùng `wedding-floral-01` cho khách mới.
 
 ```sql
 INSERT INTO public.events (
@@ -167,11 +167,11 @@ INSERT INTO public.events (
   google_map_url
 ) VALUES (
   'DIEN_USER_UID_VAO_DAY',
-  'Lễ Thành Hôn Hoàng Nam & Mai Anh',
-  'wedding-floral-01', -- Mã template giao diện
-  '2026-11-20T17:30:00+07:00',
-  'Trung tâm Tiệc cưới Grand Palace',
-  '142/18 Cộng Hòa, Phường 4, Tân Bình, TP. Hồ Chí Minh',
+  'Lễ tốt nghiệp Nguyễn Mai Hoa',
+  'graduation-hoa-mai',
+  '2026-10-18T08:00:00+07:00',
+  'Đại học Cần Thơ — Khu II',
+  'Đường 3/2, Ninh Kiều, Cần Thơ',
   'https://maps.app.goo.gl/example'
 );
 ```

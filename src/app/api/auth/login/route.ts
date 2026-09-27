@@ -34,13 +34,20 @@ export async function POST(request: Request) {
   }
 
   const supabase = await createServerSupabaseClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) {
+  const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error || !authData.user) {
     return NextResponse.json(
       { code: 'invalid_credentials', message: 'Email hoặc mật khẩu không đúng.' },
       { status: 401, headers: NO_STORE },
     );
   }
 
-  return NextResponse.json({ ok: true }, { headers: NO_STORE });
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', authData.user.id)
+    .maybeSingle();
+
+  const role = profile?.role || 'host';
+  return NextResponse.json({ ok: true, role }, { headers: NO_STORE });
 }
