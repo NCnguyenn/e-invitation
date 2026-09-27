@@ -5,7 +5,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 400;
-  src: url(/fonts/be-vietnam-pro/be-vietnam-pro-vietnamese-400-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/be-vietnam-pro/be-vietnam-pro-vietnamese-400-normal.woff2) format('woff2');
   unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
 }
 /* be-vietnam-pro-latin-ext-400-normal */
@@ -14,7 +14,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 400;
-  src: url(/fonts/be-vietnam-pro/be-vietnam-pro-latin-ext-400-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/be-vietnam-pro/be-vietnam-pro-latin-ext-400-normal.woff2) format('woff2');
   unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
 }
 /* be-vietnam-pro-latin-400-normal */
@@ -23,7 +23,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 400;
-  src: url(/fonts/be-vietnam-pro/be-vietnam-pro-latin-400-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/be-vietnam-pro/be-vietnam-pro-latin-400-normal.woff2) format('woff2');
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 /* be-vietnam-pro-vietnamese-500-normal */
@@ -32,7 +32,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 500;
-  src: url(/fonts/be-vietnam-pro/be-vietnam-pro-vietnamese-500-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/be-vietnam-pro/be-vietnam-pro-vietnamese-500-normal.woff2) format('woff2');
   unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
 }
 /* be-vietnam-pro-latin-ext-500-normal */
@@ -41,7 +41,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 500;
-  src: url(/fonts/be-vietnam-pro/be-vietnam-pro-latin-ext-500-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/be-vietnam-pro/be-vietnam-pro-latin-ext-500-normal.woff2) format('woff2');
   unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
 }
 /* be-vietnam-pro-latin-500-normal */
@@ -50,7 +50,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 500;
-  src: url(/fonts/be-vietnam-pro/be-vietnam-pro-latin-500-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/be-vietnam-pro/be-vietnam-pro-latin-500-normal.woff2) format('woff2');
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 /* be-vietnam-pro-vietnamese-600-normal */
@@ -59,7 +59,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 600;
-  src: url(/fonts/be-vietnam-pro/be-vietnam-pro-vietnamese-600-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/be-vietnam-pro/be-vietnam-pro-vietnamese-600-normal.woff2) format('woff2');
   unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
 }
 /* be-vietnam-pro-latin-ext-600-normal */
@@ -68,7 +68,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 600;
-  src: url(/fonts/be-vietnam-pro/be-vietnam-pro-latin-ext-600-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/be-vietnam-pro/be-vietnam-pro-latin-ext-600-normal.woff2) format('woff2');
   unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
 }
 /* be-vietnam-pro-latin-600-normal */
@@ -77,7 +77,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 600;
-  src: url(/fonts/be-vietnam-pro/be-vietnam-pro-latin-600-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/be-vietnam-pro/be-vietnam-pro-latin-600-normal.woff2) format('woff2');
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 /* be-vietnam-pro-vietnamese-700-normal */
@@ -86,7 +86,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 700;
-  src: url(/fonts/be-vietnam-pro/be-vietnam-pro-vietnamese-700-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/be-vietnam-pro/be-vietnam-pro-vietnamese-700-normal.woff2) format('woff2');
   unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
 }
 /* be-vietnam-pro-latin-ext-700-normal */
@@ -95,7 +95,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 700;
-  src: url(/fonts/be-vietnam-pro/be-vietnam-pro-latin-ext-700-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/be-vietnam-pro/be-vietnam-pro-latin-ext-700-normal.woff2) format('woff2');
   unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
 }
 /* be-vietnam-pro-latin-700-normal */
@@ -104,7 +104,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 700;
-  src: url(/fonts/be-vietnam-pro/be-vietnam-pro-latin-700-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/be-vietnam-pro/be-vietnam-pro-latin-700-normal.woff2) format('woff2');
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 /* be-vietnam-pro-vietnamese-800-normal */
@@ -113,7 +113,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 800;
-  src: url(/fonts/be-vietnam-pro/be-vietnam-pro-vietnamese-800-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/be-vietnam-pro/be-vietnam-pro-vietnamese-800-normal.woff2) format('woff2');
   unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
 }
 /* be-vietnam-pro-latin-ext-800-normal */
@@ -122,7 +122,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 800;
-  src: url(/fonts/be-vietnam-pro/be-vietnam-pro-latin-ext-800-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/be-vietnam-pro/be-vietnam-pro-latin-ext-800-normal.woff2) format('woff2');
   unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
 }
 /* be-vietnam-pro-latin-800-normal */
@@ -131,7 +131,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 800;
-  src: url(/fonts/be-vietnam-pro/be-vietnam-pro-latin-800-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/be-vietnam-pro/be-vietnam-pro-latin-800-normal.woff2) format('woff2');
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 /* inter-vietnamese-500-normal */
@@ -140,7 +140,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 500;
-  src: url(/fonts/inter/inter-vietnamese-500-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/inter/inter-vietnamese-500-normal.woff2) format('woff2');
   unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
 }
 /* inter-latin-ext-500-normal */
@@ -149,7 +149,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 500;
-  src: url(/fonts/inter/inter-latin-ext-500-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/inter/inter-latin-ext-500-normal.woff2) format('woff2');
   unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
 }
 /* inter-latin-500-normal */
@@ -158,7 +158,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 500;
-  src: url(/fonts/inter/inter-latin-500-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/inter/inter-latin-500-normal.woff2) format('woff2');
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 /* inter-vietnamese-600-normal */
@@ -167,7 +167,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 600;
-  src: url(/fonts/inter/inter-vietnamese-600-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/inter/inter-vietnamese-600-normal.woff2) format('woff2');
   unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
 }
 /* inter-latin-ext-600-normal */
@@ -176,7 +176,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 600;
-  src: url(/fonts/inter/inter-latin-ext-600-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/inter/inter-latin-ext-600-normal.woff2) format('woff2');
   unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
 }
 /* inter-latin-600-normal */
@@ -185,7 +185,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 600;
-  src: url(/fonts/inter/inter-latin-600-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/inter/inter-latin-600-normal.woff2) format('woff2');
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 /* inter-vietnamese-700-normal */
@@ -194,7 +194,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 700;
-  src: url(/fonts/inter/inter-vietnamese-700-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/inter/inter-vietnamese-700-normal.woff2) format('woff2');
   unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
 }
 /* inter-latin-ext-700-normal */
@@ -203,7 +203,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 700;
-  src: url(/fonts/inter/inter-latin-ext-700-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/inter/inter-latin-ext-700-normal.woff2) format('woff2');
   unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
 }
 /* inter-latin-700-normal */
@@ -212,7 +212,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 700;
-  src: url(/fonts/inter/inter-latin-700-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/inter/inter-latin-700-normal.woff2) format('woff2');
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 /* merriweather-vietnamese-700-normal */
@@ -221,7 +221,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 700;
-  src: url(/fonts/merriweather/merriweather-vietnamese-700-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/merriweather/merriweather-vietnamese-700-normal.woff2) format('woff2');
   unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
 }
 /* merriweather-latin-ext-700-normal */
@@ -230,7 +230,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 700;
-  src: url(/fonts/merriweather/merriweather-latin-ext-700-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/merriweather/merriweather-latin-ext-700-normal.woff2) format('woff2');
   unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
 }
 /* merriweather-latin-700-normal */
@@ -239,7 +239,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 700;
-  src: url(/fonts/merriweather/merriweather-latin-700-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/merriweather/merriweather-latin-700-normal.woff2) format('woff2');
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 /* windsong-vietnamese-500-normal */
@@ -248,7 +248,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 500;
-  src: url(/fonts/windsong/windsong-vietnamese-500-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/windsong/windsong-vietnamese-500-normal.woff2) format('woff2');
   unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
 }
 /* windsong-latin-ext-500-normal */
@@ -257,7 +257,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 500;
-  src: url(/fonts/windsong/windsong-latin-ext-500-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/windsong/windsong-latin-ext-500-normal.woff2) format('woff2');
   unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
 }
 /* windsong-latin-500-normal */
@@ -266,7 +266,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 500;
-  src: url(/fonts/windsong/windsong-latin-500-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/windsong/windsong-latin-500-normal.woff2) format('woff2');
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 /* qwitcher-grypen-vietnamese-700-normal */
@@ -275,7 +275,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 700;
-  src: url(/fonts/qwitcher-grypen/qwitcher-grypen-vietnamese-700-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/qwitcher-grypen/qwitcher-grypen-vietnamese-700-normal.woff2) format('woff2');
   unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
 }
 /* qwitcher-grypen-latin-ext-700-normal */
@@ -284,7 +284,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 700;
-  src: url(/fonts/qwitcher-grypen/qwitcher-grypen-latin-ext-700-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/qwitcher-grypen/qwitcher-grypen-latin-ext-700-normal.woff2) format('woff2');
   unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
 }
 /* qwitcher-grypen-latin-700-normal */
@@ -293,7 +293,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 700;
-  src: url(/fonts/qwitcher-grypen/qwitcher-grypen-latin-700-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/qwitcher-grypen/qwitcher-grypen-latin-700-normal.woff2) format('woff2');
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 /* patrick-hand-vietnamese-400-normal */
@@ -302,7 +302,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 400;
-  src: url(/fonts/patrick-hand/patrick-hand-vietnamese-400-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/patrick-hand/patrick-hand-vietnamese-400-normal.woff2) format('woff2');
   unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
 }
 /* patrick-hand-latin-ext-400-normal */
@@ -311,7 +311,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 400;
-  src: url(/fonts/patrick-hand/patrick-hand-latin-ext-400-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/patrick-hand/patrick-hand-latin-ext-400-normal.woff2) format('woff2');
   unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
 }
 /* patrick-hand-latin-400-normal */
@@ -320,7 +320,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 400;
-  src: url(/fonts/patrick-hand/patrick-hand-latin-400-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/patrick-hand/patrick-hand-latin-400-normal.woff2) format('woff2');
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 /* ephesis-vietnamese-400-normal */
@@ -329,7 +329,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 400;
-  src: url(/fonts/ephesis/ephesis-vietnamese-400-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/ephesis/ephesis-vietnamese-400-normal.woff2) format('woff2');
   unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
 }
 /* ephesis-latin-ext-400-normal */
@@ -338,7 +338,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 400;
-  src: url(/fonts/ephesis/ephesis-latin-ext-400-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/ephesis/ephesis-latin-ext-400-normal.woff2) format('woff2');
   unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
 }
 /* ephesis-latin-400-normal */
@@ -347,7 +347,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 400;
-  src: url(/fonts/ephesis/ephesis-latin-400-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/ephesis/ephesis-latin-400-normal.woff2) format('woff2');
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 /* playfair-display-vietnamese-500-normal */
@@ -356,7 +356,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 500;
-  src: url(/fonts/playfair-display/playfair-display-vietnamese-500-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/playfair-display/playfair-display-vietnamese-500-normal.woff2) format('woff2');
   unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
 }
 /* playfair-display-latin-ext-500-normal */
@@ -365,7 +365,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 500;
-  src: url(/fonts/playfair-display/playfair-display-latin-ext-500-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/playfair-display/playfair-display-latin-ext-500-normal.woff2) format('woff2');
   unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
 }
 /* playfair-display-latin-500-normal */
@@ -374,7 +374,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 500;
-  src: url(/fonts/playfair-display/playfair-display-latin-500-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/playfair-display/playfair-display-latin-500-normal.woff2) format('woff2');
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 /* playfair-display-vietnamese-600-normal */
@@ -383,7 +383,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 600;
-  src: url(/fonts/playfair-display/playfair-display-vietnamese-600-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/playfair-display/playfair-display-vietnamese-600-normal.woff2) format('woff2');
   unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
 }
 /* playfair-display-latin-ext-600-normal */
@@ -392,7 +392,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 600;
-  src: url(/fonts/playfair-display/playfair-display-latin-ext-600-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/playfair-display/playfair-display-latin-ext-600-normal.woff2) format('woff2');
   unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
 }
 /* playfair-display-latin-600-normal */
@@ -401,7 +401,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 600;
-  src: url(/fonts/playfair-display/playfair-display-latin-600-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/playfair-display/playfair-display-latin-600-normal.woff2) format('woff2');
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 /* itim-vietnamese-400-normal */
@@ -410,7 +410,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 400;
-  src: url(/fonts/itim/itim-vietnamese-400-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/itim/itim-vietnamese-400-normal.woff2) format('woff2');
   unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
 }
 /* itim-latin-ext-400-normal */
@@ -419,7 +419,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 400;
-  src: url(/fonts/itim/itim-latin-ext-400-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/itim/itim-latin-ext-400-normal.woff2) format('woff2');
   unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
 }
 /* itim-latin-400-normal */
@@ -428,7 +428,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 400;
-  src: url(/fonts/itim/itim-latin-400-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/itim/itim-latin-400-normal.woff2) format('woff2');
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 /* borel-vietnamese-400-normal */
@@ -437,7 +437,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 400;
-  src: url(/fonts/borel/borel-vietnamese-400-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/borel/borel-vietnamese-400-normal.woff2) format('woff2');
   unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
 }
 /* borel-latin-ext-400-normal */
@@ -446,7 +446,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 400;
-  src: url(/fonts/borel/borel-latin-ext-400-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/borel/borel-latin-ext-400-normal.woff2) format('woff2');
   unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
 }
 /* borel-latin-400-normal */
@@ -455,7 +455,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 400;
-  src: url(/fonts/borel/borel-latin-400-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/borel/borel-latin-400-normal.woff2) format('woff2');
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 /* vujahday-script-vietnamese-400-normal */
@@ -464,7 +464,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 400;
-  src: url(/fonts/vujahday-script/vujahday-script-vietnamese-400-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/vujahday-script/vujahday-script-vietnamese-400-normal.woff2) format('woff2');
   unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
 }
 /* vujahday-script-latin-ext-400-normal */
@@ -473,7 +473,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 400;
-  src: url(/fonts/vujahday-script/vujahday-script-latin-ext-400-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/vujahday-script/vujahday-script-latin-ext-400-normal.woff2) format('woff2');
   unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
 }
 /* vujahday-script-latin-400-normal */
@@ -482,7 +482,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 400;
-  src: url(/fonts/vujahday-script/vujahday-script-latin-400-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/vujahday-script/vujahday-script-latin-400-normal.woff2) format('woff2');
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 /* viaoda-libre-vietnamese-400-normal */
@@ -491,7 +491,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 400;
-  src: url(/fonts/viaoda-libre/viaoda-libre-vietnamese-400-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/viaoda-libre/viaoda-libre-vietnamese-400-normal.woff2) format('woff2');
   unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
 }
 /* viaoda-libre-latin-ext-400-normal */
@@ -500,7 +500,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 400;
-  src: url(/fonts/viaoda-libre/viaoda-libre-latin-ext-400-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/viaoda-libre/viaoda-libre-latin-ext-400-normal.woff2) format('woff2');
   unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
 }
 /* viaoda-libre-latin-400-normal */
@@ -509,6 +509,6 @@
   font-style: normal;
   font-display: swap;
   font-weight: 400;
-  src: url(/fonts/viaoda-libre/viaoda-libre-latin-400-normal.woff2) format('woff2');
+  src: url(../../../public/fonts/viaoda-libre/viaoda-libre-latin-400-normal.woff2) format('woff2');
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }

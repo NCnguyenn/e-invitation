@@ -1,14 +1,16 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
 import type { HostEvent } from '@/lib/contracts';
 import { eventDateToInputs, parseEventUpdate, vietnamDateTimeToIso } from '@/lib/validation';
-import { ClientInvitationTemplate } from '@/features/template/ClientInvitationTemplate';
+import { ClientInvitationCover } from '@/features/template/ClientInvitationCover';
 import { LocationMapPicker } from './LocationMapPicker';
 import { MusicUploader } from './MusicUploader';
-import { PreviewModal } from './PreviewModal';
 import { EditorIcon } from './EditorIcon';
 import styles from './event-editor.module.css';
+
+const PreviewModal = dynamic(() => import('./PreviewModal').then(module => module.PreviewModal));
 
 function fieldsFromEvent(event: HostEvent) {
   return {
@@ -40,8 +42,8 @@ export function EventEditor({ initialEvent }: { initialEvent: HostEvent }) {
   const dirty = JSON.stringify(fields) !== JSON.stringify(fieldsFromEvent(saved));
   // The saved card is independent of draft keystrokes and save-status updates.
   const savedPreview = useMemo(() => (
-    <ClientInvitationTemplate mode="preview" previewContext="host" musicVersion={musicVersion} invitation={{ event: saved, guestName: 'Bạn và Người thương', invitationNote: null, status: 'pending', receipt: null }} />
-  ), [saved, musicVersion]);
+    <ClientInvitationCover event={saved} />
+  ), [saved]);
 
   function update(name: keyof typeof fields, value: string) {
     setFields((current) => ({ ...current, [name]: value }));
@@ -192,7 +194,7 @@ export function EventEditor({ initialEvent }: { initialEvent: HostEvent }) {
           </div>
         </section>
       </div>
-      <PreviewModal isOpen={previewOpen} onClose={() => setPreviewOpen(false)} event={preview} musicVersion={musicVersion} />
+      {previewOpen && <PreviewModal isOpen onClose={() => setPreviewOpen(false)} event={preview} musicVersion={musicVersion} />}
     </div>
   );
 }

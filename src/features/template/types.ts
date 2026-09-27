@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
-import type { GuestInvitation } from '@/lib/contracts';
+import type { GuestInvitation, HostEvent } from '@/lib/contracts';
+
+export type TemplateCoverProps = { event: HostEvent };
 
 export type TemplateProps = { invitation: GuestInvitation } & (
   | { mode: 'preview'; previewContext?: 'host' | 'designer'; musicVersion?: number; responseArea?: never; audioControl?: never }

@@ -1,4 +1,10 @@
-export const asset = (file: string) => `/templates/wedding-floral-01/${file}`;
+import { templateAssets } from './assets.generated';
+
+export const asset = (file: string) => {
+  const src = templateAssets[file];
+  if (!src) throw new Error(`Unregistered template asset: ${file}`);
+  return src;
+};
 export const content = {
   ownerName: 'Mai Hoa', badge: 'GRADUATION', subtitle: 'Ceremony',
   storyHeading: 'GIỮ LẠI THANH XUÂN ĐẸP NHẤT',

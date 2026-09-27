@@ -6,6 +6,7 @@ import { MockRsvpForm } from '../MockRsvpForm';
 import { eventCalendar } from '../date';
 import { asset, content } from '../content';
 import type { TemplateProps } from '../types';
+import { WeddingFloral01Hero } from './WeddingFloral01Hero';
 import '../fonts.css';
 import '../template.css';
 
@@ -38,27 +39,7 @@ export function WeddingFloral01(props: TemplateProps) {
       </div>
 
       <div className="invitation-container">
-        <section className="hero-section" aria-label={event.title}>
-          <img src={asset('corner-leaf.png')} alt="" className="leaf-decor leaf-top-left" />
-          <img src={asset('corner-leaf.png')} alt="" className="leaf-decor leaf-top-right" />
-          <img src={asset('cap-icon.png')} alt="" className="hero-cap-icon" />
-          <div className="hero-titles">
-            <h1 className="hero-badge-title">{content.badge}</h1>
-            <div className="hero-script-subtitle">{content.subtitle}</div>
-          </div>
-          <div className="hero-portrait-wrapper">
-            <img
-              src={asset('hero-portrait.webp')}
-              alt={`Chân dung ${content.ownerName}`}
-              className="hero-portrait-img"
-              fetchPriority="high"
-            />
-            <img src={asset('flower-decor.png')} alt="" className="hero-flower-decor" />
-            <img src={asset('spin-badge.png')} alt="" className="hero-spin-badge" />
-            <img src={asset('sparkle.png')} alt="" className="hero-sparkle" />
-            <div className="hero-owner-name">{content.ownerName}</div>
-          </div>
-        </section>
+        <WeddingFloral01Hero title={event.title} />
 
         <section className="invitation-section">
           <div className="glass-card">

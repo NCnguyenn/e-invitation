@@ -22,7 +22,8 @@ for (const [family, weights] of Object.entries(families)) {
       let css = block[0].replace(/, url\([^)]*\.woff\) format\('woff'\)/g, '');
       css = css.replace(/\.\/files\/([^)]*\.woff2)/g, (_, file) => {
         copyFileSync(`${from}/files/${file}`, `${to}/${file}`);
-        return `/fonts/${family}/${file}`;
+        // Resolve via Next's CSS pipeline so fonts get content hashes and immutable caching.
+        return `../../../public/fonts/${family}/${file}`;
       });
       fonts += `${css}\n`;
     }

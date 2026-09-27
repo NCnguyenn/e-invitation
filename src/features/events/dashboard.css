@@ -347,6 +347,8 @@
 }
 
 .preview-modal-header {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -434,6 +436,9 @@
 }
 
 .preview-modal-scroll-area {
+  position: relative;
+  isolation: isolate;
+  z-index: 1;
   flex: 1 1 0%;
   min-height: 0;
   height: calc(100% - 56px);
@@ -489,7 +494,8 @@
 .preview-screen-viewport .invitation-template {
   min-width: 0;
   border-radius: 24px;
-  overflow: hidden;
+  /* Clip the rounded frame without intercepting the music control's sticky scroll. */
+  overflow: clip;
 }
 
 .preview-screen-viewport .invitation-container {
@@ -497,10 +503,15 @@
   box-shadow: none;
 }
 
-.preview-screen-viewport .floating-controls {
+.preview-screen-viewport .invitation-template .floating-controls {
   position: sticky;
   top: 16px;
-  float: right;
+  right: auto;
+  align-self: flex-end;
+  width: 44px;
+  height: 44px;
+  margin-top: 12px;
+  margin-bottom: -56px;
   margin-right: 16px;
   z-index: 100;
 }
@@ -1251,7 +1262,7 @@
   min-width: 0;
 }
 
-.guest-name {
+.guest-info .guest-name {
   font-weight: 600;
   color: #173a63;
   font-size: 13.5px;
