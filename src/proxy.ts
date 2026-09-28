@@ -1,9 +1,11 @@
-import type { NextRequest } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/proxy';
 
 export async function proxy(request: NextRequest) {
-  const response = await updateSession(request);
   const path = request.nextUrl.pathname;
+  // Public samples never need a session or data from the visitor's account.
+  if (path === '/demo' || path.startsWith('/demo/')) return NextResponse.next();
+  const response = await updateSession(request);
   if (
     path.startsWith('/invite') ||
     path.startsWith('/preview') ||

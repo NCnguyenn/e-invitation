@@ -4,6 +4,13 @@
 
 Production: [https://nc-thiepmoi.netlify.app](https://nc-thiepmoi.netlify.app) · Host login: `/login`.
 
+## Link mẫu để gửi khách xem
+
+- [Mẫu 1 — Tốt nghiệp Floral](https://nc-thiepmoi.netlify.app/demo/graduation-floral-01)
+- [Mẫu 2 — Thanh xuân sang trang](https://nc-thiepmoi.netlify.app/demo/graduation-editorial-01)
+
+Hai trang `/demo/` mở trực tiếp không cần tài khoản, dùng dữ liệu và ảnh mẫu có sẵn. Khách có thể thử hồi đáp nhưng phản hồi không được lưu, không gửi email và không lấy nhạc riêng của Host. Chỉ hai mẫu đã duyệt được công khai; thêm template khách hàng vào registry không tự tạo demo. Trang `/preview` tiếp tục yêu cầu Host đăng nhập và chỉ cho xem mẫu được gán cho tài khoản đó.
+
 > 💡 **Thành viên mới tham gia dự án?** Hãy xem ngay hướng dẫn chi tiết tại [**`ONBOARDING.md`**](./ONBOARDING.md) để nắm toàn bộ cấu trúc dự án, tài khoản test, cách cài đặt, chạy test và các nền tảng liên kết.
 
 ## Chạy local

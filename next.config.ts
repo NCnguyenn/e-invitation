@@ -6,10 +6,16 @@ const privateHeaders = [
   { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
 ];
 
+const demoHeaders = [
+  { key: 'Referrer-Policy', value: 'no-referrer' },
+  { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
+];
+
 const config: NextConfig = {
   poweredByHeader: false,
   async headers() {
     return [
+      { source: '/demo/:path*', headers: demoHeaders },
       { source: '/login', headers: privateHeaders },
       { source: '/dashboard', headers: privateHeaders },
       { source: '/dashboard/:path*', headers: privateHeaders },
