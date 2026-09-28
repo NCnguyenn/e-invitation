@@ -1,8 +1,9 @@
+import { useId } from 'react';
 import { AudioPlayer } from '../AudioPlayer';
 import { HostAudioPreviewControl } from '@/features/events/HostAudioPreviewControl';
-import { Countdown } from '../Countdown';
 import { Gallery } from '../Gallery';
 import { MockRsvpForm } from '../MockRsvpForm';
+import { EditorialMotion } from '../EditorialMotion';
 import { eventCalendar } from '../date';
 import { editorialAsset, editorialContent } from '../graduation-editorial-content';
 import type { TemplateProps } from '../types';
@@ -11,41 +12,134 @@ import '../template.css';
 import '../graduation-editorial.css';
 
 export function GraduationEditorial01(props: TemplateProps) {
-  const { invitation, mode } = props;
+  const { invitation } = props;
   const { event } = invitation;
   const date = eventCalendar(event.eventDate);
+  const owner = editorialContent.ownerName;
   const mapUrl = event.googleMapUrl?.startsWith('https://') ? event.googleMapUrl : null;
-  const preview = props.mode === 'preview';
-  const hostPreview = preview && (props.previewContext === 'host' || props.previewContext === 'designer');
+  const prefix = useId().replace(/:/g, '');
+  const chapterId = (name: string) => prefix + '-editorial-' + name;
+  const chapters = [
+    ['memories', 'Hành trình'], ['letter', 'Lá thư'], ['ticket', 'Lời mời'],
+    ['gallery', 'Kỷ niệm'], ['rsvp', 'Hồi đáp'], ['thanks', 'Hẹn gặp'],
+  ];
+  const milestones = [
+    { year: date.year - 4, image: 'gallery-3.webp', text: 'Những bước chân đầu tiên' },
+    { year: date.year - 2, image: 'gallery-5.webp', text: 'Gom từng ngày rực rỡ' },
+    { year: date.year, image: 'gallery-2.webp', text: 'Và hôm nay, mình đã sẵn sàng!' },
+  ];
 
   return (
     <div className="invitation-template graduation-editorial-template">
-      {preview && <aside className="editorial-preview-notice">Xem trước · Tên khách minh họa · Không gửi phản hồi</aside>}
-      <div className="editorial-floating-control">
-        {preview ? (hostPreview ? <HostAudioPreviewControl hasMusic={event.hasMusic} sourceKey={props.musicVersion} /> : <AudioPlayer hasMusic={false} />) : props.audioControl}
-      </div>
-      <main className="editorial-container">
-        <header className="editorial-topbar"><span>MAI HOA / 2026</span><span>Lời mời dành cho bạn</span><span>♪ Bật nhạc</span></header>
-        <div className="editorial-chapter-rail" aria-hidden="true"><span>01</span><span>02</span><span>03</span><span>04</span><span>05</span><span>06</span></div>
+      <EditorialMotion className="editorial-container">
+        {props.mode === 'preview' && <aside className="editorial-preview-notice">Bản xem trước · Phản hồi thử không được lưu</aside>}
+        <header className="editorial-topbar">
+          <span>{owner} / {date.year}</span>
+          <span className="editorial-topbar-note">Một lời mời, một chương mới.</span>
+          <div className="editorial-audio-control">
+            {props.mode === 'preview'
+              ? props.previewContext === 'host' || props.previewContext === 'designer'
+                ? <HostAudioPreviewControl hasMusic={event.hasMusic} sourceKey={props.musicVersion} />
+                : <AudioPlayer hasMusic={false} />
+              : props.audioControl}
+          </div>
+        </header>
+
+        <nav className="editorial-chapter-nav" aria-label="Các chương của thiệp">
+          {chapters.map(([name, label], index) => (
+            <a key={name} href={'#' + chapterId(name)} data-story-link>
+              <span className="editorial-chapter-number">0{index + 1}</span><span>{label}</span>
+            </a>
+          ))}
+          <span className="editorial-reading-progress" aria-hidden="true" />
+        </nav>
 
         <section className="editorial-hero" aria-label={event.title}>
-          <div className="editorial-hero-copy"><span className="editorial-kicker">LỄ TỐT NGHIỆP · MAI HOA</span><h1>THANH<br />XUÂN</h1><p className="editorial-script">sang trang.</p><p className="editorial-hero-note">Một chặng đường khép lại,<br />một hành trình mới bắt đầu.</p><button className="editorial-primary" type="button">Mở câu chuyện ↗</button><span className="editorial-scroll-hint">↓ Cuộn xuống để tiếp tục</span></div>
-          <div className="editorial-hero-portrait"><img src={editorialAsset('hero-portrait.webp')} alt={`Chân dung ${editorialContent.ownerName}`} /><span className="editorial-sticker">I DID IT!</span><span className="editorial-year">2026</span></div>
+          <div className="editorial-hero-copy" data-reveal>
+            <span className="editorial-kicker">LỄ TỐT NGHIỆP · {owner}</span>
+            <h1><span>THANH</span><span>XUÂN</span></h1>
+            <p className="editorial-script">sang trang.</p>
+            <p className="editorial-hero-note">Một chặng đường khép lại,<br />một hành trình mới bắt đầu.</p>
+            <a className="editorial-primary" href={'#' + chapterId('memories')} data-story-link>Mở câu chuyện <span aria-hidden="true">↗</span></a>
+            <span className="editorial-scroll-hint"><span aria-hidden="true">↓</span> Chậm một chút, cùng nhìn lại nhé.</span>
+          </div>
+          <figure className="editorial-hero-portrait" data-reveal>
+            <img src={editorialAsset('hero-portrait.webp')} alt={'Chân dung ' + owner + ' trong lễ phục tốt nghiệp'} fetchPriority="high" />
+            <span className="editorial-sticker">I DID IT!</span>
+            <figcaption><span>Một phiên bản mới của mình.</span><b>{date.year}</b></figcaption>
+          </figure>
         </section>
 
-        <section className="editorial-memory-section"><div className="editorial-section-label">01 / NHỮNG NGÀY RỰC RỠ</div><h2>Từ một giấc mơ<span>…</span></h2><p className="editorial-lead">…đến những ngày thật rực rỡ.</p><div className="editorial-route"><div><img src={editorialAsset('gallery-1.webp')} alt="Kỷ niệm những ngày đầu" /><b>2022</b><small>Những ngày đầu tiên</small></div><div><img src={editorialAsset('gallery-2.webp')} alt="Bạn bè trên giảng đường" /><b>2024</b><small>Những người bạn tuyệt vời</small></div><div><img src={editorialAsset('gallery-3.webp')} alt="Ngày tốt nghiệp" /><b>2026</b><small>Và tớ ở đây, sẵn sàng!</small></div></div></section>
+        <section id={chapterId('memories')} className="editorial-memory-section" data-editorial-chapter tabIndex={-1} aria-labelledby={prefix + '-memories-title'}>
+          <div className="editorial-section-label">01 / NHỮNG NGÀY RỰC RỠ</div>
+          <div data-reveal><h2 id={prefix + '-memories-title'}>Từ một giấc mơ<span>…</span></h2><p className="editorial-lead">…đến những ngày mình sẽ nhớ mãi.</p></div>
+          <div className="editorial-route">
+            {milestones.map(milestone => <figure key={milestone.year} data-reveal>
+              <img src={editorialAsset(milestone.image)} alt={milestone.text} loading="lazy" />
+              <figcaption><b>{milestone.year}</b><span>{milestone.text}</span></figcaption>
+            </figure>)}
+          </div>
+          <p className="editorial-chapter-bridge">Và trong những ngày ấy, thật may vì có bạn. <span aria-hidden="true">↓</span></p>
+        </section>
 
-        <section className="editorial-letter-section"><div className="editorial-section-label">02 / LÁ THƯ GỬI BẠN</div><div className="editorial-letter-grid"><div><p className="editorial-hand">Gửi bạn<br />thân mến,</p>{editorialContent.story.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}<p className="editorial-signature">Mai Hoa ♡</p></div><img src={editorialAsset('story-portrait.webp')} alt="Mai Hoa trong ngày tốt nghiệp" /></div></section>
+        <section id={chapterId('letter')} className="editorial-letter-section" data-editorial-chapter tabIndex={-1} aria-labelledby={prefix + '-letter-title'}>
+          <div className="editorial-section-label">02 / LÁ THƯ GỬI BẠN</div>
+          <div className="editorial-letter-grid">
+            <div className="editorial-letter-copy" data-reveal>
+              <h2 id={prefix + '-letter-title'} className="editorial-hand">Gửi bạn<br />thân mến,</h2>
+              <p className="editorial-personal-guest">{invitation.guestName}</p>
+              {editorialContent.story.map(paragraph => <p key={paragraph}>{paragraph}</p>)}
+              {invitation.invitationNote && <p className="editorial-personal-note">{invitation.invitationNote}</p>}
+              <p className="editorial-signature">{owner} <span aria-hidden="true">♡</span></p>
+            </div>
+            <figure data-reveal><img src={editorialAsset('story-portrait.webp')} alt={owner + ' lưu lại kỷ niệm tốt nghiệp'} loading="lazy" /><figcaption>Mang theo thật nhiều điều đẹp đẽ.</figcaption></figure>
+          </div>
+        </section>
 
-        <section className="editorial-ticket-section"><div className="editorial-ticket"><div className="editorial-ticket-stub">GRADUATION<br />EVENT<br />2026</div><div className="editorial-ticket-main"><div className="editorial-section-label">03 / LỜI MỜI</div><h2>HẸN NHA!</h2><div className="editorial-ticket-details"><div><span>NGÀY</span><strong>28.09.2026</strong></div><div><span>THỜI GIAN</span><strong>{date.time}</strong></div><div><span>ĐỊA ĐIỂM</span><strong>{event.venueName || 'Hội trường A2'}</strong></div></div>{mapUrl && <a className="editorial-ticket-button" href={mapUrl} target="_blank" rel="noopener noreferrer">Xem đường đi ↗</a>}</div><div className="editorial-ticket-barcode" aria-hidden="true">||||||||</div></div></section>
+        <section id={chapterId('ticket')} className="editorial-ticket-section" data-editorial-chapter tabIndex={-1} aria-labelledby={prefix + '-ticket-title'}>
+          <div className="editorial-section-label">03 / TẤM VÉ HẸN NHAU</div>
+          <div className="editorial-ticket" data-reveal>
+            <div className="editorial-ticket-stub"><span>GRADUATION<br />DAY</span><b>{date.year}</b><span>YOU'RE<br />INVITED</span></div>
+            <div className="editorial-ticket-main">
+              <h2 id={prefix + '-ticket-title'}>HẸN NHA!</h2>
+              <p className="editorial-ticket-title">{event.title}</p>
+              <dl className="editorial-ticket-details">
+                <div><dt>Ngày gặp nhau</dt><dd><time dateTime={event.eventDate}>{String(date.day).padStart(2, '0')}.{String(date.month).padStart(2, '0')}.{date.year}</time></dd><span>{date.weekday}</span></div>
+                <div><dt>Thời gian</dt><dd>{date.time}</dd><span>Giờ Việt Nam</span></div>
+                <div className="editorial-ticket-venue"><dt>Địa điểm</dt><dd>{event.venueName || 'Địa điểm sẽ được cập nhật'}</dd>{event.venueAddress && <span>{event.venueAddress}</span>}</div>
+              </dl>
+              <div className="editorial-ticket-actions">
+                {mapUrl && <a className="editorial-ticket-button" href={mapUrl} target="_blank" rel="noopener noreferrer">Xem đường đi <span aria-hidden="true">↗</span></a>}
+                <a className="editorial-text-link" href={'#' + chapterId('rsvp')} data-story-link>Gửi lời hồi đáp <span aria-hidden="true">↓</span></a>
+              </div>
+            </div>
+            <div className="editorial-ticket-barcode" aria-hidden="true" />
+          </div>
+        </section>
 
-        <section className="editorial-gallery-intro"><div className="editorial-section-label">04 / NHỮNG KHOẢNH KHẮC ĐÁNG NHỚ</div><h2>Mình đã có<br /><em>những ngày như thế.</em></h2><Gallery photos={editorialContent.gallery} /></section>
+        <section id={chapterId('gallery')} className="editorial-gallery-intro" data-editorial-chapter tabIndex={-1} aria-labelledby={prefix + '-gallery-title'}>
+          <div className="editorial-section-label">04 / NHỮNG KHOẢNH KHẮC Ở LẠI</div>
+          <div className="editorial-gallery-heading" data-reveal><h2 id={prefix + '-gallery-title'}>Mình đã có<br /><em>những ngày như thế.</em></h2><p>Chạm vào từng tấm ảnh<br />để xem trọn một kỷ niệm <span aria-hidden="true">↗</span></p></div>
+          <Gallery photos={editorialContent.gallery} />
+          <p className="editorial-chapter-bridge">Tấm ảnh tiếp theo, mình mong có bạn ở bên. <span aria-hidden="true">↓</span></p>
+        </section>
 
-        <section className="editorial-rsvp-section"><div className="editorial-section-label">05 / HỒI ĐÁP CÙNG MÌNH</div><div className="editorial-rsvp-layout"><div><h2>Bạn sẽ<br />có mặt chứ?</h2><p>Cùng gặp nhau ở chương mới nhé!</p></div>{mode === 'preview' ? <MockRsvpForm guestName={invitation.guestName} /> : props.responseArea}</div></section>
+        <section id={chapterId('rsvp')} className="editorial-rsvp-section" data-editorial-chapter tabIndex={-1} aria-labelledby={prefix + '-rsvp-title'}>
+          <div className="editorial-section-label">05 / HỒI ĐÁP CÙNG MÌNH</div>
+          <div className="editorial-rsvp-layout">
+            <div className="editorial-rsvp-intro" data-reveal><span className="editorial-rsvp-star" aria-hidden="true">✳</span><h2 id={prefix + '-rsvp-title'}>Bạn sẽ<br />có mặt chứ?</h2><p>Một lời hồi đáp nhỏ,<br />một niềm vui thật lớn.</p><span className="editorial-rsvp-signature">Mong gặp bạn ở đó!</span></div>
+            <div className="editorial-rsvp-panel">
+              {props.mode === 'preview' ? <MockRsvpForm guestName={invitation.guestName} /> : props.responseArea}
+            </div>
+          </div>
+        </section>
 
-        <section className="editorial-thank-you"><img src={editorialAsset('thank-you-banner.webp')} alt="Các bạn tốt nghiệp tung mũ" /><div><p className="editorial-section-label">06 / CẢM ƠN</p><h2>Hẹn ở<br />chương mới.</h2><p>Cảm ơn vì đã là một phần thanh xuân của mình.</p></div></section>
-        <footer className="editorial-footer">MAI HOA · CLASS OF 2026 · LƯU GIỮ NHỮNG NGÀY RỰC RỠ</footer>
-      </main>
+        <section id={chapterId('thanks')} className="editorial-thank-you" data-editorial-chapter tabIndex={-1} aria-labelledby={prefix + '-thanks-title'}>
+          <img src={editorialAsset('thank-you-banner.webp')} alt={owner + ' trong khuôn viên trường'} loading="lazy" />
+          <div className="editorial-thank-you-copy" data-reveal><p className="editorial-section-label">06 / VÀ MỘT KHỞI ĐẦU MỚI</p><h2 id={prefix + '-thanks-title'}>Hẹn ở<br />chương mới.</h2><p>Cảm ơn vì đã là một phần<br />thanh xuân của mình.</p><span className="editorial-signature">{owner}</span></div>
+        </section>
+        <footer className="editorial-footer">{owner} · CLASS OF {date.year} <span>Những ngày rực rỡ còn ở phía trước.</span></footer>
+      </EditorialMotion>
     </div>
   );
 }
