@@ -33,25 +33,45 @@ async function settled(page) {
 }
 
 try {
-  for (const width of [1440, 768, 390, 320]) {
+  for (const width of [390, 320, 430, 620, 768, 1440]) {
     const page = await browser.newPage({ viewport: { width, height: 900 } });
     await enter(page);
     await settled(page);
     const layout = await page.locator('.editorial-hero').evaluate(hero => {
-      const heading = hero.querySelector('h1');
-      const range = document.createRange();
-      range.selectNodeContents(heading);
-      const photo = hero.querySelector('img').getBoundingClientRect();
-      const overlap = [...range.getClientRects()].some(rect =>
-        rect.right > photo.left && rect.left < photo.right && rect.bottom > photo.top && rect.top < photo.bottom);
-      return { overlap, overflow: document.documentElement.scrollWidth > window.innerWidth };
+      const heading = hero.querySelector('h1').getBoundingClientRect();
+      const letters = [...hero.querySelectorAll('h1 span')].map(node => node.getBoundingClientRect());
+      const year = hero.querySelector('.editorial-hero-year').getBoundingClientRect();
+      const image = hero.querySelector('.editorial-hero-portrait img');
+      const photo = image.getBoundingClientRect();
+      const imageStyle = getComputedStyle(image);
+      const scale = imageStyle.objectFit === 'contain'
+        ? Math.min(photo.width / image.naturalWidth, photo.height / image.naturalHeight)
+        : Math.max(photo.width / image.naturalWidth, photo.height / image.naturalHeight);
+      const alignment = parseFloat(imageStyle.objectPosition.split(' ')[1]) / 100;
+      const portraitTop = photo.top + Math.max(0, photo.height - image.naturalHeight * scale) * alignment;
+      const bounds = hero.getBoundingClientRect();
+      return {
+        besideHeading: portraitTop <= heading.top + heading.height / 3 && photo.bottom > heading.top
+          && photo.left + photo.width / 2 > heading.left + heading.width / 2,
+        textOverlap: letters.some(rect => rect.right > year.left && rect.left < year.right
+          && rect.bottom > year.top && rect.top < year.bottom),
+        textClipped: [...letters, year].some(rect => rect.left < bounds.left - 1 || rect.right > bounds.right + 1),
+        overflow: document.documentElement.scrollWidth > window.innerWidth,
+      };
     });
-    assert.equal(layout.overlap, false, `Hero lettering overlaps portrait at ${width}px`);
+    assert.equal(layout.besideHeading, true, `Portrait must stay beside the title at ${width}px`);
+    assert.equal(layout.textOverlap, false, `The title must not overlap the year at ${width}px`);
+    assert.equal(layout.textClipped, false, `Hero text must stay inside the page at ${width}px`);
     assert.equal(layout.overflow, false, `Horizontal overflow at ${width}px`);
     await page.screenshot({ path: `${output}/hero-${width}.png` });
 
     await page.getByRole('link', { name: /Mở câu chuyện/ }).click();
     await page.waitForFunction(() => document.activeElement?.matches('[data-editorial-chapter]'));
+    const memories = page.locator('.editorial-memory-section');
+    await memories.scrollIntoViewIfNeeded();
+    await memories.locator('img').evaluateAll(images => Promise.all(images.map(image => image.decode())));
+    await settled(page);
+    await memories.screenshot({ path: `${output}/memories-${width}.png` });
     await page.locator('.editorial-gallery-intro').scrollIntoViewIfNeeded();
     const photos = page.locator('.gallery-item img');
     for (const photo of await photos.all()) {
@@ -108,7 +128,7 @@ try {
       [...root.querySelectorAll('section')].some(section => getComputedStyle(section).opacity === '0')), false);
     await page.screenshot({ path: `${output}/full-${width}.png`, fullPage: true });
     await page.close();
-    console.log(`PASS ${width}px: geometry, gallery, keyboard and both preview responses`);
+    console.log(`PASS ${width}px: portrait alignment, separate title/year, gallery, keyboard and both preview responses`);
   }
 
   const reduced = await browser.newPage({ reducedMotion: 'reduce', viewport: { width: 390, height: 844 } });

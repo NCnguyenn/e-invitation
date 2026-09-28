@@ -55,6 +55,8 @@ export function GraduationEditorial01(props: TemplateProps) {
         </nav>
 
         <section className="editorial-hero" aria-label={event.title}>
+          <div className="editorial-hero-blush" aria-hidden="true" />
+          <div className="editorial-hero-year" aria-hidden="true">{date.year}</div>
           <div className="editorial-hero-copy" data-reveal>
             <span className="editorial-kicker">LỄ TỐT NGHIỆP · {owner}</span>
             <h1><span>THANH</span><span>XUÂN</span></h1>
@@ -64,9 +66,8 @@ export function GraduationEditorial01(props: TemplateProps) {
             <span className="editorial-scroll-hint"><span aria-hidden="true">↓</span> Chậm một chút, cùng nhìn lại nhé.</span>
           </div>
           <figure className="editorial-hero-portrait" data-reveal>
-            <img src={editorialAsset('hero-portrait.webp')} alt={'Chân dung ' + owner + ' trong lễ phục tốt nghiệp'} fetchPriority="high" />
+            <img src={editorialAsset('hero-cutout.webp')} alt={'Chân dung ' + owner + ' trong lễ phục tốt nghiệp'} width={1024} height={1536} fetchPriority="high" />
             <span className="editorial-sticker">I DID IT!</span>
-            <figcaption><span>Một phiên bản mới của mình.</span><b>{date.year}</b></figcaption>
           </figure>
         </section>
 
@@ -74,6 +75,12 @@ export function GraduationEditorial01(props: TemplateProps) {
           <div className="editorial-section-label">01 / NHỮNG NGÀY RỰC RỠ</div>
           <div data-reveal><h2 id={prefix + '-memories-title'}>Từ một giấc mơ<span>…</span></h2><p className="editorial-lead">…đến những ngày mình sẽ nhớ mãi.</p></div>
           <div className="editorial-route">
+            <svg className="editorial-route-thread" viewBox="0 0 1000 360" aria-hidden="true">
+              <path d="M-80 370 C-15 330 22 309 60 305 C170 298 250 125 417 265 C555 262 630 278 773 215 C880 184 955 136 1080 85" />
+              <circle cx="60" cy="305" r="8" />
+              <circle cx="417" cy="265" r="8" />
+              <circle cx="773" cy="215" r="8" />
+            </svg>
             {milestones.map(milestone => <figure key={milestone.year} data-reveal>
               <img src={editorialAsset(milestone.image)} alt={milestone.text} loading="lazy" />
               <figcaption><b>{milestone.year}</b><span>{milestone.text}</span></figcaption>
