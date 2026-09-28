@@ -26,6 +26,25 @@ try {
       const apiRequests = [];
       const errors = [];
       page.on('pageerror', error => errors.push(error.message));
+      const isAsset = url => /\.(js|css|woff2?|webp|png|jpe?g)(\?|$)/.test(url);
+      page.on('requestfailed', request => {
+        const errorText = request.failure()?.errorText;
+        if (isAsset(request.url()) && errorText !== 'net::ERR_ABORTED') {
+          errors.push(`Asset failed: ${request.url()} (${errorText})`);
+        }
+      });
+      page.on('response', response => {
+        if (response.status() >= 400 && isAsset(response.url())) errors.push(`Asset HTTP ${response.status()}: ${response.url()}`);
+      });
+      if (process.env.TEST_NETLIFY_ATTRIBUTION === '1') {
+        // Reproduce the exact extra text node observed in Netlify's HTML response.
+        await page.route(`${base}/demo/**`, async route => {
+          const response = await route.fetch();
+          const body = (await response.text()).replace(/(<meta charset="utf-8"\s*\/?\s*>)/i,
+            '$1\n<!-- This site is hosted on Netlify. Anyone can build and deploy a site like this one for free: https://netlify.new/ -->');
+          await route.fulfill({ response, body });
+        });
+      }
       page.on('request', request => {
         if (new URL(request.url()).pathname.startsWith('/api/')) apiRequests.push(request.url());
       });

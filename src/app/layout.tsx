@@ -14,6 +14,20 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             __html: `
               (function() {
                 try {
+                  // Netlify prepends a newline to its hosting comment. Remove only
+                  // that extra text node before hydration; preserve the comment.
+                  if (typeof NodeFilter !== 'undefined') {
+                    var comments = document.createTreeWalker(document.head, NodeFilter.SHOW_COMMENT);
+                    var comment;
+                    while ((comment = comments.nextNode())) {
+                      if (comment.textContent.trim().startsWith('This site is hosted on Netlify.')) {
+                        var spacer = comment.previousSibling;
+                        if (spacer && spacer.nodeType === Node.TEXT_NODE && !spacer.textContent.trim()) {
+                          spacer.remove();
+                        }
+                      }
+                    }
+                  }
                   var origSetAttr = Element.prototype.setAttribute;
                   Element.prototype.setAttribute = function(name, val) {
                     if (name === 'bis_skin_checked') return;
