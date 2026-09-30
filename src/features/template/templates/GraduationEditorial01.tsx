@@ -35,7 +35,7 @@ export function GraduationEditorial01(props: TemplateProps) {
         {props.mode === 'preview'
           ? props.previewContext === 'host'
             ? <HostAudioPreviewControl hasMusic={event.hasMusic} sourceKey={props.musicVersion} />
-            : <DemoAudioControl sampleUrl="/audio/graduation-sample.mp3" />
+            : <DemoAudioControl sampleUrl="/mb3/mono.mp3" />
           : props.audioControl}
       </div>
 
