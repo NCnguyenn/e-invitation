@@ -3,7 +3,7 @@
 import { AudioPlayer } from './AudioPlayer';
 
 export function DemoAudioControl({
-  sampleUrl = '/mb3/mono.mp3',
+  sampleUrl = '/audio/graduation-sample.mp3',
 }: {
   sampleUrl?: string;
 }) {

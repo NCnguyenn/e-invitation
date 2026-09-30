@@ -35,7 +35,7 @@ export function AudioPlayer({
 
   const [playing, setPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const [cooldown, setCooldown] = useState(0);
 
   useEffect(() => {
@@ -61,7 +61,7 @@ export function AudioPlayer({
     }
     cachedSourceRef.current = null;
     setPlaying(false);
-    setError('');
+    setError(null);
   }, [sourceKey]);
 
   // Cooldown countdown timer for 429 rate limit
@@ -135,10 +135,25 @@ export function AudioPlayer({
     };
   }, [hasMusic, resolveSource, sourceKey]);
 
+  // If hasMusic becomes false, stop playback immediately and clean up
+  useEffect(() => {
+    if (!hasMusic) {
+      const element = audioRef.current;
+      if (element) {
+        element.pause();
+        element.removeAttribute('src');
+        element.load();
+      }
+      cachedSourceRef.current = null;
+      setPlaying(false);
+      setError(null);
+    }
+  }, [hasMusic]);
+
   // Auto-play when enabled and ready
   useEffect(() => {
     let cancelled = false;
-    if (autoPlay && hasMusic && resolveSource) {
+    if (autoPlay && hasMusic && (resolveSource || initialSource)) {
       const timer = setTimeout(() => {
         if (!cancelled && audioRef.current?.paused && !busyRef.current) {
           toggle();
@@ -149,25 +164,34 @@ export function AudioPlayer({
         clearTimeout(timer);
       };
     }
-  }, [autoPlay, hasMusic, resolveSource]);
+  }, [autoPlay, hasMusic, resolveSource, initialSource]);
 
   // Listen for invitation entrance "Xem thư mời" transition
   useEffect(() => {
     async function handlePlayEvent() {
       const element = audioRef.current;
       if (!element || !hasMusic) return;
+      setError(null);
       if (initialSource && !element.getAttribute('src')) {
         element.src = initialSource;
         cachedSourceRef.current = { url: initialSource, expiresAtMs: Date.now() + 86400 * 1000 };
       }
-      if (element.paused) {
-        try {
-          element.volume = 1.0;
-          await element.play();
-        } catch {
-          if (!busyRef.current) {
-            toggle();
+      const currentSrc = element.getAttribute('src');
+      if (currentSrc) {
+        if (element.paused) {
+          try {
+            element.volume = 1.0;
+            await element.play();
+            setError(null);
+          } catch {
+            if (!busyRef.current) {
+              toggle();
+            }
           }
+        }
+      } else {
+        if (!busyRef.current) {
+          toggle();
         }
       }
     }
@@ -186,20 +210,6 @@ export function AudioPlayer({
       return;
     }
 
-    // Fast-path: If source is already attached to audio element, play directly
-    const currentSrc = element.getAttribute('src');
-    if (currentSrc) {
-      try {
-        element.volume = 1.0;
-        await element.play();
-      } catch (err: unknown) {
-        if (err instanceof Error && err.name !== 'AbortError') {
-          console.warn('Playback error:', err);
-        }
-      }
-      return;
-    }
-
     // Rate limited cooldown guard
     if (cooldown > 0) {
       setError(`Bạn đã yêu cầu phát nhạc quá nhiều lần. Vui lòng thử lại sau ${cooldown} giây.`);
@@ -208,44 +218,51 @@ export function AudioPlayer({
 
     busyRef.current = true;
     setLoading(true);
-    setError('');
+    setError(null);
 
     try {
       const now = Date.now();
       const cached = cachedSourceRef.current;
-      const isCachedValid = cached && cached.expiresAtMs - now > 60_000; // 1-minute safety margin
-
       let currentSrc = element.getAttribute('src');
+      const isInitial = Boolean(initialSource && currentSrc === initialSource);
+      const isCachedValid = isInitial || Boolean(cached && cached.expiresAtMs - now > 60_000); // 1-minute safety margin
 
       if (!currentSrc || !isCachedValid) {
-        if (!resolveSource) {
+        if (initialSource) {
+          currentSrc = initialSource;
+          element.src = initialSource;
+          cachedSourceRef.current = { url: initialSource, expiresAtMs: now + 86400 * 1000 };
+        } else if (resolveSource) {
+          const result = await resolveSource();
+          let url: string;
+          let expiresAtMs: number;
+
+          if (typeof result === 'string') {
+            url = result;
+            expiresAtMs = now + 3600 * 1000;
+          } else {
+            url = result.signedUrl;
+            if (result.expiresAt) {
+              expiresAtMs = new Date(result.expiresAt).getTime();
+              if (!Number.isFinite(expiresAtMs)) expiresAtMs = now + 3600 * 1000;
+            } else if (result.expiresIn) {
+              expiresAtMs = now + result.expiresIn * 1000;
+            } else {
+              expiresAtMs = now + 3600 * 1000;
+            }
+          }
+
+          cachedSourceRef.current = { url, expiresAtMs };
+          element.src = url;
+          currentSrc = url;
+        } else {
           throw new Error('Chưa có nguồn nhạc.');
         }
-        const result = await resolveSource();
-        let url: string;
-        let expiresAtMs: number;
-
-        if (typeof result === 'string') {
-          url = result;
-          expiresAtMs = now + 3600 * 1000;
-        } else {
-          url = result.signedUrl;
-          if (result.expiresAt) {
-            expiresAtMs = new Date(result.expiresAt).getTime();
-            if (!Number.isFinite(expiresAtMs)) expiresAtMs = now + 3600 * 1000;
-          } else if (result.expiresIn) {
-            expiresAtMs = now + result.expiresIn * 1000;
-          } else {
-            expiresAtMs = now + 3600 * 1000;
-          }
-        }
-
-        cachedSourceRef.current = { url, expiresAtMs };
-        element.src = url;
-        currentSrc = url;
       }
 
+      element.volume = 1.0;
       await element.play();
+      setError(null);
     } catch (err: unknown) {
       if (!isMountedRef.current) return;
 
@@ -266,9 +283,11 @@ export function AudioPlayer({
           setError('Trình duyệt yêu cầu tương tác để phát nhạc. Vui lòng bấm vào đĩa than để phát.');
         }
       } else {
-        element.removeAttribute('src');
-        element.load();
-        cachedSourceRef.current = null;
+        if (!initialSource) {
+          element.removeAttribute('src');
+          element.load();
+          cachedSourceRef.current = null;
+        }
         setError(err instanceof Error ? err.message : 'Chưa phát được nhạc. Bạn có thể thử lại.');
       }
     } finally {
@@ -281,8 +300,14 @@ export function AudioPlayer({
 
   function handleMediaError() {
     if (!isMountedRef.current) return;
+    const element = audioRef.current;
+    if (!element || !element.getAttribute('src')) return;
     setPlaying(false);
     cachedSourceRef.current = null;
+    if (!initialSource) {
+      element.removeAttribute('src');
+      element.load();
+    }
     setError('Chưa phát được nhạc. Bạn có thể thử lại.');
   }
 
@@ -304,7 +329,10 @@ export function AudioPlayer({
         loop
         preload="auto"
         onPlay={() => {
-          if (isMountedRef.current) setPlaying(true);
+          if (isMountedRef.current) {
+            setPlaying(true);
+            setError(null);
+          }
         }}
         onPause={() => {
           if (isMountedRef.current) setPlaying(false);

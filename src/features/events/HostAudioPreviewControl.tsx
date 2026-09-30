@@ -10,36 +10,32 @@ export function HostAudioPreviewControl({
   sourceKey?: string | number;
 }) {
   async function resolveSource() {
-    if (!hasMusic) {
-      return '/mb3/mono.mp3';
-    }
-    try {
-      const res = await fetch('/api/host/audio/preview', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+    const res = await fetch('/api/host/audio/preview', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-      const body = await res.json().catch(() => ({}));
-      if (res.ok && body.signedUrl) {
-        return {
-          signedUrl: body.signedUrl,
-          expiresIn: body.expiresIn,
-        };
-      }
-    } catch {
-      // Fallback below
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(body.message || 'Không thể tạo liên kết nghe thử.');
     }
 
-    return '/mb3/mono.mp3';
+    if (!body.signedUrl) {
+      throw new Error('Không nhận được liên kết nghe thử.');
+    }
+
+    return {
+      signedUrl: body.signedUrl,
+      expiresIn: body.expiresIn,
+    };
   }
 
   return (
     <AudioPlayer
-      resolveSource={resolveSource}
-      hasMusic={true}
-      initialSource="/mb3/mono.mp3"
+      resolveSource={hasMusic ? resolveSource : undefined}
+      hasMusic={hasMusic}
       sourceKey={sourceKey}
     />
   );

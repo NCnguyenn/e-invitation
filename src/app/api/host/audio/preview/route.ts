@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { AuthRequiredError, AuthServiceError, requireHost } from '@/features/auth/server';
 import { previewHostAudio } from '@/features/events/server';
 import { isAllowedMutationOrigin } from '@/lib/origin';
@@ -9,7 +9,7 @@ const headers = { 'Cache-Control': 'private, no-store' };
 function failure(error: unknown) {
   if (error instanceof AuthRequiredError) {
     return NextResponse.json(
-      { code: 'unauthorized', message: 'PhiÃªn Ä‘Äƒng nháº­p Ä‘Ã£ háº¿t háº¡n. Vui lÃ²ng Ä‘Äƒng nháº­p láº¡i.' },
+      { code: 'unauthorized', message: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.' },
       { status: 401, headers },
     );
   }
@@ -21,7 +21,7 @@ function failure(error: unknown) {
     );
   }
   return NextResponse.json(
-    { code: 'preview_error', message: 'KhÃ´ng thá»ƒ táº¡o liÃªn káº¿t nghe thá»­ lÃºc nÃ y. Vui lÃ²ng thá»­ láº¡i.' },
+    { code: 'preview_error', message: 'Không thể tạo liên kết nghe thử lúc này. Vui lòng thử lại.' },
     { status: 503, headers },
   );
 }
@@ -29,7 +29,7 @@ function failure(error: unknown) {
 export async function POST(request: Request) {
   if (!isAllowedMutationOrigin(request)) {
     return NextResponse.json(
-      { code: 'invalid_origin', message: 'YÃªu cáº§u khÃ´ng há»£p lá»‡.' },
+      { code: 'invalid_origin', message: 'Yêu cầu không hợp lệ.' },
       { status: 403, headers },
     );
   }
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
 
     if (!result) {
       return NextResponse.json(
-        { code: 'no_music', message: 'Sá»± kiá»‡n chÆ°a cÃ³ nháº¡c ná»n.' },
+        { code: 'no_music', message: 'Sự kiện chưa có nhạc nền.' },
         { status: 404, headers },
       );
     }

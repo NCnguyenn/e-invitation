@@ -31,7 +31,7 @@ export function WeddingFloral01(props: TemplateProps) {
           props.previewContext === 'host' ? (
             <HostAudioPreviewControl hasMusic={event.hasMusic} sourceKey={props.musicVersion} />
           ) : (
-            <DemoAudioControl sampleUrl="/mb3/mono.mp3" />
+            <DemoAudioControl sampleUrl="/audio/graduation-sample.mp3" />
           )
         ) : (
           props.audioControl

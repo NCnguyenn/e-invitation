@@ -81,7 +81,7 @@ export function InvitationEntrance({ guestName, invitationNote, eventTitle, memo
         window.scrollTo({ top: 0, behavior: 'instant' });
         contentRef.current?.focus({ preventScroll: true });
         const audio = contentRef.current?.querySelector('audio') || document.querySelector('audio');
-        if (audio && audio.paused) {
+        if (audio && (audio.src || audio.getAttribute('src')) && audio.paused) {
           audio.volume = 1.0;
           audio.play().catch(() => {});
         }
@@ -100,7 +100,7 @@ export function InvitationEntrance({ guestName, invitationNote, eventTitle, memo
       rememberInvitation(browserStorage(), memoryKey);
       dispatch('view');
       const audio = contentRef.current?.querySelector('audio') || document.querySelector('audio');
-      if (audio) {
+      if (audio && (audio.src || audio.getAttribute('src')) && audio.paused) {
         audio.volume = 1.0;
         audio.play().catch(() => {});
       }

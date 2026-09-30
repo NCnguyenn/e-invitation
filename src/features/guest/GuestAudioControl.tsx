@@ -88,7 +88,6 @@ export function GuestAudioControl({
     <AudioPlayer
       resolveSource={hasMusic ? resolveSource : undefined}
       hasMusic={hasMusic}
-      autoPlay={true}
     />
   );
 }
