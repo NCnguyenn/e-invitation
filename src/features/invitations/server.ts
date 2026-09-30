@@ -34,11 +34,11 @@ export async function createHostInvitation(userId: string, input: InvitationCrea
   // Authenticated clients cannot insert invitations. Ownership is checked here before the service-role write.
   const admin = createAdminSupabaseClient();
   const event = await admin.from('events').select('id, lifecycle_status').eq('user_id', userId).maybeSingle();
-  if (event.error) throw new InvitationServiceError();
+  if (event.error) { console.error('[invitations] event read failed', event.error); throw new InvitationServiceError(); }
   if (!event.data || event.data.lifecycle_status !== 'active') return { kind: 'no_event' };
   const eventId = event.data.id;
   const profile = await admin.from('profiles').select('role, lifecycle_status').eq('id', userId).maybeSingle();
-  if (profile.error) throw new InvitationServiceError();
+  if (profile.error) { console.error('[invitations] profile read failed', profile.error); throw new InvitationServiceError(); }
   if (profile.data?.role !== 'host' || profile.data.lifecycle_status !== 'active') return { kind: 'no_event' };
 
   const email = input.guestEmail.trim().toLowerCase();
@@ -53,7 +53,7 @@ export async function createHostInvitation(userId: string, input: InvitationCrea
   };
   const existing = async (): Promise<ExistingInvitation | null> => {
     const found = await admin.from('invitations').select('id, token').eq('event_id', eventId).eq('guest_email', email).maybeSingle();
-    if (found.error) throw new InvitationServiceError();
+    if (found.error) { console.error('[invitations] existing lookup failed', found.error); throw new InvitationServiceError(); }
     return found.data;
   };
   const insert = async (token: string) => admin.from('invitations').insert({ ...payload, token }).select('id, token').single();
@@ -67,7 +67,7 @@ export async function createHostInvitation(userId: string, input: InvitationCrea
       throw new InvitationServiceError();
     }
   }
-  if (written.error || !written.data) throw new InvitationServiceError();
+  if (written.error || !written.data) { console.error('[invitations] insert failed', written.error); throw new InvitationServiceError(); }
   return { kind: 'created', invitationId: written.data.id, token: written.data.token };
 }
 
@@ -105,14 +105,35 @@ function projectHostInvitation(row: {
   };
 }
 
+// Reconcile stale email sends at most once per host per window. The periodic
+// cleanup itself is now owned by the pg_cron job (expire_all_stale_email_sends);
+// this per-read throttle only keeps the dashboard view fresh without running the
+// RPC on every poll.
+const EXPIRE_THROTTLE_MS = 60_000;
+const lastExpiryByUser = new Map<string, number>();
+
+async function expireStaleEmailSendsThrottled(userId: string): Promise<void> {
+  const last = lastExpiryByUser.get(userId) ?? 0;
+  if (Date.now() - last < EXPIRE_THROTTLE_MS) return;
+  lastExpiryByUser.set(userId, Date.now());
+  try {
+    await expireStaleEmailSends(userId);
+  } catch (cause) {
+    // Do not fail the read if reconciliation fails — the cron job will retry.
+    console.error('[invitations] stale-send reconcile failed', cause);
+  }
+}
+
 export async function readHostInvitations(
   userId: string,
   options: HostInvitationsQuery,
 ): Promise<HostInvitationsListResponse | null> {
-  await expireStaleEmailSends(userId);
+  // Reconcile stale sends at most once per event-read window instead of on
+  // every poll — a scheduled pg_cron job now owns periodic cleanup.
+  await expireStaleEmailSendsThrottled(userId);
   const client = await createServerSupabaseClient();
   const event = await client.from('events').select('id, lifecycle_status').eq('user_id', userId).maybeSingle();
-  if (event.error) throw new InvitationServiceError();
+  if (event.error) { console.error('[invitations] event read failed', event.error); throw new InvitationServiceError(); }
   if (!event.data || event.data.lifecycle_status !== 'active') return null;
   const eventId = event.data.id;
 
@@ -142,20 +163,47 @@ export async function readHostInvitations(
   const from = (requestedPage - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
 
-  // Counts and page rows are independent. Run them concurrently, after stale
-  // email statuses have been reconciled above.
-  const [result, pendingCount, acceptedCount, declinedCount] = await Promise.all([
+  // Page rows and the per-status rollup are independent — run them together.
+  // The rollup uses a single GROUP BY RPC (service_role only); if the
+  // migration has not been applied yet, fall back to the three count queries.
+  const admin = createAdminSupabaseClient();
+  const [result, countsRpc] = await Promise.all([
     buildQuery().range(from, to),
-    client.from('invitations').select('id', { count: 'exact', head: true }).eq('event_id', eventId).eq('status', 'pending'),
-    client.from('invitations').select('id', { count: 'exact', head: true }).eq('event_id', eventId).eq('status', 'accepted'),
-    client.from('invitations').select('id', { count: 'exact', head: true }).eq('event_id', eventId).eq('status', 'declined'),
+    admin.rpc('invitations_status_counts', { p_event_id: eventId }),
   ]);
-  if (result.error || pendingCount.error || acceptedCount.error || declinedCount.error) {
+
+  let pending = 0;
+  let accepted = 0;
+  let declined = 0;
+  if (countsRpc.error) {
+    // RPC missing (42883 / PGRST202) means the migration has not run yet — fall back.
+    const isMissingFn = countsRpc.error.code === '42883' || countsRpc.error.code === 'PGRST202';
+    if (!isMissingFn) {
+      console.error('[invitations] status_counts rpc failed', countsRpc.error);
+    }
+    const [pendingCount, acceptedCount, declinedCount] = await Promise.all([
+      client.from('invitations').select('id', { count: 'exact', head: true }).eq('event_id', eventId).eq('status', 'pending'),
+      client.from('invitations').select('id', { count: 'exact', head: true }).eq('event_id', eventId).eq('status', 'accepted'),
+      client.from('invitations').select('id', { count: 'exact', head: true }).eq('event_id', eventId).eq('status', 'declined'),
+    ]);
+    if (pendingCount.error || acceptedCount.error || declinedCount.error) {
+      console.error('[invitations] status count fallback failed', { pending: pendingCount.error, accepted: acceptedCount.error, declined: declinedCount.error });
+      throw new InvitationServiceError();
+    }
+    pending = pendingCount.count ?? 0;
+    accepted = acceptedCount.count ?? 0;
+    declined = declinedCount.count ?? 0;
+  } else {
+    const counts = (countsRpc.data ?? {}) as { pending?: number; accepted?: number; declined?: number };
+    pending = counts.pending ?? 0;
+    accepted = counts.accepted ?? 0;
+    declined = counts.declined ?? 0;
+  }
+
+  if (result.error) {
+    console.error('[invitations] list read failed', result.error);
     throw new InvitationServiceError();
   }
-  const pending = pendingCount.count ?? 0;
-  const accepted = acceptedCount.count ?? 0;
-  const declined = declinedCount.count ?? 0;
   const totals: HostInvitationTotals = { total: pending + accepted + declined, pending, accepted, declined };
 
   const filteredTotal = result.count ?? 0;
@@ -169,7 +217,7 @@ export async function readHostInvitations(
     const adjustedFrom = (finalPage - 1) * PAGE_SIZE;
     const adjustedTo = adjustedFrom + PAGE_SIZE - 1;
     const adjustedResult = await buildQuery().range(adjustedFrom, adjustedTo);
-    if (adjustedResult.error) throw new InvitationServiceError();
+    if (adjustedResult.error) { console.error('[invitations] adjusted page read failed', adjustedResult.error); throw new InvitationServiceError(); }
     rows = adjustedResult.data ?? [];
   }
 
@@ -197,7 +245,7 @@ export async function updateHostInvitation(
 
   const client = await createServerSupabaseClient();
   const event = await client.from('events').select('id, lifecycle_status').eq('user_id', userId).maybeSingle();
-  if (event.error) throw new InvitationServiceError();
+  if (event.error) { console.error('[invitations] event read failed', event.error); throw new InvitationServiceError(); }
   if (!event.data || event.data.lifecycle_status !== 'active') return { kind: 'not_found' };
   const eventId = event.data.id;
 
@@ -228,6 +276,7 @@ export async function updateHostInvitation(
     if (error.code === '42501') {
       return { kind: 'locked' };
     }
+    console.error('[invitations] update failed', error);
     throw new InvitationServiceError();
   }
 
@@ -242,7 +291,7 @@ export async function updateHostInvitation(
     .eq('event_id', eventId)
     .maybeSingle();
 
-  if (existing.error) throw new InvitationServiceError();
+  if (existing.error) { console.error('[invitations] existing read failed', existing.error); throw new InvitationServiceError(); }
   if (!existing.data) {
     return { kind: 'not_found' };
   }

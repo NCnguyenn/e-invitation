@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { GuestServiceError, submitRsvpOnce } from '@/features/guest/server';
+import { submitRsvpOnce } from '@/features/guest/server';
 import { isAllowedMutationOrigin } from '@/lib/origin';
 import { parseRsvpSubmission, ValidationError } from '@/lib/validation';
 
@@ -8,7 +8,7 @@ const headers = { 'Cache-Control': 'private, no-store', 'Referrer-Policy': 'no-r
 
 function failure(error: unknown) {
   if (error instanceof ValidationError) return NextResponse.json({ code: 'invalid_input', message: error.message }, { status: 422, headers });
-  if (error instanceof GuestServiceError) return NextResponse.json({ code: 'guest_error', message: 'Không thể lưu phản hồi lúc này. Vui lòng thử lại.' }, { status: 503, headers });
+  console.error('[api/guest/rsvp] submitRsvpOnce failed', error);
   return NextResponse.json({ code: 'guest_error', message: 'Không thể lưu phản hồi lúc này. Vui lòng thử lại.' }, { status: 503, headers });
 }
 

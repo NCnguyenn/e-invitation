@@ -10,21 +10,34 @@ export async function fetchInternalActivityMetrics(): Promise<InternalActivityMe
   const supabase = createAdminSupabaseClient();
   const budgetDate = vietnamBudgetDate();
 
-  const hosts = await supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'host');
-  const events = await supabase.from('events').select('*', { count: 'exact', head: true });
-  const invitations = await supabase.from('invitations').select('*', { count: 'exact', head: true });
-  const accepted = await supabase.from('invitations').select('*', { count: 'exact', head: true }).eq('status', 'accepted');
-  const declined = await supabase.from('invitations').select('*', { count: 'exact', head: true }).eq('status', 'declined');
-  const pending = await supabase.from('invitations').select('*', { count: 'exact', head: true }).eq('status', 'pending');
-  const counter = await supabase.from('email_daily_counters').select('reserved_attempts').eq('budget_date', budgetDate).maybeSingle();
-  const acceptedAttempts = await supabase.from('email_send_attempts').select('*', { count: 'exact', head: true }).eq('budget_date', budgetDate).eq('status', 'accepted');
-  const rejectedAttempts = await supabase.from('email_send_attempts').select('*', { count: 'exact', head: true }).eq('budget_date', budgetDate).eq('status', 'rejected');
-  const unknownAttempts = await supabase
-    .from('email_send_attempts')
-    .select('*', { count: 'exact', head: true })
-    .eq('budget_date', budgetDate)
-    .eq('status', 'unknown')
-    .is('resolved_at', null);
+  const [
+    hosts,
+    events,
+    invitations,
+    accepted,
+    declined,
+    pending,
+    counter,
+    acceptedAttempts,
+    rejectedAttempts,
+    unknownAttempts,
+  ] = await Promise.all([
+    supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'host'),
+    supabase.from('events').select('*', { count: 'exact', head: true }),
+    supabase.from('invitations').select('*', { count: 'exact', head: true }),
+    supabase.from('invitations').select('*', { count: 'exact', head: true }).eq('status', 'accepted'),
+    supabase.from('invitations').select('*', { count: 'exact', head: true }).eq('status', 'declined'),
+    supabase.from('invitations').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+    supabase.from('email_daily_counters').select('reserved_attempts').eq('budget_date', budgetDate).maybeSingle(),
+    supabase.from('email_send_attempts').select('*', { count: 'exact', head: true }).eq('budget_date', budgetDate).eq('status', 'accepted'),
+    supabase.from('email_send_attempts').select('*', { count: 'exact', head: true }).eq('budget_date', budgetDate).eq('status', 'rejected'),
+    supabase
+      .from('email_send_attempts')
+      .select('*', { count: 'exact', head: true })
+      .eq('budget_date', budgetDate)
+      .eq('status', 'unknown')
+      .is('resolved_at', null),
+  ]);
 
   const reserved = counter.error
     ? null

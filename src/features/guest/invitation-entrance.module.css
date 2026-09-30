@@ -113,14 +113,14 @@
 .progress span { height: 7px; width: 7px; border-radius: 50%; background: #d2cec5; transition: background 250ms; }
 .progress span[data-active='true'] { background: var(--ink); }
 .entrance[data-stage='leaving'] .layout { animation: leave 220ms ease both; }
-.content { outline: none; animation: arrive 360ms ease both; }
+.content { outline: none; animation: arrive 360ms ease; }
 .content[hidden] { display: none; }
 .replayBar { display: flex; justify-content: center; background: #102039; padding: 9px 16px; }
 .replayBar button { display: inline-flex; align-items: center; gap: 8px; font: 11px/1.5 'Be Vietnam Pro', sans-serif; color: #eee5d2; border: 0; background: transparent; cursor: pointer; padding: 6px 12px; }
 .replayBar svg { width: 15px; }
 .noScript { text-align: center; padding: 24px; }
 @keyframes leave { to { opacity: 0; transform: translateY(-8px) scale(1.012); } }
-@keyframes arrive { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes arrive { from { opacity: 0; } to { opacity: 1; } }
 
 @media (max-width: 600px) {
   .entrance { padding: 38px 24px 28px; }

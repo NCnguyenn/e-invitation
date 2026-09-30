@@ -15,6 +15,20 @@ export class DeveloperForbiddenError extends Error {
   }
 }
 
+/**
+ * Raised when the developer session/profile lookup fails due to an
+ * infrastructure problem (database/network), not a genuine "not signed in".
+ * Surfacing it as a 5xx prevents a transient DB outage from looking like a
+ * logged-out session. Callers that only check the null return value will let
+ * this propagate to the route's error boundary / a 500 — which is correct.
+ */
+export class DeveloperServiceError extends Error {
+  constructor() {
+    super('Admin authentication service unavailable');
+    this.name = 'DeveloperServiceError';
+  }
+}
+
 export interface VerifiedDeveloper {
   userId: string;
   email: string;
@@ -34,7 +48,13 @@ export async function getVerifiedDeveloper(): Promise<VerifiedDeveloper | null> 
       .eq('id', authData.user.id)
       .maybeSingle();
 
-    if (profileError || !profile) {
+    // A profile lookup failure after a successful auth lookup is an
+    // infrastructure problem, not a signed-out session.
+    if (profileError) {
+      console.error('[admin-auth] profile lookup failed', profileError);
+      throw new DeveloperServiceError();
+    }
+    if (!profile) {
       return null;
     }
 
@@ -46,8 +66,10 @@ export async function getVerifiedDeveloper(): Promise<VerifiedDeveloper | null> 
       userId: authData.user.id,
       email: authData.user.email ?? '',
     };
-  } catch {
-    return null;
+  } catch (cause) {
+    if (cause instanceof DeveloperServiceError) throw cause;
+    console.error('[admin-auth] getVerifiedDeveloper failed', cause);
+    throw new DeveloperServiceError();
   }
 }
 

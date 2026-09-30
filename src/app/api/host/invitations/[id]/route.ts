@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { AuthRequiredError, requireHost } from '@/features/auth/server';
+import { AuthRequiredError, AuthServiceError, requireHost } from '@/features/auth/server';
 import { updateHostInvitation, InvitationServiceError } from '@/features/invitations/server';
 import { isAllowedMutationOrigin } from '@/lib/origin';
 import { parseInvitationUpdate, ValidationError } from '@/lib/validation';
@@ -16,6 +16,13 @@ function failure(error: unknown) {
     return NextResponse.json(
       { code: 'unauthorized', message: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.' },
       { status: 401, headers },
+    );
+  }
+  if (error instanceof AuthServiceError) {
+    console.error('[api] auth service unavailable', error);
+    return NextResponse.json(
+      { code: 'auth_unavailable', message: 'Dịch vụ xác thực tạm thời gián đoạn. Vui lòng thử lại sau.' },
+      { status: 503, headers },
     );
   }
   if (error instanceof ValidationError) {

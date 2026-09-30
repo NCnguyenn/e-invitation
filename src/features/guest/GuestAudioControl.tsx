@@ -1,6 +1,41 @@
 'use client';
 
-import { AudioPlayer, AudioRateLimitError } from '@/features/template/AudioPlayer';
+import { AudioPlayer, AudioRateLimitError, type AudioSourceResult } from '@/features/template/AudioPlayer';
+
+// Persist the signed URL per invitation token so a page reload within the
+// token's session does not burn another rate-limited request slot.
+function cacheKey(token: string) {
+  return `guest-audio-src:${token}`;
+}
+
+function readCachedSource(token: string): AudioSourceResult | null {
+  try {
+    const raw = sessionStorage.getItem(cacheKey(token));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { signedUrl?: string; expiresAt?: string };
+    if (!parsed.signedUrl) return null;
+    // Keep a 60s safety margin before the signed URL actually expires.
+    const expiresAtMs = parsed.expiresAt ? new Date(parsed.expiresAt).getTime() : 0;
+    if (Number.isFinite(expiresAtMs) && expiresAtMs - Date.now() > 60_000) {
+      return { signedUrl: parsed.signedUrl, expiresAt: parsed.expiresAt };
+    }
+  } catch {
+    // sessionStorage unavailable or malformed entry — fall through to fetch.
+  }
+  return null;
+}
+
+function writeCachedSource(token: string, source: AudioSourceResult) {
+  try {
+    if (typeof source === 'string') return;
+    sessionStorage.setItem(
+      cacheKey(token),
+      JSON.stringify({ signedUrl: source.signedUrl, expiresAt: source.expiresAt }),
+    );
+  } catch {
+    // Ignore storage failures (private mode, quota, etc.).
+  }
+}
 
 export function GuestAudioControl({
   token,
@@ -10,6 +45,9 @@ export function GuestAudioControl({
   hasMusic: boolean;
 }) {
   async function resolveSource() {
+    const cached = readCachedSource(token);
+    if (cached) return cached;
+
     const response = await fetch(`/api/guest/${encodeURIComponent(token)}/audio`, {
       method: 'POST',
       headers: {
@@ -37,17 +75,20 @@ export function GuestAudioControl({
       throw new Error('Không nhận được liên kết nhạc từ máy chủ.');
     }
 
-    return {
+    const result: AudioSourceResult = {
       signedUrl: body.signedUrl,
       expiresAt: body.expiresAt,
       expiresIn: body.expiresIn,
     };
+    writeCachedSource(token, result);
+    return result;
   }
 
   return (
     <AudioPlayer
       resolveSource={hasMusic ? resolveSource : undefined}
       hasMusic={hasMusic}
+      autoPlay={true}
     />
   );
 }

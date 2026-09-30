@@ -39,12 +39,12 @@ export const readGuestInvitation = cache(async function readGuestInvitation(toke
   const { data, error } = await admin.from('invitations').select(
     'guest_name, invitation_note, status, guest_message, responded_at, events!inner(id, user_id, title, template_key, event_date, venue_name, venue_address, google_map_url, music_path, lifecycle_status)',
   ).eq('token', token).maybeSingle();
-  if (error) throw new GuestServiceError();
+  if (error) { console.error('[guest] invitation read failed', error); throw new GuestServiceError(); }
   const row = data as InvitationEmbed | null;
   const event = one(row?.events);
   if (!row || !event) return null;
   const profile = await admin.from('profiles').select('role, lifecycle_status').eq('id', event.user_id).maybeSingle();
-  if (profile.error) throw new GuestServiceError();
+  if (profile.error) { console.error('[guest] profile read failed', profile.error); throw new GuestServiceError(); }
   try {
     return projectGuestInvitation({
       guestName: row.guest_name,
@@ -61,7 +61,7 @@ export const readGuestInvitation = cache(async function readGuestInvitation(toke
       host: profile.data ? { role: profile.data.role, lifecycleStatus: profile.data.lifecycle_status } : null,
     } satisfies GuestInvitationSource);
   } catch (cause) {
-    if (cause instanceof InconsistentInvitationError) throw new GuestServiceError();
+    if (cause instanceof InconsistentInvitationError) { console.error('[guest] inconsistent invitation', cause); throw new GuestServiceError(); }
     throw cause;
   }
 });
@@ -76,6 +76,7 @@ export async function submitRsvpOnce(token: string, decision: RsvpDecision, gues
   });
   if (error) {
     if (error.code === '22023') throw new ValidationError('Phản hồi không hợp lệ.');
+    console.error('[guest] submit_rsvp_once rpc failed', error);
     throw new GuestServiceError();
   }
   const row = (data ?? {}) as { kind?: string; status?: string; guest_message?: string | null; responded_at?: string };
@@ -103,6 +104,7 @@ export async function requestGuestAudioUrl(token: string): Promise<GuestAudioRes
 
   if (error) {
     if (error.code === '22023') return { kind: 'not_found' };
+    console.error('[guest] consume_audio_request_slot rpc failed', error);
     throw new GuestServiceError();
   }
 
@@ -127,6 +129,7 @@ export async function requestGuestAudioUrl(token: string): Promise<GuestAudioRes
       .createSignedUrl(row.music_path, 3600);
 
     if (signError || !signed?.signedUrl) {
+      console.error('[guest] createSignedUrl failed', signError);
       throw new GuestServiceError();
     }
 

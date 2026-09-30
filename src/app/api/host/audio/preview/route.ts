@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import { AuthRequiredError, requireHost } from '@/features/auth/server';
+﻿import { NextResponse } from 'next/server';
+import { AuthRequiredError, AuthServiceError, requireHost } from '@/features/auth/server';
 import { previewHostAudio } from '@/features/events/server';
 import { isAllowedMutationOrigin } from '@/lib/origin';
 
@@ -9,12 +9,19 @@ const headers = { 'Cache-Control': 'private, no-store' };
 function failure(error: unknown) {
   if (error instanceof AuthRequiredError) {
     return NextResponse.json(
-      { code: 'unauthorized', message: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.' },
+      { code: 'unauthorized', message: 'PhiÃªn Ä‘Äƒng nháº­p Ä‘Ã£ háº¿t háº¡n. Vui lÃ²ng Ä‘Äƒng nháº­p láº¡i.' },
       { status: 401, headers },
     );
   }
+  if (error instanceof AuthServiceError) {
+    console.error('[api] auth service unavailable', error);
+    return NextResponse.json(
+      { code: 'auth_unavailable', message: 'Dịch vụ xác thực tạm thời gián đoạn. Vui lòng thử lại sau.' },
+      { status: 503, headers },
+    );
+  }
   return NextResponse.json(
-    { code: 'preview_error', message: 'Không thể tạo liên kết nghe thử lúc này. Vui lòng thử lại.' },
+    { code: 'preview_error', message: 'KhÃ´ng thá»ƒ táº¡o liÃªn káº¿t nghe thá»­ lÃºc nÃ y. Vui lÃ²ng thá»­ láº¡i.' },
     { status: 503, headers },
   );
 }
@@ -22,7 +29,7 @@ function failure(error: unknown) {
 export async function POST(request: Request) {
   if (!isAllowedMutationOrigin(request)) {
     return NextResponse.json(
-      { code: 'invalid_origin', message: 'Yêu cầu không hợp lệ.' },
+      { code: 'invalid_origin', message: 'YÃªu cáº§u khÃ´ng há»£p lá»‡.' },
       { status: 403, headers },
     );
   }
@@ -33,7 +40,7 @@ export async function POST(request: Request) {
 
     if (!result) {
       return NextResponse.json(
-        { code: 'no_music', message: 'Sự kiện chưa có nhạc nền.' },
+        { code: 'no_music', message: 'Sá»± kiá»‡n chÆ°a cÃ³ nháº¡c ná»n.' },
         { status: 404, headers },
       );
     }

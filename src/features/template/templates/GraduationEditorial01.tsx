@@ -1,5 +1,5 @@
 import { useId } from 'react';
-import { AudioPlayer } from '../AudioPlayer';
+import { DemoAudioControl } from '../DemoAudioControl';
 import { HostAudioPreviewControl } from '@/features/events/HostAudioPreviewControl';
 import { Gallery } from '../Gallery';
 import { MockRsvpForm } from '../MockRsvpForm';
@@ -31,18 +31,19 @@ export function GraduationEditorial01(props: TemplateProps) {
 
   return (
     <div className="invitation-template graduation-editorial-template">
+      <div className="editorial-audio-control">
+        {props.mode === 'preview'
+          ? props.previewContext === 'host'
+            ? <HostAudioPreviewControl hasMusic={event.hasMusic} sourceKey={props.musicVersion} />
+            : <DemoAudioControl sampleUrl="/mb3/mono.mp3" />
+          : props.audioControl}
+      </div>
+
       <EditorialMotion className="editorial-container">
         {props.mode === 'preview' && <aside className="editorial-preview-notice">Bản xem trước · Phản hồi thử không được lưu</aside>}
         <header className="editorial-topbar">
           <span>{owner} / {date.year}</span>
           <span className="editorial-topbar-note">Một lời mời, một chương mới.</span>
-          <div className="editorial-audio-control">
-            {props.mode === 'preview'
-              ? props.previewContext === 'host' || props.previewContext === 'designer'
-                ? <HostAudioPreviewControl hasMusic={event.hasMusic} sourceKey={props.musicVersion} />
-                : <AudioPlayer hasMusic={false} />
-              : props.audioControl}
-          </div>
         </header>
 
         <nav className="editorial-chapter-nav" aria-label="Các chương của thiệp">

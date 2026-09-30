@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { AuthRequiredError, requireHost } from '@/features/auth/server';
+import { AuthRequiredError, AuthServiceError, requireHost } from '@/features/auth/server';
 import { createHostInvitation, readHostInvitations, InvitationServiceError } from '@/features/invitations/server';
 import { isAllowedMutationOrigin } from '@/lib/origin';
 import { isInvitationToken, parseHostInvitationsQuery, parseInvitationCreate, ValidationError } from '@/lib/validation';
@@ -9,6 +9,7 @@ const headers = { 'Cache-Control': 'private, no-store', 'Referrer-Policy': 'no-r
 
 function failure(error: unknown) {
   if (error instanceof AuthRequiredError) return NextResponse.json({ code: 'unauthorized', message: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.' }, { status: 401, headers });
+  if (error instanceof AuthServiceError) { console.error('[api] auth service unavailable', error); return NextResponse.json({ code: 'auth_unavailable', message: 'Dịch vụ xác thực tạm thời gián đoạn. Vui lòng thử lại sau.' }, { status: 503, headers }); }
   if (error instanceof ValidationError) return NextResponse.json({ code: 'invalid_input', message: error.message }, { status: 422, headers });
   return NextResponse.json({ code: 'invitation_error', message: 'Không thể xử lý yêu cầu lúc này. Vui lòng thử lại.' }, { status: 503, headers });
 }

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { GuestServiceError, readGuestInvitation } from '@/features/guest/server';
+import { readGuestInvitation } from '@/features/guest/server';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -12,7 +12,7 @@ export async function GET(_request: Request, context: { params: Promise<{ token:
     if (!invitation) return NextResponse.json({ code: 'not_found', message: 'Không tìm thấy thư mời.' }, { status: 404, headers });
     return NextResponse.json({ invitation }, { headers });
   } catch (error) {
-    if (error instanceof GuestServiceError) return NextResponse.json({ code: 'guest_error', message: 'Không thể tải thư mời lúc này. Vui lòng thử lại.' }, { status: 503, headers });
+    console.error('[api/guest] readGuestInvitation failed', error);
     return NextResponse.json({ code: 'guest_error', message: 'Không thể tải thư mời lúc này. Vui lòng thử lại.' }, { status: 503, headers });
   }
 }

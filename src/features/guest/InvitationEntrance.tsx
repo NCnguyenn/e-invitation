@@ -80,6 +80,12 @@ export function InvitationEntrance({ guestName, invitationNote, eventTitle, memo
       if (previous === 'leaving') {
         window.scrollTo({ top: 0, behavior: 'instant' });
         contentRef.current?.focus({ preventScroll: true });
+        const audio = contentRef.current?.querySelector('audio') || document.querySelector('audio');
+        if (audio && audio.paused) {
+          audio.volume = 1.0;
+          audio.play().catch(() => {});
+        }
+        try { window.dispatchEvent(new CustomEvent('invitation:play-audio')); } catch {}
       }
     }
     if (stage === 'closed' && previous === 'invitation') {
@@ -93,6 +99,12 @@ export function InvitationEntrance({ guestName, invitationNote, eventTitle, memo
     if (stage === 'opened') {
       rememberInvitation(browserStorage(), memoryKey);
       dispatch('view');
+      const audio = contentRef.current?.querySelector('audio') || document.querySelector('audio');
+      if (audio) {
+        audio.volume = 1.0;
+        audio.play().catch(() => {});
+      }
+      try { window.dispatchEvent(new CustomEvent('invitation:play-audio')); } catch {}
     }
   }
 
@@ -153,12 +165,14 @@ export function InvitationEntrance({ guestName, invitationNote, eventTitle, memo
       <noscript><p className={styles.noScript}>Vui lòng bật JavaScript để mở thư mời và gửi phản hồi.</p></noscript>
     </section>}
 
-    {(stage === 'invitation' || hasEntered) && <div ref={contentRef} className={styles.content} hidden={stage !== 'invitation'} tabIndex={-1} aria-label="Nội dung thư mời" onPlayCapture={event => {
-      // A pending audio request may finish after replay has hidden its controls.
-      if (stage !== 'invitation' && event.target instanceof HTMLMediaElement) event.target.pause();
+    <div ref={contentRef} className={styles.content} hidden={stage !== 'invitation'} tabIndex={-1} aria-label="Nội dung thư mời" onPlayCapture={event => {
+      // Only pause if the invitation has been closed or replayed back to the closed envelope
+      if (stage === 'closed' && event.target instanceof HTMLMediaElement) {
+        event.target.pause();
+      }
     }}>
       <div className={styles.replayBar}><button type="button" onClick={replay}><MailIcon /> Xem lại phong thư</button></div>
       {children}
-    </div>}
+    </div>
   </>;
 }

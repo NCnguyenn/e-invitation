@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import { AuthRequiredError, requireHost } from '@/features/auth/server';
+﻿import { NextResponse } from 'next/server';
+import { AuthRequiredError, AuthServiceError, requireHost } from '@/features/auth/server';
 import { isAllowedMutationOrigin } from '@/lib/origin';
 import { ValidationError } from '@/lib/validation';
 import {
@@ -18,8 +18,15 @@ const USER_AGENT =
 function failure(error: unknown) {
   if (error instanceof AuthRequiredError) {
     return NextResponse.json(
-      { code: 'unauthorized', message: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.' },
+      { code: 'unauthorized', message: 'PhiÃªn Ä‘Äƒng nháº­p Ä‘Ã£ háº¿t háº¡n. Vui lÃ²ng Ä‘Äƒng nháº­p láº¡i.' },
       { status: 401, headers }
+    );
+  }
+  if (error instanceof AuthServiceError) {
+    console.error('[api] auth service unavailable', error);
+    return NextResponse.json(
+      { code: 'auth_unavailable', message: 'Dịch vụ xác thực tạm thời gián đoạn. Vui lòng thử lại sau.' },
+      { status: 503, headers },
     );
   }
   if (error instanceof ValidationError) {
@@ -37,7 +44,7 @@ function failure(error: unknown) {
   return NextResponse.json(
     {
       code: 'location_error',
-      message: error instanceof Error ? error.message : 'Không thể xử lý thông tin địa điểm.',
+      message: error instanceof Error ? error.message : 'KhÃ´ng thá»ƒ xá»­ lÃ½ thÃ´ng tin Ä‘á»‹a Ä‘iá»ƒm.',
     },
     { status: 500, headers }
   );
@@ -120,7 +127,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   if (!isAllowedMutationOrigin(request)) {
     return NextResponse.json(
-      { code: 'invalid_origin', message: 'Yêu cầu không hợp lệ.' },
+      { code: 'invalid_origin', message: 'YÃªu cáº§u khÃ´ng há»£p lá»‡.' },
       { status: 403, headers }
     );
   }
@@ -131,16 +138,16 @@ export async function POST(request: Request) {
     try {
       body = await request.json();
     } catch {
-      throw new ValidationError('Dữ liệu yêu cầu không hợp lệ.');
+      throw new ValidationError('Dá»¯ liá»‡u yÃªu cáº§u khÃ´ng há»£p lá»‡.');
     }
 
     const url = typeof body.url === 'string' ? body.url.trim() : '';
     if (!url) {
-      throw new ValidationError('Vui lòng cung cấp liên kết Google Maps.');
+      throw new ValidationError('Vui lÃ²ng cung cáº¥p liÃªn káº¿t Google Maps.');
     }
 
     if (!isGoogleMapsUrl(url)) {
-      throw new ValidationError('Liên kết không phải là định dạng Google Maps hợp lệ.');
+      throw new ValidationError('LiÃªn káº¿t khÃ´ng pháº£i lÃ  Ä‘á»‹nh dáº¡ng Google Maps há»£p lá»‡.');
     }
 
     const resolved = await resolveGoogleMapsUrl(url);

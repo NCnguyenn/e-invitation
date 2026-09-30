@@ -1,4 +1,4 @@
-import { AudioPlayer } from '../AudioPlayer';
+import { DemoAudioControl } from '../DemoAudioControl';
 import { HostAudioPreviewControl } from '@/features/events/HostAudioPreviewControl';
 import { Countdown } from '../Countdown';
 import { Gallery } from '../Gallery';
@@ -28,10 +28,10 @@ export function WeddingFloral01(props: TemplateProps) {
       )}
       <div className="floating-controls">
         {props.mode === 'preview' ? (
-          isHostOrDesigner ? (
+          props.previewContext === 'host' ? (
             <HostAudioPreviewControl hasMusic={event.hasMusic} sourceKey={props.musicVersion} />
           ) : (
-            <AudioPlayer hasMusic={false} />
+            <DemoAudioControl sampleUrl="/mb3/mono.mp3" />
           )
         ) : (
           props.audioControl

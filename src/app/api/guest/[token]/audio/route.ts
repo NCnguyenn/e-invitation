@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { GuestServiceError, requestGuestAudioUrl } from '@/features/guest/server';
+import { requestGuestAudioUrl } from '@/features/guest/server';
 import { isAllowedMutationOrigin } from '@/lib/origin';
 import { isInvitationToken } from '@/lib/validation';
 
@@ -69,12 +69,7 @@ export async function POST(request: Request, context: { params: Promise<{ token:
       { status: 200, headers },
     );
   } catch (error) {
-    if (error instanceof GuestServiceError) {
-      return NextResponse.json(
-        { code: 'guest_error', message: 'Dịch vụ phát nhạc tạm thời gián đoạn. Vui lòng thử lại sau.' },
-        { status: 503, headers },
-      );
-    }
+    console.error('[api/guest/audio] requestGuestAudioUrl failed', error);
     return NextResponse.json(
       { code: 'guest_error', message: 'Dịch vụ phát nhạc tạm thời gián đoạn. Vui lòng thử lại sau.' },
       { status: 503, headers },

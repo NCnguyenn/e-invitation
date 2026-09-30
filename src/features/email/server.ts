@@ -151,7 +151,7 @@ export async function expireStaleEmailSends(userId: string): Promise<void> {
   if (!isUuid(userId)) return;
   const admin = createAdminSupabaseClient();
   const { error } = await admin.rpc('expire_stale_email_sends', { p_actor_id: userId });
-  if (error) throw new EmailServiceError();
+  if (error) { console.error('[email] expire_stale_email_sends rpc failed', error); throw new EmailServiceError(); }
 }
 
 async function loadOwnedInvitation(userId: string, invitationId: string): Promise<{
@@ -164,18 +164,21 @@ async function loadOwnedInvitation(userId: string, invitationId: string): Promis
     .select('id, guest_name, guest_email, invitation_note, token, event_id')
     .eq('id', invitationId)
     .maybeSingle();
-  if (invitation.error) throw new EmailServiceError();
+  if (invitation.error) { console.error('[email] invitation lookup failed', invitation.error); throw new EmailServiceError(); }
   if (!invitation.data) return null;
-  const event = await admin
-    .from('events')
-    .select('id, user_id, title, event_date, timezone, venue_name, venue_address, lifecycle_status')
-    .eq('id', invitation.data.event_id)
-    .eq('user_id', userId)
-    .maybeSingle();
-  if (event.error) throw new EmailServiceError();
+  // Event and profile lookups are independent — run them concurrently.
+  const [event, profile] = await Promise.all([
+    admin
+      .from('events')
+      .select('id, user_id, title, event_date, timezone, venue_name, venue_address, lifecycle_status')
+      .eq('id', invitation.data.event_id)
+      .eq('user_id', userId)
+      .maybeSingle(),
+    admin.from('profiles').select('role, lifecycle_status').eq('id', userId).maybeSingle(),
+  ]);
+  if (event.error) { console.error('[email] event lookup failed', event.error); throw new EmailServiceError(); }
   if (!event.data || event.data.lifecycle_status !== 'active') return null;
-  const profile = await admin.from('profiles').select('role, lifecycle_status').eq('id', userId).maybeSingle();
-  if (profile.error) throw new EmailServiceError();
+  if (profile.error) { console.error('[email] profile lookup failed', profile.error); throw new EmailServiceError(); }
   if (profile.data?.role !== 'host' || profile.data.lifecycle_status !== 'active') return null;
   if (!isInvitationToken(invitation.data.token)) throw new EmailServiceError();
   return { invitation: invitation.data, event: event.data };
@@ -233,7 +236,7 @@ async function reserve(
     p_payload: snapshot,
     p_budget_date: budgetDate,
   });
-  if (error) throw new EmailServiceError();
+  if (error) { console.error('[email] reserve_email_send rpc failed', error); throw new EmailServiceError(); }
   return (data ?? {}) as ReserveRow;
 }
 
@@ -243,7 +246,7 @@ async function claim(userId: string, attemptId: string): Promise<{ claimed: bool
     p_actor_id: userId,
     p_attempt_id: attemptId,
   });
-  if (error) throw new EmailServiceError();
+  if (error) { console.error('[email] claim_email_send rpc failed', error); throw new EmailServiceError(); }
   const row = (data ?? {}) as { kind?: string; attempt_status?: string };
   return { claimed: row.kind === 'claimed', status: row.attempt_status };
 }
@@ -256,7 +259,7 @@ async function loadSnapshot(userId: string, attemptId: string): Promise<Snapshot
     .eq('id', attemptId)
     .eq('actor_id', userId)
     .maybeSingle();
-  if (error) throw new EmailServiceError();
+  if (error) { console.error('[email] loadSnapshot failed', error); throw new EmailServiceError(); }
   return (data?.payload_snapshot as Snapshot | null) ?? null;
 }
 
@@ -275,7 +278,7 @@ async function finalize(
     p_message_id: messageId,
     p_error_code: errorCode,
   });
-  if (error) throw new EmailServiceError();
+  if (error) { console.error('[email] finalize_email_send rpc failed', error); throw new EmailServiceError(); }
 }
 
 function completed(status: EmailStatus, attemptId: string, invitePath: string): SendInvitationResult {

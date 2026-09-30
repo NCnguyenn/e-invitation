@@ -914,8 +914,23 @@
 .invitation-template {
   .preview-notice { width: 100%; max-width: 450px; padding: 12px 48px 12px 16px; color: #fff; background: #173a63; font-size: 12px; }
   .floating-controls { position: fixed; top: 12px; right: max(12px, calc(50% - 213px)); z-index: 100; }
-  .float-btn { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; border: 1px solid #c9a45d; background: #fff; color: #173a63; cursor: pointer; }
-  .float-btn:disabled { cursor: default; opacity: .65; }
+  .float-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    border: 1px solid #c9a45d;
+    background: #fff;
+    color: #173a63;
+    cursor: pointer;
+    transition: box-shadow .25s ease;
+    animation: spinVinyl 3.6s linear infinite;
+    animation-play-state: paused;
+  }
+  .float-btn[aria-pressed="true"], .float-btn.is-playing { animation-play-state: running; }
+  .float-btn[aria-pressed="false"]:not(.is-playing) { animation-play-state: paused; }
+  .float-btn:disabled { cursor: wait; opacity: .7; animation-play-state: paused; }
   .audio-error { position: absolute; right: 0; width: 220px; padding: 12px; background: #fff; box-shadow: var(--shadow-medium); border-radius: 10px; }
   .event-title { font-weight: 600; margin-bottom: 12px; }
   .invitation-note { white-space: pre-wrap; overflow-wrap: anywhere; margin: 12px 0; font-size: 14px; }
@@ -988,4 +1003,9 @@
 @keyframes fadeInRight {
   from { opacity: 0; transform: translateX(25px); }
   to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes spinVinyl {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }

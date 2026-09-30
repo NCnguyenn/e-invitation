@@ -33,7 +33,7 @@ function project(row: EventRow): HostEvent {
 export async function readHostEvent(userId: string): Promise<HostEvent | null> {
   const client = await createServerSupabaseClient();
   const { data, error } = await client.from('events').select(COLUMNS).eq('user_id', userId).maybeSingle();
-  if (error) throw new Error('Event read failed');
+  if (error) { console.error('[events] readHostEvent failed', error); throw new Error('Event read failed'); }
   return data ? project(data) : null;
 }
 
@@ -49,7 +49,7 @@ export async function updateHostEvent(userId: string, input: EventUpdate): Promi
     title: input.title, event_date: input.eventDate, venue_name: input.venueName,
     venue_address: input.venueAddress, google_map_url: input.googleMapUrl,
   }).eq('user_id', userId).select(COLUMNS).maybeSingle();
-  if (error) throw new Error('Event update failed');
+  if (error) { console.error('[events] updateHostEvent failed', error); throw new Error('Event update failed'); }
   return data ? project(data) : null;
 }
 
@@ -65,7 +65,7 @@ export async function prepareHostAudioUpload(
     .eq('lifecycle_status', 'active')
     .maybeSingle();
 
-  if (error) throw new Error('Không thể kiểm tra sự kiện.');
+  if (error) { console.error('[events] event check failed', error); throw new Error('Không thể kiểm tra sự kiện.'); }
   if (!event) return null;
 
   const profile = await admin.from('profiles').select('role, lifecycle_status').eq('id', userId).maybeSingle();
@@ -86,7 +86,7 @@ export async function finalizeHostAudio(userId: string): Promise<HostEvent | nul
     .eq('lifecycle_status', 'active')
     .maybeSingle();
 
-  if (readError) throw new Error('Không thể kiểm tra thông tin sự kiện.');
+  if (readError) { console.error('[events] finalize event read failed', readError); throw new Error('Không thể kiểm tra thông tin sự kiện.'); }
   if (!event) return null;
 
   const profile = await admin.from('profiles').select('role, lifecycle_status').eq('id', userId).maybeSingle();
@@ -99,6 +99,7 @@ export async function finalizeHostAudio(userId: string): Promise<HostEvent | nul
     .list(`${userId}/${event.id}`);
 
   if (listError) {
+    console.error('[events] storage list failed', listError);
     throw new Error('Không thể kiểm tra tệp âm thanh trong kho lưu trữ.');
   }
 
@@ -120,6 +121,7 @@ export async function finalizeHostAudio(userId: string): Promise<HostEvent | nul
     .maybeSingle();
 
   if (updateError || !updated) {
+    console.error('[events] finalize music_path update failed', updateError);
     throw new Error('Không thể lưu thông tin nhạc sự kiện.');
   }
 
@@ -137,7 +139,7 @@ export async function previewHostAudio(
     .eq('lifecycle_status', 'active')
     .maybeSingle();
 
-  if (error) throw new Error('Không thể kiểm tra sự kiện.');
+  if (error) { console.error('[events] event check failed', error); throw new Error('Không thể kiểm tra sự kiện.'); }
   if (!event || !event.music_path) return null;
 
   const profile = await admin.from('profiles').select('role, lifecycle_status').eq('id', userId).maybeSingle();
@@ -153,6 +155,7 @@ export async function previewHostAudio(
     .list(`${userId}/${event.id}`);
 
   if (listError) {
+    console.error('[events] storage list failed', listError);
     throw new Error('Không thể kiểm tra tệp âm thanh trong kho lưu trữ.');
   }
 
@@ -166,6 +169,7 @@ export async function previewHostAudio(
     .createSignedUrl(event.music_path, 3600);
 
   if (signError || !signed?.signedUrl) {
+    console.error('[events] createSignedUrl failed', signError);
     throw new Error('Không thể tạo liên kết nghe thử.');
   }
 
