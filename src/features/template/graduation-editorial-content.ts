@@ -2,14 +2,13 @@ const base = '/templates/graduation-editorial-01';
 export const editorialAsset = (file: string) => `${base}/${file}`;
 
 export const editorialContent = {
-  ownerName: 'Mai Hoa',
+  ownerName: 'Nguyễn Mai',
   gallery: [
     'Những ngày rực rỡ đầu tiên',
     'Bạn bè và những buổi chiều trên giảng đường',
     'Khoảnh khắc chạm tay vào ước mơ',
     'Sẵn sàng cho chương mới',
     'Một hành trình thật đẹp',
-    'Hẹn gặp nhau ở những ngày mai',
   ].map((caption, index) => ({
     src: editorialAsset(`gallery-${index + 1}.webp`),
     caption,

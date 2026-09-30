@@ -39,15 +39,15 @@ export default async function PreviewPage({ searchParams }: Props) {
   const invitation: GuestInvitation = ownEvent
     ? {
         event: { ...ownEvent, templateKey },
-        guestName: params.guestName || 'Bạn và Người thương',
+        guestName: params.guestName || 'Mời Bạn',
         invitationNote: 'Mong được gặp bạn trong ngày đặc biệt này!',
         status: 'pending',
         receipt: null,
       }
     : {
         ...previewInvitation,
-        guestName: params.guestName || previewInvitation.guestName,
-        event: { ...previewInvitation.event, templateKey },
+        guestName: params.guestName || 'Mời Bạn',
+        event: { ...previewInvitation.event, title: 'Lễ tốt nghiệp của Nguyễn Mai', templateKey },
       };
 
   return (

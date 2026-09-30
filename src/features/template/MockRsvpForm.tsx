@@ -14,7 +14,13 @@ export function MockRsvpForm({ guestName }: { guestName: string }) {
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!decision) {
-      setError('Hãy chọn tham gia hoặc từ chối trước khi gửi.');
+      setError('Vui lòng chọn xác nhận tham gia hoặc không thể tham gia trước khi gửi.');
+      return;
+    }
+    if (!guestMessage.trim()) {
+      setError('Vui lòng ghi thêm lời chúc mừng hoặc lời nhắn gửi đến chủ tiệc nhé!');
+      const el = document.getElementById('preview-guest-message');
+      el?.focus();
       return;
     }
     setError('');
@@ -89,17 +95,21 @@ export function MockRsvpForm({ guestName }: { guestName: string }) {
           </label>
         </div>
         <label className="form-label" htmlFor="preview-guest-message">
-          Ghi chú / lời nhắn
+          Ghi chú / lời nhắn <span className="rsvp-required" aria-hidden="true" style={{ color: '#c93b52', fontWeight: 700 }}>*</span>
         </label>
         <textarea
-          className="form-textarea"
+          className={`form-textarea ${error && !guestMessage.trim() ? 'has-error' : ''}`}
           id="preview-guest-message"
           maxLength={1000}
           rows={3}
           placeholder="Gửi lời chúc mừng hoặc lời nhắn đến chủ tiệc…"
           value={guestMessage}
-          onChange={(e) => setGuestMessage(e.target.value)}
+          onChange={(e) => {
+            setGuestMessage(e.target.value);
+            if (error) setError('');
+          }}
         />
+        {error && <p className="rsvp-error" role="alert">{error}</p>}
         <button
           className="btn-rsvp-submit"
           type="submit"
@@ -110,7 +120,6 @@ export function MockRsvpForm({ guestName }: { guestName: string }) {
           <span className="btn-arrow" aria-hidden="true">→</span>
         </button>
       </fieldset>
-      {error && <p className="rsvp-error" role="alert">{error}</p>}
     </form>
   );
 }

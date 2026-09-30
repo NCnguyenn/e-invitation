@@ -37,7 +37,13 @@ export function RsvpForm({ token, guestName }: { token: string; guestName: strin
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (sending.current) return;
-    if (!decision) { setError('Hãy chọn tham gia hoặc từ chối trước khi gửi.'); return; }
+    if (!decision) { setError('Vui lòng chọn xác nhận tham gia hoặc không thể tham gia trước khi gửi.'); return; }
+    if (!guestMessage.trim()) {
+      setError('Vui lòng ghi thêm lời chúc mừng hoặc lời nhắn gửi đến chủ tiệc nhé!');
+      const el = document.getElementById('rsvp-message');
+      el?.focus();
+      return;
+    }
     sending.current = true; setPending(true); setError('');
     try {
       const response = await fetch(`/api/guest/${encodeURIComponent(token)}/rsvp`, {
@@ -67,10 +73,23 @@ export function RsvpForm({ token, guestName }: { token: string; guestName: strin
         <label className="radio-card"><input type="radio" name="rsvp-decision" value="accepted" checked={decision === 'accepted'} onChange={() => setDecision('accepted')} />Tôi sẽ tham gia</label>
         <label className="radio-card"><input type="radio" name="rsvp-decision" value="declined" checked={decision === 'declined'} onChange={() => setDecision('declined')} />Tôi không thể tham gia</label>
       </div>
-      <label className="form-label" htmlFor="rsvp-message">Ghi chú / lời nhắn</label>
-      <textarea className="form-textarea" id="rsvp-message" maxLength={1000} rows={4} value={guestMessage} onChange={event => setGuestMessage(event.target.value)} />
+      <label className="form-label" htmlFor="rsvp-message">
+        Ghi chú / lời nhắn <span className="rsvp-required" aria-hidden="true" style={{ color: '#c93b52', fontWeight: 700 }}>*</span>
+      </label>
+      <textarea
+        className={`form-textarea ${error && !guestMessage.trim() ? 'has-error' : ''}`}
+        id="rsvp-message"
+        maxLength={1000}
+        rows={4}
+        placeholder="Gửi lời chúc mừng hoặc lời nhắn đến chủ tiệc…"
+        value={guestMessage}
+        onChange={event => {
+          setGuestMessage(event.target.value);
+          if (error) setError('');
+        }}
+      />
+      {error && <p className="rsvp-error" role="alert">{error}</p>}
       <button className="btn-rsvp-submit" type="submit" disabled={pending || !decision}>{pending ? 'Đang gửi…' : 'Gửi xác nhận'}</button>
     </fieldset>
-    {error && <p className="rsvp-error" role="alert">{error}</p>}
   </form>;
 }

@@ -16,3 +16,5 @@ test-results/
 coverage/
 supabase/.temp/
 screenshots/
+customer-photos/
+customer-photos-backup/
