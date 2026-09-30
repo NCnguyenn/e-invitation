@@ -133,11 +133,17 @@ export function GraduationEditorial01(props: TemplateProps) {
         </section>
 
         <section id={chapterId('rsvp')} className="editorial-rsvp-section" data-editorial-chapter tabIndex={-1} aria-labelledby={prefix + '-rsvp-title'}>
-          <div className="editorial-section-label">05 / HỒI ĐÁP CÙNG MÌNH</div>
+          <div className="editorial-rsvp-header">
+            <span className="editorial-section-label">06 / HỒI ĐÁP CÙNG MÌNH</span>
+            <div className="editorial-rsvp-header-line" aria-hidden="true" />
+            <span className="editorial-rsvp-progress-badge" aria-hidden="true">06 / 06</span>
+            <div className="editorial-rsvp-corner-line" aria-hidden="true" />
+          </div>
           <div className="editorial-rsvp-layout">
             <div className="editorial-rsvp-intro" data-reveal>
               <span className="editorial-rsvp-rail" aria-hidden="true">HỒI ĐÁP</span>
               <h2 id={prefix + '-rsvp-title'}>Bạn sẽ<br />có mặt chứ?</h2>
+              <div className="editorial-rsvp-coral-bar" aria-hidden="true" />
               <p>Một lời hồi đáp nhỏ,<br />một niềm vui thật lớn.</p>
               <span className="editorial-rsvp-signature">Mong gặp bạn ở đó!</span>
             </div>
@@ -146,7 +152,6 @@ export function GraduationEditorial01(props: TemplateProps) {
               {props.mode === 'preview' ? <MockRsvpForm guestName={invitation.guestName} /> : props.responseArea}
             </div>
           </div>
-          <span className="editorial-rsvp-progress" aria-hidden="true">06 / 06</span>
         </section>
 
         <section id={chapterId('thanks')} className="editorial-thank-you" data-editorial-chapter tabIndex={-1} aria-labelledby={prefix + '-thanks-title'}>

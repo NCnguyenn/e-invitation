@@ -65,7 +65,7 @@ export function MockRsvpForm({ guestName }: { guestName: string }) {
         Chế độ xem thử: Bạn có thể chọn và nhập thử lời chúc để kiểm tra giao diện.
       </p>
       <fieldset disabled={pending} className="preview-fields">
-        <legend className="sr-only">Phản hồi của khách mời</legend>
+        <legend className="form-legend">Phản hồi của khách mời</legend>
         <div className="radio-group">
           <label className="radio-card">
             <input
@@ -75,7 +75,7 @@ export function MockRsvpForm({ guestName }: { guestName: string }) {
               checked={decision === 'accepted'}
               onChange={() => setDecision('accepted')}
             />
-            Tôi sẽ tham gia
+            <span>Tôi sẽ tham gia</span>
           </label>
           <label className="radio-card">
             <input
@@ -85,7 +85,7 @@ export function MockRsvpForm({ guestName }: { guestName: string }) {
               checked={decision === 'declined'}
               onChange={() => setDecision('declined')}
             />
-            Tôi không thể tham gia
+            <span>Tôi không thể tham gia</span>
           </label>
         </div>
         <label className="form-label" htmlFor="preview-guest-message">
@@ -104,8 +104,10 @@ export function MockRsvpForm({ guestName }: { guestName: string }) {
           className="btn-rsvp-submit"
           type="submit"
           disabled={pending || !decision}
+          aria-label={pending ? 'Đang gửi…' : 'Gửi xác nhận (Xem trước)'}
         >
-          {pending ? 'Đang gửi…' : 'Gửi xác nhận (Xem trước)'}
+          <span>{pending ? 'Đang gửi…' : 'Gửi xác nhận'}</span>
+          <span className="btn-arrow" aria-hidden="true">→</span>
         </button>
       </fieldset>
       {error && <p className="rsvp-error" role="alert">{error}</p>}
