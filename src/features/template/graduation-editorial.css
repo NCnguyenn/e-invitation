@@ -384,9 +384,9 @@
   .editorial-rsvp-panel .btn-rsvp-reset { min-height: 44px; border: 1px solid #b88695; background: transparent; color: var(--editorial-ink); font-size: 12px; box-shadow: none; }
 
   /* RSVP editorial paper layout */
-  .editorial-rsvp-layout { grid-template-columns: minmax(0, .78fr) minmax(0, 1.22fr); gap: 44px; }
-  .editorial-rsvp-intro { position: relative; min-height: 360px; display: flex; flex-direction: column; justify-content: center; padding-left: 44px; }
-  .editorial-rsvp-intro h2 { max-width: 360px; font-size: clamp(42px, 6.3cqi, 64px); line-height: .98; margin: 0 0 24px; letter-spacing: -.06em; }
+  .editorial-rsvp-layout { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 36px; }
+  .editorial-rsvp-intro { position: relative; min-height: 360px; display: flex; flex-direction: column; justify-content: center; padding-left: 38px; }
+  .editorial-rsvp-intro h2 { max-width: none; font-size: clamp(36px, 5.4cqi, 56px); line-height: .98; margin: 0 0 24px; letter-spacing: -.07em; white-space: nowrap; }
   .editorial-rsvp-intro > p { font-size: 14px; line-height: 1.75; }
   .editorial-rsvp-signature { margin-top: 30px; font-size: 24px; }
   .editorial-rsvp-star { display: none; }
@@ -464,7 +464,7 @@
     .editorial-ticket-main { padding: 24px 18px; }
     .editorial-rsvp-layout { grid-template-columns: 1fr; gap: 26px; }
     .editorial-rsvp-intro { display: block; min-height: 0; padding: 8px 0 8px 38px; }
-    .editorial-rsvp-intro h2 { margin: 0 0 12px; font-size: 38px; }
+    .editorial-rsvp-intro h2 { margin: 0 0 12px; font-size: 38px; white-space: nowrap; }
     .editorial-rsvp-rail { top: 50%; }
     .editorial-rsvp-signature { display: none; }
     .editorial-rsvp-progress { display: none; }

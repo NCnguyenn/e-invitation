@@ -96,6 +96,7 @@ try {
     await rsvp.scrollIntoViewIfNeeded();
     assert.equal(await rsvp.locator('.editorial-rsvp-tab').textContent(), 'RSVP / 2025');
     assert.equal(await rsvp.locator('.editorial-rsvp-rail').count(), 1);
+    assert.equal(await rsvp.locator('h2').evaluate(node => getComputedStyle(node).whiteSpace), 'nowrap');
     const accept = rsvp.getByRole('radio', { name: 'Tôi sẽ tham gia', exact: true });
     const decline = rsvp.getByRole('radio', { name: 'Tôi không thể tham gia', exact: true });
     const submit = rsvp.getByRole('button', { name: 'Gửi xác nhận (Xem trước)', exact: true });
