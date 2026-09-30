@@ -12,7 +12,6 @@ export function EditorialMotion({ children, className }: { children: ReactNode; 
     const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
     const chapters = Array.from(root.querySelectorAll<HTMLElement>('[data-editorial-chapter]'));
     const links = Array.from(root.querySelectorAll<HTMLAnchorElement>('.editorial-chapter-nav a'));
-    const animations = new Set<Animation>();
     let observer: IntersectionObserver | undefined;
     let frame = 0;
 
@@ -36,19 +35,15 @@ export function EditorialMotion({ children, className }: { children: ReactNode; 
 
     function configureMotion() {
       observer?.disconnect();
-      animations.forEach(animation => animation.cancel());
-      animations.clear();
-      if (preference.matches || !('IntersectionObserver' in window) || typeof Element.prototype.animate !== 'function') return;
+      root!.classList.remove('editorial-motion-ready');
+      root!.querySelectorAll('.is-visible').forEach(element => element.classList.remove('is-visible'));
+      if (preference.matches || !('IntersectionObserver' in window)) return;
+      root!.classList.add('editorial-motion-ready');
       observer = new IntersectionObserver(entries => {
         entries.forEach(entry => {
           if (!entry.isIntersecting) return;
           observer?.unobserve(entry.target);
-          const animation = entry.target.animate([
-            { opacity: .15, transform: 'translateY(22px)' },
-            { opacity: 1, transform: 'translateY(0)' },
-          ], { duration: 650, easing: 'cubic-bezier(.2,.7,.25,1)' });
-          animations.add(animation);
-          animation.finished.then(() => animations.delete(animation), () => animations.delete(animation));
+          entry.target.classList.add('is-visible');
         });
       }, { threshold: .06, rootMargin: '0px 0px -24px 0px' });
       root?.querySelectorAll('[data-reveal], .gallery-item').forEach(element => observer?.observe(element));
@@ -62,7 +57,6 @@ export function EditorialMotion({ children, className }: { children: ReactNode; 
     window.addEventListener('resize', scheduleUpdate);
     return () => {
       observer?.disconnect();
-      animations.forEach(animation => animation.cancel());
       window.cancelAnimationFrame(frame);
       preference.removeEventListener('change', configureMotion);
       document.removeEventListener('scroll', scheduleUpdate, true);

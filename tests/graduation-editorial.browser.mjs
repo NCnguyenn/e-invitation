@@ -123,6 +123,8 @@ try {
     for (const section of await page.locator('[data-reveal]').all()) {
       await section.scrollIntoViewIfNeeded();
       await settled(page);
+      assert.equal(await section.evaluate(node => node.classList.contains('is-visible')), true,
+        'Scroll reveal items must receive the visible state after entering the viewport');
     }
     assert.equal(await page.locator('.editorial-container').evaluate(root =>
       [...root.querySelectorAll('section')].some(section => getComputedStyle(section).opacity === '0')), false);
