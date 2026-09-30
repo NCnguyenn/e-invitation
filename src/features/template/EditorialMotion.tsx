@@ -12,6 +12,7 @@ export function EditorialMotion({ children, className }: { children: ReactNode; 
     const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
     const chapters = Array.from(root.querySelectorAll<HTMLElement>('[data-editorial-chapter]'));
     const links = Array.from(root.querySelectorAll<HTMLAnchorElement>('.editorial-chapter-nav a'));
+    const hero = root.querySelector<HTMLElement>('.editorial-hero');
     let observer: IntersectionObserver | undefined;
     let frame = 0;
 
@@ -21,6 +22,12 @@ export function EditorialMotion({ children, className }: { children: ReactNode; 
       const bounds = root.getBoundingClientRect();
       const progress = Math.min(1, Math.max(0, -bounds.top / Math.max(1, bounds.height - window.innerHeight)));
       root.style.setProperty('--editorial-progress', String(progress));
+      if (hero) {
+        const heroBounds = hero.getBoundingClientRect();
+        const distanceFromCenter = (window.innerHeight * .5 - (heroBounds.top + heroBounds.height * .5)) / Math.max(1, window.innerHeight);
+        const drift = preference.matches ? 0 : Math.max(-1, Math.min(1, distanceFromCenter)) * 18;
+        root.style.setProperty('--editorial-hero-drift', `${drift.toFixed(2)}px`);
+      }
       const active = chapters.reduce((previous, chapter) =>
         chapter.getBoundingClientRect().top < window.innerHeight * .4 ? chapter : previous, chapters[0]);
       links.forEach(link => {

@@ -71,6 +71,8 @@ try {
     await memories.scrollIntoViewIfNeeded();
     await memories.locator('img').evaluateAll(images => Promise.all(images.map(image => image.decode())));
     await settled(page);
+    assert.equal(await memories.locator('.editorial-route').evaluate(node => node.classList.contains('is-visible')), true,
+      'The memory route should reveal as one moving chapter');
     await memories.screenshot({ path: `${output}/memories-${width}.png` });
     await page.locator('.editorial-gallery-intro').scrollIntoViewIfNeeded();
     const photos = page.locator('.gallery-item img');

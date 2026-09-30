@@ -75,9 +75,9 @@ export function GraduationEditorial01(props: TemplateProps) {
         <section id={chapterId('memories')} className="editorial-memory-section" data-editorial-chapter tabIndex={-1} aria-labelledby={prefix + '-memories-title'}>
           <div className="editorial-section-label">01 / NHỮNG NGÀY RỰC RỠ</div>
           <div data-reveal><h2 id={prefix + '-memories-title'}>Từ một giấc mơ<span>…</span></h2><p className="editorial-lead">…đến những ngày mình sẽ nhớ mãi.</p></div>
-          <div className="editorial-route">
+          <div className="editorial-route" data-reveal>
             <svg className="editorial-route-thread" viewBox="0 0 1000 360" aria-hidden="true">
-              <path d="M-80 370 C-15 330 22 309 60 305 C170 298 250 125 417 265 C555 262 630 278 773 215 C880 184 955 136 1080 85" />
+              <path pathLength={1} d="M-80 370 C-15 330 22 309 60 305 C170 298 250 125 417 265 C555 262 630 278 773 215 C880 184 955 136 1080 85" />
               <circle cx="60" cy="305" r="8" />
               <circle cx="417" cy="265" r="8" />
               <circle cx="773" cy="215" r="8" />
