@@ -6,7 +6,7 @@ export const asset = (file: string) => {
   return src;
 };
 export const content = {
-  ownerName: 'Mai Hoa', badge: 'GRADUATION', subtitle: 'Ceremony',
+  ownerName: 'Nguyễn Mai', badge: 'GRADUATION', subtitle: 'Ceremony',
   storyHeading: 'GIỮ LẠI THANH XUÂN ĐẸP NHẤT',
   story: [
     'Những năm tháng vừa qua đến với mình như một hành trình của tuổi trẻ, nơi có những ước mơ, những nỗ lực, những niềm vui và cả những lần trưởng thành sau mỗi trải nghiệm.',

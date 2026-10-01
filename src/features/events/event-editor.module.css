@@ -45,7 +45,7 @@ textarea.input { height: 78px; resize: vertical; }
 .previewCover :global(.preview-notice), .previewCover :global(.floating-controls) { display: none; }
 .previewCover :global(.invitation-template), .previewCover :global(.invitation-container) { min-width: 0; min-height: 0; background: #f8fafc; box-shadow: none; }
 .previewCover :global(.hero-section) { min-height: 550px; padding: 18px 12px 10px; }
-.previewCover :global(.hero-cap-icon) { width: 48px; margin-top: 0; }
+.previewCover :global(.hero-cap-icon) { width: 58px; margin-top: 0; }
 .previewCover :global(.hero-titles) { margin-bottom: 12px; }
 .previewCover :global(.hero-badge-title) { font-size: clamp(20px, 1.8vw, 28px); letter-spacing: 1px; }
 .previewCover :global(.hero-script-subtitle) { font-size: 27px; }
